@@ -1,4 +1,5 @@
 import discord
+import asyncio
 #import random
 #import user_class
 
@@ -6,7 +7,7 @@ from discord.ext import commands
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("."))
 
-msg = discord.User
+msg = discord.User  #TODO: quitar esto
 
 def is_me(msg):
     return msg.author == bot.user
@@ -18,6 +19,7 @@ def is_command(msg):
     return False
     
 
+
 @bot.event
 async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Game(name=".help"))
@@ -25,36 +27,76 @@ async def on_ready():
 @bot.event
 async def on_message(msg):
     if msg.content.startswith(".help"):
-        channel = msg.channel
-        await channel.send(
-            '''```css
-Commandos disponibles:
-    .help   
-    .prueba
-    .ntc "name" (new text channel at user's menssage category)   
-    .nvc "name" (new voice channel at current user category)   
-            ```''')
+        embed = discord.Embed(title="Comandos", color=0x00ecff)
+        embed.add_field(name="Comandos disponibles:", value='''
+            .help           //Enseña los comandos disponibles
+            .prueba         //
+            .ctc "name"     //create text channel en categoria donde está el usuario
+            .rtc            //remove text channel donde se envía el mensaje
+            .cvc "name"     //create voice channel en categoria donde está el usuario
+            .rvc            //remove voice channel en el que está el usuario
+            ''', inline=False)
+        await msg.channel.send(embed=embed)
 
     if msg.content.startswith(".prueba"):
         channel = msg.channel
         await channel.send("prueba")
+        return
 
-    if msg.content.startswith(".ntc"):
-        prefix, name = msg.content.split()
-        category = await msg.channel.category
+    if msg.content.startswith(".ctc"):
+        try:
+            prefix, name = msg.content.split()
+        except ValueError:
+            await msg.channel.send("Especifica: .ctc \"name\" ")
+        category = msg.channel.category
         await category.create_text_channel(name=name)
+        return
 
-    if msg.content.startswith(".nvc"):
-        prefix, name = msg.content.split()
+    if msg.content.startswith(".rtc"):
+        def confirm(reaction, user):
+            return str(reaction.emoji) == '✅' and msg.author == user
+        msg_conf = await msg.channel.send("¿Está seguro de que quiere borrar #{.channel.name}?\tSi: ✅\t No: ❌".format(msg))
+        await msg_conf.add_reaction("✅")
+        await msg_conf.add_reaction("❌")
+        try:
+            reaction, user = await bot.wait_for('reaction_add', timeout=10.0, check=confirm)
+        except asyncio.TimeoutError:
+            await msg_conf.delete()
+        else:
+            await msg.channel.delete()
+        return
+
+
+    if msg.content.startswith(".cvc"):
+        try:
+            prefix, name = msg.content.split()
+        except ValueError:
+            await msg.channel.send("Especifica: .cvc \"name\" ")
         channel = msg.author.voice.channel
         await channel.category.create_voice_channel(name=name)
+        return
+    
+    if msg.content.startswith(".rvc"):
+        def confirm(reaction, user):
+            return str(reaction.emoji) == '✅' and msg.author == user
+        msg_conf = await msg.channel.send("¿Está seguro de que quiere borrar #{.channel.name}? Si: ✅   No: ❌".format(msg))
+        await msg_conf.add_reaction("✅")
+        await msg_conf.add_reaction("❌")
+        try:
+            reaction, user = await bot.wait_for('reaction_add', timeout=10.0, check=confirm)
+        except asyncio.TimeoutError:
+            await msg_conf.delete()
+        else:
+            channel = msg.author.voice.channel
+            await msg_conf.delete()
+            await channel.delete()
+        return
 
-    if msg.content.startswith(""):
-        pass
+    
 
 
 
 token_file = open("token.txt", "r")
 token = token_file.read()
 token_file.close()
-bot.run(str(token))   # TODO: leer el token del archivo token.txt
+bot.run(str(token))
