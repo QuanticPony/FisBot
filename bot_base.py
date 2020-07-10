@@ -1,6 +1,6 @@
 import discord
 import asyncio
-#import random
+import random
 #import user_class
 
 from discord.ext import commands
@@ -27,20 +27,31 @@ async def on_ready():
 @bot.event
 async def on_message(msg):
     if msg.content.startswith(".help"):
-        embed = discord.Embed(title="Comandos", color=0x00ecff)
-        embed.add_field(name="Comandos disponibles:", value='''
-            .help           //Enseña los comandos disponibles
-            .prueba         //
-            .ctc "name"     //create text channel en categoria donde está el usuario
-            .rtc            //remove text channel donde se envía el mensaje
-            .cvc "name"     //create voice channel en categoria donde está el usuario
-            .rvc            //remove voice channel en el que está el usuario
-            ''', inline=False)
-        await msg.channel.send(embed=embed)
+        embed = discord.Embed(
+            title=".help", 
+            description="Estos son los comandos disponibles para {.author.mention}:".format(msg), 
+            color=0x00ecff)
 
-    if msg.content.startswith(".prueba"):
-        channel = msg.channel
-        await channel.send("prueba")
+        embed.add_field(name=".help", value="Enseña los comandos disponibles", inline=False)
+        embed.add_field(name=".ctc 'name'", value="create text channel en categoria donde se envía el mensaje", inline=False)
+        if msg.author.guild_permissions.administrator:
+            embed.add_field(name=".rtc", value="remove text channel donde se envía el mensaje", inline=False)
+        embed.add_field(name=".cvc 'name'", value="create voice channel en categoria donde está el usuario", inline=False)
+        if msg.author.guild_permissions.administrator:
+            embed.add_field(name=".rvc", value="remove voice channel en el que está el usuario", inline=False)
+        await msg.channel.send(embed=embed)
+        return
+
+    if msg.content.startswith(".jose") and msg.author.guild_permissions.administrator:
+        channel1 = msg.author.voice.channel
+        print(str(channel1.type))
+        channels = msg.author.voice.channel.category.channels
+        for channel2 in channels:
+            if channel2 != msg.author.voice.channel and str(channel2.type) == 'voice' and msg.author.id == 230323162414317568:
+                await msg.author.move_to(channel2)
+                await msg.author.move_to(channel1)
+                await msg.delete()
+                break
         return
 
     if msg.content.startswith(".ctc"):
@@ -52,10 +63,10 @@ async def on_message(msg):
         await category.create_text_channel(name=name)
         return
 
-    if msg.content.startswith(".rtc"):
+    if msg.content.startswith(".rtc") and msg.author.guild_permissions.administrator:
         def confirm(reaction, user):
             return str(reaction.emoji) == '✅' and msg.author == user
-        msg_conf = await msg.channel.send("¿Está seguro de que quiere borrar #{.channel.name}?\tSi: ✅\t No: ❌".format(msg))
+        msg_conf = await msg.channel.send("¿Está seguro de que quiere borrar {.channel.mention}?\tSi: ✅\t No: ❌".format(msg))
         await msg_conf.add_reaction("✅")
         await msg_conf.add_reaction("❌")
         try:
@@ -76,10 +87,10 @@ async def on_message(msg):
         await channel.category.create_voice_channel(name=name)
         return
     
-    if msg.content.startswith(".rvc"):
+    if msg.content.startswith(".rvc") and msg.author.Permissions.administrator:
         def confirm(reaction, user):
             return str(reaction.emoji) == '✅' and msg.author == user
-        msg_conf = await msg.channel.send("¿Está seguro de que quiere borrar #{.channel.name}? Si: ✅   No: ❌".format(msg))
+        msg_conf = await msg.channel.send("¿Está seguro de que quiere borrar {.channel.mention}? Si: ✅   No: ❌".format(msg.author.voice))
         await msg_conf.add_reaction("✅")
         await msg_conf.add_reaction("❌")
         try:
