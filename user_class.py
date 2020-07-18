@@ -1,44 +1,45 @@
 import discord
 import random
 
-class User(commands.Context):
-    '''Usuario o miembro del servidor de UNIZAR'''
-
-    async def __init__(self, user_id, file, dictionary):
-        self.name = name
+class FisUser(discord.User):
+    def __init__(self, *, state, data):
         self.karma = 0
         self.level = 0
         self.xp = 0
-        dictionary.setdefault(user_id, sum(1 for line in file))
-        file.seek(0,2)
-        file.write(str(self))
-       
-    
-    async def display(self, message):
-        embed = discord.Embed(title="{self.name}", description="Estas son tus estadísticas:\n'''css", color=0x18F309)
-        embed.add_field(name="Level", value="Nivel:{self.level}")
-        embed.add_field(name="xp", value="Experiencia:{self.xp}")
-        embed.add_field(name="karma", value="Karma:{self.karma}")
-        embed.set_footer(text="'''")
-        await message.send(embed=embed)
+        self.User = super().__init__()
+        return
 
 
-    
-    def addxp(self, file, dictionary):
-        xp = random.randint(1,10)
-        newxp = xp + self.xp
-        if newxp < self.level * 10:
-            self.xp = newxp 
-        else:
-            self.xp = newxp - self.xp * 10
-            self.level += 1
-
-    def addkarma(self, file, dictionary):
+    def addkarma(self):
         self.karma += 1
+        return
     
-    def rmkarma(self, file, dictionary):
-        self.karma -= 1
+    def xp_to_lvl_up(self) -> int:
+        return self.xp * 10
 
+    def addlevel(self):
+        self.level += 1
+        return
+
+    def setlevel(self, lvl):
+        self.level = lvl
+        return
+    
+    def setkarma(self, krm):
+        self.karma = krm
+        return
+    
+    def addxp(self, amount):
+        newxp = self.xp + amount
+        xp_required = xp_to_lvl_up(self)
+        if newxp >= xp_required:
+            addlevel(self)
+            self.xp = newxp - xp_required
+        else:
+            self.xp = newxp
+
+    def setxp(self, exp):
+        self.xp += exp
 
 
 

@@ -2,9 +2,9 @@ import discord
 import asyncio
 from discord.ext import commands
 
-from bot_base import bot
-from bot_base import songs
 from bot_base import play_next_song
+
+ID_ALBITA = 592426257170432001
 
 @bot.event
 async def on_ready():
@@ -12,6 +12,8 @@ async def on_ready():
 
 @bot.event
 async def on_message(msg):
+    if msg.author.id == ID_ALBITA:
+        msg.add_reaction("❤️")
     pass
 
 @bot.event
