@@ -7,8 +7,6 @@ class extensions_managment(commands.Cog):
     '''[Admin required] Conjunto de comandos que permite la manipulación de las extensiones del bot'''
     def __init__(self, bot):
         self.bot = bot
-        self.cogs = []
-        self.cogs.append('extensions_managment')
 
 
     @commands.command(pass_context=True, aliases=['sd'])
@@ -20,10 +18,12 @@ class extensions_managment(commands.Cog):
         '''Recarga el bot y actualiza los comandos'''
         if ctx.message.author.guild_permissions.administrator == False:
              return
-        for cog_name in self.cogs:
+        for cog_name in self.bot.cog_list:
+            if cog_name != 'extension_managment':
                 self.bot.reload_extension(cog_name)
-        self.bot.reload_extension('extension_managment')
         await ctx.message.add_reaction("🔄")
+        self.bot.reload_extension('extension_managment')
+        
 
 
     @commands.command(pass_context=True, aliases=['ext'])
@@ -38,7 +38,7 @@ class extensions_managment(commands.Cog):
         if order == 'enabled':
             enabled_extensions = '```\n'
 
-            for cog_name in self.cogs:
+            for cog_name in self.bot.cog_list:
                 enabled_extensions += cog_name + '\n'
             else:
                 enabled_extensions += '```'
@@ -47,7 +47,7 @@ class extensions_managment(commands.Cog):
                 await ctx.send(enabled_extensions)
         
         if order == 'load':
-            self.cogs.append(extension[0])
+            self.bot.cog_list.append(extension[0])
             self.bot.load_extension(extension[0])
             await ctx.message.add_reaction("✅")
         
@@ -55,8 +55,8 @@ class extensions_managment(commands.Cog):
             self.bot.reload_extension(extension[0])
             await ctx.message.add_reaction("🔄")
         
-        if order == 'unload' and extension != 'extension_managment.':
-            self.cogs.remove(extension[0])
+        if order == 'unload' and extension != 'extension_managment':
+            self.bot.cog_list.remove(extension[0])
             self.bot.unload_extension(extension[0])
             await ctx.message.add_reaction("❌")
 
