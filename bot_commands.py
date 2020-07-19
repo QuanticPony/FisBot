@@ -140,13 +140,9 @@ class channels(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(channels)
+    print('commandos cargados')
+    bot.add_cog(channels(bot))
 
-
-
-
-
-
-
-
-
+def teardown(bot):
+    print('commandos descargados')
+    bot.remove_cog(channels)
