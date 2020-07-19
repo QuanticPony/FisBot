@@ -82,6 +82,24 @@ class channels(commands.Cog):
                 await msg_conf.delete()
                 await channel.delete()
 
+    @commands.command(pass_context=True)
+    async def subnormal(self, context, member, *thing):
+        '''Manda un mensaje tts y le llama a <member> [thing] de tu parte, de nada'''
+        user_origin = context.message.author
+        user_destination = context.message.mentions[0]
+        lil_frase = ''
+        for thong in thing:
+            lil_frase += ' '
+            lil_frase += thong
+        frase = "Hola {0.name}.\n".format(user_destination) 
+        frase += "Quería decirte de parte de {0.name}".format(user_origin) 
+        frase += " que eres" 
+        frase += lil_frase 
+        frase += ".\nDe nada😎"
+        await context.send(frase, tts=True)
+        await context.message.delete()
+
+
 
     @commands.command(pass_context=True)
     async def jose(self, context, *member):
