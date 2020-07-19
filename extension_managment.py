@@ -4,34 +4,26 @@ from discord.ext import commands
 
 
 class extensions_managment(commands.Cog):
-    '''[Admin required] Conjunto de comandos que permite la manipulación de las extensiones del bot'''
+    '''Conjunto de comandos que permite la manipulación de las extensiones del bot'''
     def __init__(self, bot):
         self.bot = bot
 
-
-    @commands.command(pass_context=True, aliases=['sd'])
-    async def shutdown(self, ctx):
-        await self.bot.logout()
-
-    @commands.command(pass_context=True, aliases=['restart'])
-    async def reload(self, ctx):
-        '''Recarga el bot y actualiza los comandos'''
-        if ctx.message.author.guild_permissions.administrator == False:
-             return
-        for cog_name in self.bot.cog_list:
-            if cog_name != 'extension_managment':
-                self.bot.reload_extension(cog_name)
-        await ctx.message.add_reaction("🔄")
-        self.bot.reload_extension('extension_managment')
-        
-
-
-    @commands.command(pass_context=True, aliases=['ext'])
+    @commands.command(
+        pass_context=True, 
+        aliases=['ext'],
+        help='''Permite la manipulación de las extensiones del bot. Las diferentes ordenes son:
+        \nenabled\t\t\t Muestra las extensiones habilitada
+        \nload\t[extensión]\t Carga la extensión [extensión]
+        \nreload\t[extensión]\t Recarga la extensión [extensión]
+        \nunload\t[extensión]\t Descarga la extensión [extensión]
+        ''',
+        brief='''[Admin required]''',
+        description='''COMANDO .extensions'''
+    )
     async def extensions(self, ctx, order, *extension):
-        '''<enabled/load/reload/unload> [file_name]'''
-
         if ctx.message.author.guild_permissions.administrator == False:
-             return
+            await ctx.message.add_reaction("❌")
+            return
         #print(orden)
         #print(str(extension[0]))
 

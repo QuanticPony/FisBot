@@ -11,6 +11,11 @@ class channels(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.command()
+    async def status(self, context, game=None):
+        if game == None:
+            game = context.prefix + 'help'
+        await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(name=game))
 
     @commands.command(pass_context=True)
     async def purge(self, context, *amount):

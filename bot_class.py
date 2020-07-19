@@ -18,5 +18,7 @@ class FisBot(commands.Bot):
 
     def __init__(self, command_prefix: str):
         super().__init__(command_prefix=commands.when_mentioned_or("."))
-        self.cog_list = ['extension_managment']
+        self.cog_list = ['basic','extension_managment']
+        self.load_extension('basic')
         self.load_extension('extension_managment')
+        
