@@ -2,21 +2,146 @@ import discord
 import asyncio
 from discord.ext import commands
 
+ID_JOSE = 230323162414317568
 
-class channels(commands.Cog):
-    '''Conjunto de commandos que permiten manipular los canales, tanto crearlos como eliminarlos
-    También permite cambiar rapidamente de canal de voz a Jose'''
-
-    ID_JOSE = 230323162414317568
+class admin_basic_commands(
+    commands.Cog,
+    name='Admin basic commands',
+    ):
+    '''[Admin required] Conjunto de comandos que permite la manipulación básica del bot'''
+    
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @_cog_special_method
+    def cog_check(self, ctx):
+        return ctx.message.author.guild_permissions.administrator
+
+    @commands.command(
+        pass_context=True, 
+        aliases=['estado','juego'],
+        help='''Cambia el estado del bot. En el caso default pone como estado .help''',
+        brief='''[Admin required]''',
+        description='''COMANDO .status''',
+    )
     async def status(self, context, game=None):
         if game == None:
             game = context.prefix + 'help'
         await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(name=game))
 
+
+    @commands.command(
+        pass_context=True, 
+        aliases=['sd', 'shut', 'apagar', 'stop'],
+        help='''Apaga el bot,''',
+        brief='''[Admin required]''',
+        description='''COMANDO .shutdown''',
+    )
+    async def shutdown(self, ctx):
+        await self.bot.logout()
+    
+    
+    @commands.command(
+        pass_context=True, 
+        aliases=['restart', 'reiniciar'],
+        help='''Recarga el bot y actualiza los comandos de todas las extensiones habilitadas''',
+        brief='''[Admin required]''',
+        description='''COMANDO .reload''',
+        )
+    async def reload(self, ctx):
+        if ctx.message.author.guild_permissions.administrator == False:
+             return
+        for cog_name in self.bot._list:
+            if cog_name != 'extension_managment':
+                self.bot.reload_extension(cog_name)
+        await ctx.message.add_reaction("🔄")
+        self.bot.reload_extension('extension_managment')
+
+
+class extensions_managment(
+    commands.Cog,
+    name='''Control de extensiones'''):
+    '''[Admin required] Conjunto de comandos que permite la manipulación de las extensiones del bot'''
+
+    def __init__(self, bot):
+        self.bot = bot
+
+    @_cog_special_method
+    def cog_check(self, ctx):
+        return ctx.message.author.guild_permissions.administrator
+
+    @commands.command(
+        pass_context=True, 
+        aliases=['ext'],
+        help='''Permite la manipulación de las extensiones del bot. Las diferentes ordenes son:
+        \nenabled\t\t\t Muestra las extensiones habilitada
+        \nload\t[extension]\t Carga la extensión [extension]
+        \nreload\t[extension]\t Recarga la extensión [extension]
+        \nunload\t[extension]\t Descarga la extensión [extension]
+        ''',
+        brief='''[Admin required]''',
+        description='''COMANDO .extensions''',
+        checks=self.bot.context_is_admin()
+    )
+    async def extensions(self, ctx, order, *extension):
+        if ctx.message.author.guild_permissions.administrator == False:
+            await ctx.message.add_reaction("❌")
+            return
+        #print(orden)
+        #print(str(extension[0]))
+
+        if order == 'enabled':
+            enabled_extensions = '```\n'
+
+            for cog_name in self.bot.extensions_list:
+                enabled_extensions += cog_name + '\n'
+            else:
+                enabled_extensions += '```'
+
+            if enabled_extensions != '':
+                await ctx.send(enabled_extensions)
+        
+        if order == 'load':
+            self.bot.extensions_list.append(extension[0])
+            self.bot.load_extension(extension[0])
+            await ctx.message.add_reaction("✅")
+        
+        if order == 'reload':
+            self.bot.reload_extension(extension[0])
+            await ctx.message.add_reaction("🔄")
+        
+        if order == 'unload' and extension != 'extension_managment':
+            self.bot.extensions_list.remove(extension[0])
+            self.bot.unload_extension(extension[0])
+            await ctx.message.add_reaction("❌")
+
+
+class cog_managment(
+    commands.Cog,
+    name='''Control de extensiones'''
+    ):
+    '''[Admin required] Conjunto de comandos que permite la manipulación de los conjuntos de commandos del bot'''
+
+    def __init__(self, bot):
+        self.bot = bot
+
+    @_cog_special_method
+    def cog_check(self, ctx):
+        return ctx.message.author.guild_permissions.administrator
+    
+
+
+
+class channels(
+    commands.Cog,
+    name='channels commands'
+    ):
+    '''Conjunto de comandos que permiten manipular los canales, tanto crearlos como eliminarlos'''
+    
+    def __init__(self, bot):
+        self.bot = bot
+
+    
     @commands.command(pass_context=True)
     async def purge(self, context, *amount):
         '''Elimina [amount] mensajes. Por defecto elmina el enviado y el anterior'''
@@ -102,29 +227,29 @@ class channels(commands.Cog):
                 await msg_conf.delete()
                 await channel.delete()
 
-    @commands.command(pass_context=True)
-    async def subnormal(self, context, member, *thing):
-        '''Manda un mensaje tts y le llama a <member> [thing] de tu parte, de nada'''
-        user_origin = context.message.author
-        user_destination = context.message.mentions[0]
-        lil_frase = ''
-        for thong in thing:
-            lil_frase += ' '
-            lil_frase += thong
-        frase = "Hola {0.name}.\n".format(user_destination) 
-        frase += "Quería decirte de parte de {0.name}".format(user_origin) 
-        frase += " que eres" 
-        frase += lil_frase 
-        frase += ".\nDe nada😎"
-        await context.send(frase, tts=True)
-        await context.message.delete()
+    #@commands.command(pass_context=True)
+    #async def subnormal(self, context, member, *thing):
+    #    '''Manda un mensaje tts y le llama a <member> [thing] de tu parte, de nada'''
+    #    user_origin = context.message.author
+    #    user_destination = context.message.mentions[0]
+    #    lil_frase = ''
+    #    for thong in thing:
+    #        lil_frase += ' '
+    #        lil_frase += thong
+    #    frase = "Hola {0.mention}.\n".format(user_destination) 
+    #    frase += "Quería decirte de parte de {0.name}".format(user_origin) 
+    #    frase += " que eres" 
+    #    frase += lil_frase 
+    #    frase += ".\nDe nada😎"
+    #    await context.send(frase, tts=True)
+    #    await context.message.delete()
 
 
 
     @commands.command(pass_context=True)
     async def jose(self, context, *member):
         '''Cambia a [member] de canal de voz y lo vuelve a poner donde estaba. En el caso defaul cambia a Jose'''
-        if context.message.author.Permissions.administrator:
+        if context.message.author.guild_permissions.administrator:
             jose = discord.Member
             if len(member) == 0:
                 for memb in context.guild.members:
@@ -163,49 +288,26 @@ class channels(commands.Cog):
                             await jose[0].move_to(channel_destination)
                             await jose[0].move_to(channel_origin)
                             break
-                    
 
 
+class move(
+    commands.Cog, 
+    name='move commands',
+    ):
+    '''Conjunto de comandos que permite manipular a los usuarios en los canales de voz'''
+
+    def __init__(self, bot):
+        self.bot = bot
+    
+    @commands.command(pass_context=True)
+    async def move(self, context, order):
+        pass
 
 
-
-#TODO: 
-#class music_boy(commands.Cog):
-#    def __init__(self, bot):
-#        self.bot = bot
-#
-#    @commands.command(pass_context=True)
-#    async def play(self, context, url):
-#        def toggle_next():
-#            bot.loop.call_soon_threadsafe(play_next_song.set)
-#
-#        if not bot.is_voice_connected(context.message.server):
-#            voice = await bot.join_voice_channel(context.message.author.voice_channel)
-#        else:
-#            voice = bot.voice_bot_in(context.message.server)
-#
-#        player = await voice.create_ytdl_player(url, after=toggle_next)
-#        await songs.put(player)
-#
-#    @commands.command(pass_context=True)
-#    async def join(self, context):
-#        '''El bot entra en el canal de voz'''
-#        await context.message.author.voice.channel.connect()
-#
-#    @commands.command(pass_context=True)
-#    async def leave(self, context):
-#        '''El bot sale del canal de voz'''
-#        voice_client = bot.voice_client_in(context.message.server)
-#        await voice_client.disconnect()
-#
-#
-
-
+    
 
 def setup(bot):
-    print('commandos cargados')
+    bot.add_cog(admin_basic_commands(bot))
+    bot.add_cog(extensions_managment(bot))
     bot.add_cog(channels(bot))
-
-def teardown(bot):
-    print('commandos descargados')
-    bot.remove_cog(channels)
+    bot.add_cog(move(bot))
