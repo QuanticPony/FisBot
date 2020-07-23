@@ -7,7 +7,7 @@ ID_JOSE = 230323162414317568
 
 class admin_basic_commands(
     commands.Cog,
-    name='[Admin] Comandos basicos',
+    name='Comandos basicos',
     ):
     '''[Admin required] Conjunto de comandos que permite la manipulación básica del bot'''
     
@@ -41,7 +41,7 @@ class admin_basic_commands(
     
     @commands.command(
         pass_context=True, 
-        aliases=['restart', 'reiniciar'],
+        aliases=['reset','restart', 'reiniciar'],
         help='''Recarga el bot y actualiza los comandos de todas las extensiones habilitadas''',
         brief='''[Admin required]''',
         description='''COMANDO .reload''',
@@ -58,7 +58,7 @@ class admin_basic_commands(
 
 class extensions_managment(
     commands.Cog,
-    name='''[Admin] Control de extensiones'''
+    name='''Control de extensiones'''
     ):
     '''[Admin required] Conjunto de comandos que permite la manipulación de las extensiones del bot'''
 
@@ -115,9 +115,10 @@ class extensions_managment(
             await ctx.message.add_reaction("❌")
 
 
+#TODO: Arreglar esto. No funciona
 class cog_managment(
     commands.Cog,
-    name='''Control de extensiones'''
+    name='''Control de comandos'''
     ):
     '''[Admin required] Conjunto de comandos que permite la manipulación de los conjuntos de commandos del bot'''
 
@@ -127,29 +128,61 @@ class cog_managment(
 
     @commands.group(
         pass_context=True, 
-        help='''Sub commandos disponibles:
-        \nadd\t\t\t Muestra las extensiones habilitada
-        \nd\t[extension]\t Carga la extensión [extension]
-        \nreload\t[extension]\t Recarga la extensión [extension]
-        \nunload\t[extension]\t Descarga la extensión [extension]
+        help='''
+        Permite cargar, descargar las categorias de comandos de manera independiente de las extensiones a las que pertenezcan.
+        Si no se invoca un subcomando escribe una lista con las categorias habilitadas.
         ''',
         brief='''[Admin required]''',
-        description='''COMANDO .status''',
+        description='''COMANDO .cog''',
     )
     async def cog(self, context):
-        if context.invoked_subcommands is None:
-            await context.send('Invalid Syntax: cog <sub_command> [args...]')
+        if context.invoked_subcommand is None:
+            message = '```\n'
+            for key in self.bot.cogs.keys():
+                message += key + '\n' 
+            else:
+                message += '```'
+            await context.send(message)
     
 
 
     #TODO: Preguntar a Aitor a ver como podría hacer esto. La otra froma es hacer un diccionario de todos los cogs posibles.
-    @cog.command()
-    async def add(self, context, cog_name):
+    @cog.command(
+        pass_context=True, 
+        help='''
+        Permite cargar categorias de comandos
+        ''',
+        brief='''Permite cargar categorias de comandos''',
+        description='''COMANDO .cog add''',
+    )
+    async def add(self, context, *cog_name):
         if cog_name is None:
-             await context.send('Invalid Syntax: cog add <cog name>')
+            await context.send('Invalid Syntax: cog add <cog name>')
         else:
-            if globals().have_key(cog_name):
-                self.bot.add_cog(globals()[cog_name].__init__(self.bot))
+            for objeto in globals().values():
+                if hasattr(objeto,'__bases__'):
+                    if commands.Cog in objeto.__bases__:
+                        if hasattr(objeto,'name'):
+                            if objeto.name is cog_name:
+                                self.bot.add_cog(objeto(self.bot))
+
+    @cog.command(
+        pass_context=True,
+        help='''
+        Permite cargar categorias de comandos
+        ''',
+        aliases=['del'],
+        brief='''Permite descargar categorias de comandos''',
+        description='''COMANDO .cog remove''',
+    )
+    async def remove(self, context, cog_name):
+        if cog_name in self.bot.cogs:
+            self.bot.remove_cog(cog_name)
+        else:
+            await context.send('No existe la categoria de comandos '+ cog_name + ', o no esta cargada')
+
+
+
                     
 
 
@@ -158,11 +191,89 @@ class channels_managment(
     commands.Cog,
     name='Canales'
     ):
-    '''Conjunto de comandos que permiten manipular los canales, tanto crearlos como eliminarlos'''
+    '''Conjunto de comandos que permiten manipular los canales y categorias. Incluye alguna funcionalidad de interaccion con usuarios'''
     
     def __init__(self, bot):
         self.bot = bot
+        self.last_tipo = ''
     
+
+
+    @commands.group(
+        pass_context=True, 
+        aliases=['text','voice'],
+        help='''
+        Permite modificar, crear y eliminar los canales y categorias del servidor:
+
+        .text <create|delete|rename> [nombre]
+            create: Crea un canal de texto en la categoria donde se envio el mensaje con el nombre dado
+            delete: Borra el canal de texto donde se envio el mensaje
+            rename: Renombra el canal de texto donde se envio el mensaje al nombre dado
+
+        .voice <create|delete|rename> [nombre]
+            create: Crea un canal de voz en la categoria donde esta el autor del mensaje. Si no esta en ninguna en la misma categoria del mensaje
+            delete: Borra el canal de voz donde esta el autor del mensaje
+            rename: Renombra  el canal de voz donde esta el autor del mensaje al nombre dado
+        ''',
+        brief='''.help text / .help voice''',
+        description='''COMANDO .category / .text / .voice''',
+        usage='<orden> [argumentos...]'
+    )
+    async def category(self, context):
+        if context.invoked_subcommand is None:
+            await context.send('Y que mas (.<category/text/voice> <orden> [argumentos...])')
+        else:
+            self.last_tipo = context.invoked_with
+
+            
+    
+    @category.command(
+        hidden=True,
+        pass_context=True, 
+        aliases=['c'],
+        usage='<name>'
+    )
+    async def create(self, context, *name):
+        if not name:
+            await context.send('Y que mas (.<category/text/voice> create <name>)')
+        if self.last_tipo == 'text':
+            await self.ctc(context, name[0])
+
+        if self.last_tipo == 'voice':
+            await self.cvc(context, name[0])
+
+
+    @category.command(
+        hidden=True,
+        pass_context=True, 
+        aliases=['d'],
+    )
+    async def delete(self, context):
+        if self.last_tipo == 'text':
+            await self.dtc(context)
+
+        if self.last_tipo == 'voice':
+            await self.dvc(context)
+
+    
+    @category.command(
+        hidden=True,
+        pass_context=True, 
+        aliases=['r'],
+    )
+    async def rename(self, context, name):
+        if self.last_tipo == 'text':
+            await self.rtc(context, name)
+
+        if self.last_tipo == 'voice':
+            await self.rvc(context, name)
+    
+
+
+
+
+
+
     @commands.command(
         pass_context=True, 
         aliases=['elimine','borra','elimina'],
@@ -183,30 +294,30 @@ class channels_managment(
             else:
                 await context.channel.purge(limit=int(float(amount[0]))+1, check=check)
         
-    @commands.command(
-        pass_context=True, 
-        help='''Crea canal de texto en la categoría donde se envió el mensaje con el nombre especificado''',
-        brief='''Create Text Channel''',
-        description='''COMANDO .ctc''',
-    )
-    async def ctc(self, context):
-        try:
-            prefix, name = context.message.content.split() 
-        except ValueError:
-            await context.message.channel.send("Especifica: .ctc \"name\" ")
+    #@commands.command(
+    #    hidden=True,
+    #    pass_context=True, 
+    #    help='''Crea canal de texto en la categoría donde se envió el mensaje con el nombre especificado''',
+    #    brief='''Create Text Channel''',
+    #    description='''COMANDO .ctc''',
+    #)
+    async def ctc(self, context, name):
+        if not name:
+            await context.message.channel.send('''Es necesario <name>''')
         else:
             category = context.message.channel.category
             await category.create_text_channel(name=name)
         return
 
-    @commands.command(
-        pass_context=True, 
-        help='''Borra el canal de texto donde se envió el mensaje''',
-        brief='''Remove Text Channel''',
-        description='''COMANDO .rtc''',
-    )
-    async def rtc(self, context):
-        if context.message.author.guild_permissions.administrator:
+    #@commands.command(
+    #    hidden=True,
+    #    pass_context=True, 
+    #    help='''Borra el canal de texto donde se envió el mensaje''',
+    #    brief='''Remove Text Channel''',
+    #    description='''COMANDO .dtc''',
+    #)
+    async def dtc(self, context):
+        if context_is_admin(context):
             def confirm(reaction, user):
                 return str(reaction.emoji) == '✅' and context.message.author == user
             msg_conf = await context.message.channel.send('''¿Está seguro de que quiere borrar {.channel.mention}?\tSi: ✅\t No: ❌'''.format(context.message))
@@ -220,31 +331,29 @@ class channels_managment(
                 await context.message.channel.delete()
             return
 
-    @commands.command(
-        pass_context=True, 
-        help='''Crea canal de voz con el nombre especificado en la categoría donde se encuentra el autor del mensaje''',
-        brief='''Create Voice Channel''',
-        description='''COMANDO .cvc''',
-    )
-    async def cvc(self, context):
-        
-        try:
-            prefix, name = context.message.content.split()
-        except ValueError:
-            await context.message.channel.send('''Especifica: .cvc \"name\" ''')
+    #@commands.command(
+    #    hidden=True,
+    #    pass_context=True, 
+    #    help='''Crea canal de voz con el nombre especificado en la categoría donde se encuentra el autor del mensaje''',
+    #    brief='''Create Voice Channel''',
+    #    description='''COMANDO .cvc''',
+    #)
+    async def cvc(self, context, name):
+        if not name:
+            await context.message.channel.send('''Es necesario <name>''')
         else:
             channel = context.message.author.voice.channel
             await channel.category.create_voice_channel(name=name)
 
-    @commands.command(
-        pass_context=True, 
-        help='''Elimina el canal de voz en el que se encuentra el usuario al enviar el mensaje''',
-        brief='''Remove Voice Channel''',
-        description='''COMANDO .rvc''',
-    )
-    async def rvc(self, context: commands.Context):
-        
-        if context.message.author.Permissions.administrator:
+    #@commands.command(
+    #    hidden=True,
+    #    pass_context=True, 
+    #    help='''Elimina el canal de voz en el que se encuentra el usuario al enviar el mensaje''',
+    #    brief='''Remove Voice Channel''',
+    #    description='''COMANDO .dvc''',
+    #)
+    async def dvc(self, context: commands.Context):
+        if context_is_admin(context):
             msg_conf = await context.message.channel.send("¿Está seguro de que quiere borrar {.channel.mention}? Si: ✅   No: ❌".format(context.message.author.voice))
             await msg_conf.add_reaction("✅")
             await msg_conf.add_reaction("❌")
@@ -341,6 +450,44 @@ class users_managment(
         pass
 
 
+
+class poll(
+    commands.Cog, 
+    name='Encuestas',
+    ):
+    '''Comandos para realizar encuestas'''
+
+    def __init__(self, bot):
+        self.bot = bot
+        self.sep = '_'
+    
+    @commands.command(
+        pass_context=True, 
+        aliases=['encuesta','p'],
+        help='''Hace una encuesta entre todos los elementos separados por el separador''',
+        brief='''Hace una encuesta''',
+        description='''COMANDO .poll''',
+    )
+    async def poll(self, context, *, elementos):
+        things_list = elementos.split(self.sep)
+        print(things_list)
+        
+
+    @commands.command(
+        pass_context=True, 
+        aliases=['pollsep','sep','separador'],
+        help='''Cambia la string de separacion de elementos de encuesta en el comando .poll''',
+        brief='''Cambia el separador de .poll''',
+        description='''COMANDO .separator''',
+    )
+    async def separator(self, context, *separator):
+        if separator:
+            self.sep = separator[0]
+        else:
+            await context.send('Actualmente el prefijo de .poll es \'{0.sep}\''.format(self))
+
+
+
     
 
 def setup(bot):
@@ -349,3 +496,4 @@ def setup(bot):
     bot.add_cog(cog_managment(bot))
     bot.add_cog(channels_managment(bot))
     #bot.add_cog(users_managment(bot))
+    bot.add_cog(poll(bot))
