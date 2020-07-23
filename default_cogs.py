@@ -1,21 +1,19 @@
 import discord
 import asyncio
 from discord.ext import commands
+from bot_class import context_is_admin
 
 ID_JOSE = 230323162414317568
 
 class admin_basic_commands(
     commands.Cog,
-    name='Admin basic commands',
+    name='[Admin] Comandos basicos',
     ):
     '''[Admin required] Conjunto de comandos que permite la manipulación básica del bot'''
     
     def __init__(self, bot):
         self.bot = bot
-
-    @_cog_special_method
-    def cog_check(self, ctx):
-        return ctx.message.author.guild_permissions.administrator
+        self.cog_check(context_is_admin)
 
     @commands.command(
         pass_context=True, 
@@ -51,24 +49,26 @@ class admin_basic_commands(
     async def reload(self, ctx):
         if ctx.message.author.guild_permissions.administrator == False:
              return
-        for cog_name in self.bot._list:
-            if cog_name != 'extension_managment':
+        for cog_name in self.bot.extensions_list:
+            if cog_name != 'default_cogs':
                 self.bot.reload_extension(cog_name)
         await ctx.message.add_reaction("🔄")
-        self.bot.reload_extension('extension_managment')
+        self.bot.reload_extension('default_cogs')
 
 
 class extensions_managment(
     commands.Cog,
-    name='''Control de extensiones'''):
+    name='''[Admin] Control de extensiones'''
+    ):
     '''[Admin required] Conjunto de comandos que permite la manipulación de las extensiones del bot'''
 
     def __init__(self, bot):
         self.bot = bot
+        self.cog_check(context_is_admin)
 
-    @_cog_special_method
-    def cog_check(self, ctx):
-        return ctx.message.author.guild_permissions.administrator
+    #@_cog_special_method
+    #def cog_check(self, ctx):
+    #    return ctx.message.author.guild_permissions.administrator
 
     @commands.command(
         pass_context=True, 
@@ -81,7 +81,6 @@ class extensions_managment(
         ''',
         brief='''[Admin required]''',
         description='''COMANDO .extensions''',
-        checks=self.bot.context_is_admin()
     )
     async def extensions(self, ctx, order, *extension):
         if ctx.message.author.guild_permissions.administrator == False:
@@ -124,27 +123,55 @@ class cog_managment(
 
     def __init__(self, bot):
         self.bot = bot
+        self.cog_check(context_is_admin)
 
-    @_cog_special_method
-    def cog_check(self, ctx):
-        return ctx.message.author.guild_permissions.administrator
+    @commands.group(
+        pass_context=True, 
+        help='''Sub commandos disponibles:
+        \nadd\t\t\t Muestra las extensiones habilitada
+        \nd\t[extension]\t Carga la extensión [extension]
+        \nreload\t[extension]\t Recarga la extensión [extension]
+        \nunload\t[extension]\t Descarga la extensión [extension]
+        ''',
+        brief='''[Admin required]''',
+        description='''COMANDO .status''',
+    )
+    async def cog(self, context):
+        if context.invoked_subcommands is None:
+            await context.send('Invalid Syntax: cog <sub_command> [args...]')
     
 
 
+    #TODO: Preguntar a Aitor a ver como podría hacer esto. La otra froma es hacer un diccionario de todos los cogs posibles.
+    @cog.command()
+    async def add(self, context, cog_name):
+        if cog_name is None:
+             await context.send('Invalid Syntax: cog add <cog name>')
+        else:
+            if globals().have_key(cog_name):
+                self.bot.add_cog(globals()[cog_name].__init__(self.bot))
+                    
 
-class channels(
+
+
+class channels_managment(
     commands.Cog,
-    name='channels commands'
+    name='Canales'
     ):
     '''Conjunto de comandos que permiten manipular los canales, tanto crearlos como eliminarlos'''
     
     def __init__(self, bot):
         self.bot = bot
-
     
-    @commands.command(pass_context=True)
+    @commands.command(
+        pass_context=True, 
+        aliases=['elimine','borra','elimina'],
+        help='''Elimina [amount] mensajes. Por defecto elmina el enviado y el anterior''',
+        brief='''[Admin required]''',
+        description='''COMANDO .purge''',
+        checks=[context_is_admin]
+    )
     async def purge(self, context, *amount):
-        '''Elimina [amount] mensajes. Por defecto elmina el enviado y el anterior'''
         if float(amount[0]) <= 0:
             await context.send("Bravo campeón")
             return
@@ -156,21 +183,13 @@ class channels(
             else:
                 await context.channel.purge(limit=int(float(amount[0]))+1, check=check)
         
-    @commands.command(pass_context=True)
+    @commands.command(
+        pass_context=True, 
+        help='''Crea canal de texto en la categoría donde se envió el mensaje con el nombre especificado''',
+        brief='''Create Text Channel''',
+        description='''COMANDO .ctc''',
+    )
     async def ctc(self, context):
-        '''Crea canal de texto en la categoría donde se envió el mensaje con el nombre especificado'''
-        try:
-            prefix, name = context.message.content.split() 
-        except ValueError:
-            await context.message.channel.send("Especifica: .ctc \"name\" ")
-        else:
-            category = context.message.channel.category
-            await category.create_text_channel(name=name)
-        return
-    
-    @commands.command(pass_context=True)
-    async def ctc(self, context):
-        '''Crea canal de texto con el nombre especificado en la categoría donde se envió el mensaje'''
         try:
             prefix, name = context.message.content.split() 
         except ValueError:
@@ -180,9 +199,13 @@ class channels(
             await category.create_text_channel(name=name)
         return
 
-    @commands.command(pass_context=True)
+    @commands.command(
+        pass_context=True, 
+        help='''Borra el canal de texto donde se envió el mensaje''',
+        brief='''Remove Text Channel''',
+        description='''COMANDO .rtc''',
+    )
     async def rtc(self, context):
-        '''Borra el canal de texto donde se envió el mensaje'''
         if context.message.author.guild_permissions.administrator:
             def confirm(reaction, user):
                 return str(reaction.emoji) == '✅' and context.message.author == user
@@ -197,9 +220,14 @@ class channels(
                 await context.message.channel.delete()
             return
 
-    @commands.command(pass_context=True)
+    @commands.command(
+        pass_context=True, 
+        help='''Crea canal de voz con el nombre especificado en la categoría donde se encuentra el autor del mensaje''',
+        brief='''Create Voice Channel''',
+        description='''COMANDO .cvc''',
+    )
     async def cvc(self, context):
-        '''Crea canal de voz con el nombre especificado en la categoría donde se encuentra el autor del mensaje'''
+        
         try:
             prefix, name = context.message.content.split()
         except ValueError:
@@ -208,9 +236,14 @@ class channels(
             channel = context.message.author.voice.channel
             await channel.category.create_voice_channel(name=name)
 
-    @commands.command(pass_context=True)
+    @commands.command(
+        pass_context=True, 
+        help='''Elimina el canal de voz en el que se encuentra el usuario al enviar el mensaje''',
+        brief='''Remove Voice Channel''',
+        description='''COMANDO .rvc''',
+    )
     async def rvc(self, context: commands.Context):
-        '''Elimina el canal de voz en el que se encuentra el usuario al enviar el mensaje'''
+        
         if context.message.author.Permissions.administrator:
             msg_conf = await context.message.channel.send("¿Está seguro de que quiere borrar {.channel.mention}? Si: ✅   No: ❌".format(context.message.author.voice))
             await msg_conf.add_reaction("✅")
@@ -246,10 +279,14 @@ class channels(
 
 
 
-    @commands.command(pass_context=True)
+    @commands.command(
+        pass_context=True, 
+        help='''Cambia a [member...] de canal de voz y lo vuelve a poner donde estaba. En el caso defaul cambia a Jose''',
+        brief='''Jovial Olor a Separacion Espontanea''',
+        description='''COMANDO .jose''',
+    )
     async def jose(self, context, *member):
-        '''Cambia a [member] de canal de voz y lo vuelve a poner donde estaba. En el caso defaul cambia a Jose'''
-        if context.message.author.guild_permissions.administrator:
+        if context_is_admin(context):
             jose = discord.Member
             if len(member) == 0:
                 for memb in context.guild.members:
@@ -290,7 +327,7 @@ class channels(
                             break
 
 
-class move(
+class users_managment(
     commands.Cog, 
     name='move commands',
     ):
@@ -307,7 +344,8 @@ class move(
     
 
 def setup(bot):
-    bot.add_cog(admin_basic_commands(bot))
     bot.add_cog(extensions_managment(bot))
-    bot.add_cog(channels(bot))
-    bot.add_cog(move(bot))
+    bot.add_cog(admin_basic_commands(bot))
+    bot.add_cog(cog_managment(bot))
+    bot.add_cog(channels_managment(bot))
+    #bot.add_cog(users_managment(bot))
