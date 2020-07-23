@@ -1,5 +1,6 @@
 import discord
 import asyncio
+import random
 from discord.ext import commands
 from bot_class import context_is_admin
 
@@ -460,6 +461,7 @@ class poll(
     def __init__(self, bot):
         self.bot = bot
         self.sep = '_'
+        self.tit = 'Encuesta:'
     
     @commands.command(
         pass_context=True, 
@@ -470,8 +472,26 @@ class poll(
     )
     async def poll(self, context, *, elementos):
         things_list = elementos.split(self.sep)
-        print(things_list)
-        
+        if len(things_list) < 2:
+            responses = [
+                'Si señor, claro. Bien. Buena...',
+                'Las encuestas suelen tener al menos 2 elementos',
+                'Y la segunda opcion? me la invento yo?',
+                'lol no'
+            ]
+            things_list.append('NULL')
+            await context.send(responses[random.randint(0,3)])
+        if len(things_list) > 20:
+            await context.send("Pero de que vas {0.message.author.mention}? Para que necesitas tantas opciones?".format(context))
+
+        codepoint_start = 127462  # represents "regional_indicator_a" unicode value
+        things_list = {chr(i): f"{chr(i)} - {v}" for i, v in enumerate(things_list, start=codepoint_start)}
+        embed = discord.Embed(title=self.tit, description="\n".join(things_list.values()))
+        message = await context.send( '@everyone',embed=embed)
+        for reaction in things_list:
+            await message.add_reaction(reaction) 
+        self.tit = 'Encuesta:'
+
 
     @commands.command(
         pass_context=True, 
@@ -486,6 +506,19 @@ class poll(
         else:
             await context.send('Actualmente el prefijo de .poll es \'{0.sep}\''.format(self))
 
+
+    @commands.command(
+        pass_context=True, 
+        aliases=['pollt','pt'],
+        help='''Cambia el titulo de la encuesta .poll. Por defecto es \'Encuesta:\'''',
+        brief='''Cambia el titulo de la encuesta .poll''',
+        description='''COMANDO .polltitle''',
+    )
+    async def polltitle(self, context, *,title):
+        if title:
+            self.tit = title
+        else:
+            await context.send('Actualmente el titulo de la encuesta de .poll es \'{0.tit}\''.format(self))
 
 
     
