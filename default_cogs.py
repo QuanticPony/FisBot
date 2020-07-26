@@ -31,7 +31,7 @@ class admin_basic_commands(
 
     @commands.command(
         pass_context=True, 
-        aliases=['sd', 'shut', 'apagar', 'stop'],
+        aliases=['sd', 'shut', 'apagar'],
         help='''Apaga el bot,''',
         brief='''[Admin required]''',
         description='''COMANDO .shutdown''',
@@ -160,12 +160,11 @@ class cog_managment(
         if cog_name is None:
             await context.send('Invalid Syntax: cog add <cog name>')
         else:
-            for objeto in globals().values():
-                if hasattr(objeto,'__bases__'):
-                    if commands.Cog in objeto.__bases__:
-                        if hasattr(objeto,'name'):
-                            if objeto.name is cog_name:
-                                self.bot.add_cog(objeto(self.bot))
+            requested_cog = self.bot.get_cog(cog_name)
+            if requested_cog:
+                self.bot.add_cog(requested_cog(self.bot))
+            else:
+                context.send('No se encontro la categoria de commandos {0}'.format(cog_name))
 
     @cog.command(
         pass_context=True,
@@ -284,14 +283,15 @@ class channels_managment(
         checks=[context_is_admin]
     )
     async def purge(self, context, *amount):
-        if float(amount[0]) <= 0:
-            await context.send("Bravo campeón")
-            return
         def check(msg):
             return True
-        if context.message.author.guild_permissions.administrator:
-            if len(amount) == 0:
-                await context.channel.purge(limit=2, check=check)
+
+        if not amount:
+            await context.channel.purge(limit=2, check=check)
+        else:
+            if float(amount[0]) <= 0:
+                await context.send("Bravo campeón")
+                return
             else:
                 await context.channel.purge(limit=int(float(amount[0]))+1, check=check)
         
@@ -456,7 +456,11 @@ class poll(
     commands.Cog, 
     name='Encuestas',
     ):
-    '''Comandos para realizar encuestas'''
+    '''Comandos para realizar encuestas. Pasos para realizar una:
+    \t1º: Poner un titulo a la encuesta: .polltitle <Titulo>
+    \t2º: Asegurarse de utilizar el separador adecuadamente, para ver cual hay: .separator
+    \t3º: En el caso de querer cambiar el separador: .separator <nuevo_separador>
+    \t4º: Dar los elementos de la encuesta separados por el separador actual (default:\'_\'): .poll <Elem1>_<...>'''
 
     def __init__(self, bot):
         self.bot = bot
@@ -475,6 +479,7 @@ class poll(
         if len(things_list) < 2:
             responses = [
                 'Si señor, claro. Bien. Buena...',
+                '\'Tamos tontos??',
                 'Las encuestas suelen tener al menos 2 elementos',
                 'Y la segunda opcion? me la invento yo?',
                 'lol no'
@@ -504,7 +509,7 @@ class poll(
         if separator:
             self.sep = separator[0]
         else:
-            await context.send('Actualmente el prefijo de .poll es \'{0.sep}\''.format(self))
+            await context.send('Actualmente el separador de elementos de .poll es \'{0.sep}\''.format(self))
 
 
     @commands.command(
@@ -520,8 +525,6 @@ class poll(
         else:
             await context.send('Actualmente el titulo de la encuesta de .poll es \'{0.tit}\''.format(self))
 
-
-    
 
 def setup(bot):
     bot.add_cog(extensions_managment(bot))
