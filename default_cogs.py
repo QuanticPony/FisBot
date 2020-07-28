@@ -10,7 +10,7 @@ class admin_basic_commands(
     commands.Cog,
     name='Comandos basicos',
     ):
-    '''[Admin required] Conjunto de comandos que permite la manipulación básica del bot'''
+    '''Conjunto de comandos que permite la manipulación básica del bot'''
     
     def __init__(self, bot):
         self.bot = bot
@@ -20,8 +20,9 @@ class admin_basic_commands(
         pass_context=True, 
         aliases=['estado','juego'],
         help='''Cambia el estado del bot. En el caso default pone como estado .help''',
-        brief='''[Admin required]''',
+        brief='''Cambia el estadod el bot''',
         description='''COMANDO .status''',
+        usage='.status [estado]'
     )
     async def status(self, context, game=None):
         if game == None:
@@ -33,8 +34,9 @@ class admin_basic_commands(
         pass_context=True, 
         aliases=['sd', 'shut', 'apagar'],
         help='''Apaga el bot,''',
-        brief='''[Admin required]''',
+        brief='''Apaga el bot''',
         description='''COMANDO .shutdown''',
+        usage='.shutdown'
     )
     async def shutdown(self, ctx):
         await self.bot.logout()
@@ -44,8 +46,9 @@ class admin_basic_commands(
         pass_context=True, 
         aliases=['reset','restart', 'reiniciar'],
         help='''Recarga el bot y actualiza los comandos de todas las extensiones habilitadas''',
-        brief='''[Admin required]''',
+        brief='''Recarga el bot''',
         description='''COMANDO .reload''',
+        usage='.reload'
         )
     async def reload(self, ctx):
         if ctx.message.author.guild_permissions.administrator == False:
@@ -61,7 +64,7 @@ class extensions_managment(
     commands.Cog,
     name='''Control de extensiones'''
     ):
-    '''[Admin required] Conjunto de comandos que permite la manipulación de las extensiones del bot'''
+    ''' Conjunto de comandos que permite la manipulación de las extensiones del bot'''
 
     def __init__(self, bot):
         self.bot = bot
@@ -80,8 +83,9 @@ class extensions_managment(
         \nreload\t[extension]\t Recarga la extensión [extension]
         \nunload\t[extension]\t Descarga la extensión [extension]
         ''',
-        brief='''[Admin required]''',
+        brief='''Controla las extensiones''',
         description='''COMANDO .extensions''',
+        usage='.extensions <enabled|load|reload|unload> [extension]'
     )
     async def extensions(self, ctx, order, *extension):
         if ctx.message.author.guild_permissions.administrator == False:
@@ -110,7 +114,7 @@ class extensions_managment(
             self.bot.reload_extension(extension[0])
             await ctx.message.add_reaction("🔄")
         
-        if order == 'unload' and extension != 'extension_managment':
+        if order == 'unload' and extension != 'default_cogs':
             self.bot.extensions_list.remove(extension[0])
             self.bot.unload_extension(extension[0])
             await ctx.message.add_reaction("❌")
@@ -121,7 +125,7 @@ class cog_managment(
     commands.Cog,
     name='''Control de comandos'''
     ):
-    '''[Admin required] Conjunto de comandos que permite la manipulación de los conjuntos de commandos del bot'''
+    '''Conjunto de comandos que permite la manipulación de los conjuntos de commandos del bot'''
 
     def __init__(self, bot):
         self.bot = bot
@@ -133,8 +137,9 @@ class cog_managment(
         Permite cargar, descargar las categorias de comandos de manera independiente de las extensiones a las que pertenezcan.
         Si no se invoca un subcomando escribe una lista con las categorias habilitadas.
         ''',
-        brief='''[Admin required]''',
+        brief='''Opera conjuntos de comandos''',
         description='''COMANDO .cog''',
+        usage='.cog <subcommand>'
     )
     async def cog(self, context):
         if context.invoked_subcommand is None:
@@ -155,10 +160,11 @@ class cog_managment(
         ''',
         brief='''Permite cargar categorias de comandos''',
         description='''COMANDO .cog add''',
+        usage='.cog add <cog_name>'
     )
     async def add(self, context, *cog_name):
         if cog_name is None:
-            await context.send('Invalid Syntax: cog add <cog name>')
+            await context.send('Invalid Syntax: cog add <cog_name>')
         else:
             requested_cog = self.bot.get_cog(cog_name)
             if requested_cog:
@@ -174,6 +180,7 @@ class cog_managment(
         aliases=['del'],
         brief='''Permite descargar categorias de comandos''',
         description='''COMANDO .cog remove''',
+        usage='.cog remove <cog_name>'
     )
     async def remove(self, context, cog_name):
         if cog_name in self.bot.cogs:
@@ -217,7 +224,7 @@ class channels_managment(
         ''',
         brief='''.help text / .help voice''',
         description='''COMANDO .category / .text / .voice''',
-        usage='<orden> [argumentos...]'
+        usage='''.<text|voice|category> <orden> [argumentos...]'''
     )
     async def category(self, context):
         if context.invoked_subcommand is None:
@@ -231,7 +238,7 @@ class channels_managment(
         hidden=True,
         pass_context=True, 
         aliases=['c'],
-        usage='<name>'
+        usage='.<category/text/voice> create <name>'
     )
     async def create(self, context, *name):
         if not name:
@@ -278,8 +285,9 @@ class channels_managment(
         pass_context=True, 
         aliases=['elimine','borra','elimina'],
         help='''Elimina [amount] mensajes. Por defecto elmina el enviado y el anterior''',
-        brief='''[Admin required]''',
+        brief='''Elimina mensajes''',
         description='''COMANDO .purge''',
+        usage='.purge [amount]',
         checks=[context_is_admin]
     )
     async def purge(self, context, *amount):
@@ -394,6 +402,7 @@ class channels_managment(
         help='''Cambia a [member...] de canal de voz y lo vuelve a poner donde estaba. En el caso defaul cambia a Jose''',
         brief='''Jovial Olor a Separacion Espontanea''',
         description='''COMANDO .jose''',
+        usage='.jose [member|role|group]'
     )
     async def jose(self, context, *member):
         if context_is_admin(context):
@@ -457,10 +466,10 @@ class poll(
     name='Encuestas',
     ):
     '''Comandos para realizar encuestas. Pasos para realizar una:
-    \t1º: Poner un titulo a la encuesta: .polltitle <Titulo>
-    \t2º: Asegurarse de utilizar el separador adecuadamente, para ver cual hay: .separator
-    \t3º: En el caso de querer cambiar el separador: .separator <nuevo_separador>
-    \t4º: Dar los elementos de la encuesta separados por el separador actual (default:\'_\'): .poll <Elem1>_<...>'''
+    \t1º: Poner un titulo a la encuesta: ```.polltitle <Titulo>```
+    \t2º: Asegurarse de utilizar el separador adecuadamente, para ver cual hay: ```.separator```
+    \t3º: En el caso de querer cambiar el separador: ```.separator <nuevo_separador>```
+    \t4º: Dar los elementos de la encuesta separados por el separador actual (default:\'\_\'): ```.poll <elem1> _ <elem2> [ _ [...]]```'''
 
     def __init__(self, bot):
         self.bot = bot
@@ -470,9 +479,10 @@ class poll(
     @commands.command(
         pass_context=True, 
         aliases=['encuesta','p'],
-        help='''Hace una encuesta entre todos los elementos separados por el separador''',
+        help='''Hace una encuesta entre todos los elementos separados por el separador. Este se puede consultar con el comando **.separator**''',
         brief='''Hace una encuesta''',
         description='''COMANDO .poll''',
+        usage='.poll <elem1> separador <elem2> [separador [...]]'
     )
     async def poll(self, context, *, elementos):
         things_list = elementos.split(self.sep)
@@ -504,6 +514,7 @@ class poll(
         help='''Cambia la string de separacion de elementos de encuesta en el comando .poll''',
         brief='''Cambia el separador de .poll''',
         description='''COMANDO .separator''',
+        usage='.separator [new_separator]'
     )
     async def separator(self, context, *separator):
         if separator:
@@ -518,6 +529,7 @@ class poll(
         help='''Cambia el titulo de la encuesta .poll. Por defecto es \'Encuesta:\'''',
         brief='''Cambia el titulo de la encuesta .poll''',
         description='''COMANDO .polltitle''',
+        usage='.polltitle [title...]'
     )
     async def polltitle(self, context, *,title):
         if title:

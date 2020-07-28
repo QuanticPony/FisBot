@@ -192,9 +192,9 @@ class Song:
 
         embed = (discord.Embed(title=titulo[random.randint(0,4)],
                     colour=0x00BFFF,
-                    description='```css\n{0.source.title}\n```'.format(self))
+                    description='```{0.source.title}```'.format(self))
                 .add_field(name='Duracion', value=self.source.duration)
-                .add_field(name='Pedido por', value=self.requester.mention)
+                .add_field(name='Pedido por', value=self.requester.display_name)
                 .add_field(name='Canal', value='[{0.source.uploader}]({0.source.uploader_url})'.format(self))
                 .add_field(name='URL', value='[Click]({0.source.url})'.format(self))
                 .set_thumbnail(url=self.source.thumbnail))
@@ -347,6 +347,7 @@ class Music(
         Por defecto se une al canal donde esta el autor del mensaje .summon''',
         brief='''Invoca al bot en tu canal de voz''',
         description='''COMANDO .join''',
+        usage='.join'
     )
     async def _join(self, ctx: commands.Context):
 
@@ -364,6 +365,7 @@ class Music(
         Por defecto se une al canal donde esta el autor del mensaje .summon''',
         brief='''Invoca al bot en un canal de voz''',
         description='''COMANDO .summon''',
+        usage='.summon [voice_channel]'
     )
     @commands.has_permissions(manage_guild=True)
     async def _summon(self, ctx: commands.Context, *, channel: discord.VoiceChannel = None):
@@ -383,7 +385,8 @@ class Music(
         aliases=['desconectar','sal','vete'],
         help='''Vacia la lista de reproduccion y sale del canal de voz''',
         brief='''Desconecta al bot del canal de voz''',
-        description='''COMANDO .leave'''
+        description='''COMANDO .leave''',
+        usage='.leave'
         )
     @commands.has_permissions(manage_guild=True)
     async def _leave(self, ctx: commands.Context):
@@ -398,9 +401,10 @@ class Music(
         name='volume',
         aliases=['volumen','vol'],
         help='''Cambia el volumen al que se reproduce la musica, para la proxima cancion.
-        Debe ser un numero entre 0 y 100.''',
+        Debe ser un numero entre 0 y 100. Por defecto esta al 50%''',
         brief='''Desconecta al bot del canal de voz''',
-        description='''COMANDO .volume'''
+        description='''COMANDO .volume''',
+        usage='.volume [wanted_volume]'
     )
     async def _volume(self, ctx: commands.Context, *volume):
 
@@ -421,7 +425,8 @@ class Music(
         aliases=['current', 'playing', 'sonando'],
         help='''Envia un mensaje con la informacion relativa a la cancion sonando en ese momento. Si no se esta reproduciendo nada, te llama tonto''',
         brief='''Muestra la cancion que esta sonando''',
-        description='''COMANDO .now'''
+        description='''COMANDO .now''',
+        usage='.now'
         )
     async def _now(self, ctx: commands.Context):
 
@@ -435,7 +440,8 @@ class Music(
         aliases=['para'],
         help='''Para la cancion que se esta reproduciendo''',
         brief='''Para la cancion que se esta reproduciendo''',
-        description='''COMANDO .pause'''
+        description='''COMANDO .pause''',
+        usage='.pause'
     )
     @commands.has_permissions(manage_guild=True)
     async def _pause(self, ctx: commands.Context):
@@ -451,7 +457,8 @@ class Music(
         aliases=['continua', 'continue'],
         help='''Continua reproduciendo la cancion previamente parada''',
         brief='''Continua reproduciendo la cancion''',
-        description='''COMANDO .resume'''
+        description='''COMANDO .resume''',
+        usage='.resume'
     )
     @commands.has_permissions(manage_guild=True)
     async def _resume(self, ctx: commands.Context):
@@ -467,7 +474,8 @@ class Music(
         name='stop',
         help='''Para de reproducir y vacia la lista de reproduccion''',
         brief='''Para de reproducir''',
-        description='''COMANDO .stop'''
+        description='''COMANDO .stop''',
+        usage='.stop'
     )
     @commands.has_permissions(manage_guild=True)
     async def _stop(self, ctx: commands.Context):
@@ -484,7 +492,8 @@ class Music(
         help='''Pasa la cancion que se esta reproduciendo si hay suficientes votos para pasar. Si este comando lo llama la persona que añadio la cancion a la lista
         se para automaticamente a la siguiente''',
         brief='''Pasa de cancion''',
-        description='''COMANDO .skip'''
+        description='''COMANDO .skip''',
+        usage='.skip'
     )
     async def _skip(self, ctx: commands.Context):
 
@@ -514,7 +523,8 @@ class Music(
         aliases=['lista', 'qu'],
         help='''Muestra la lista de reproduccion. Si se introduce un numero despues se interpreta como la pagina a la que se quiere acceder''',
         brief='''Muestra la lista de reproduccion''',
-        description='''COMANDO .queue'''
+        description='''COMANDO .queue''',
+        usage='.queue [page]'
     )
     async def _queue(self, ctx: commands.Context, *, page: int = 1):
 
@@ -540,7 +550,9 @@ class Music(
         aliases=['remover'],
         help='''Remueve la lista de reproduccion''',
         brief='''Remueve la lista de reproduccion''',
-        description='''COMANDO .shuffle''')
+        description='''COMANDO .shuffle''',
+        usage='.shuffle'
+        )
     async def _shuffle(self, ctx: commands.Context):
 
         if len(ctx.voice_state.songs) == 0:
@@ -552,9 +564,11 @@ class Music(
     @commands.command(
         name='remove',
         aliases=['quita'],
-        help='''Quita la cancion con el indice dado de la lista de reproduccion''',
+        help='''Quita la cancion con el indice dado de la lista de reproduccion. Se puede mirar el indice en **.queue**''',
         brief='''Quita una cancion de la lista de reproduccion''',
-        description='''COMANDO .remove''')
+        description='''COMANDO .remove''',
+        usage='remove <song_index>'
+        )
     async def _remove(self, ctx: commands.Context, index: int):
 
         if len(ctx.voice_state.songs) == 0:
@@ -569,7 +583,8 @@ class Music(
         help='''Reproduce en bucle la cancion que suena en el momento en el que se envio el mensaje. 
         Para salir del bucle volver a invocar el comando .loop''',
         brief='''Reproduce una cancion en bucle''',
-        description='''COMANDO .loop'''
+        description='''COMANDO .loop''',
+        usage='.loop'
     )
     async def _loop(self, ctx: commands.Context):
 
@@ -590,7 +605,8 @@ class Music(
         ''',
         brief='Reproduce una cancion',
         aliases=['toca'],
-        description='COMANDO .play'
+        description='COMANDO .play',
+        usage='.play <search|URL>'
     )
     async def _play(self, ctx: commands.Context, *, search: str):
 

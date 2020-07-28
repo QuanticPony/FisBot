@@ -1,35 +1,115 @@
 import discord
 from discord.ext import commands
-from bot_commands import channels
 
+class help_command(
+    commands.Cog,
+    name='Ayuda'
+    ):
+    '''¿Necesitas ayuda? **.help [comando]**'''
 
-help_command = commands.HelpCommand()
-
-class help_command(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    @commands.command(pass_context=True)
-    async def help(self, context):
-
-        cog = bot.get_cog()
-        print([c.name for c in commands])
+        self.bot.remove_command('help')
 
 
+    @commands.command(
+        name='help',
+        aliases=['ayuda','h'],
+        help='''Muestra la informacion disponible sobre el bot. Si no se introduce nada muestra todas las categorias y sus comandos
+        con una breve descripcion. Si se escribe seguido de una categoria muestra la informacion y comandos de ella. Si se escribe
+        seguido de un comando se muestra la informacion relativa al comando, funcionamiento y uso del mismo.
+        Y si, tenemos tanto tiempo que hemos completado el comando .help help''',
+        brief='''Muestra informacion de categorias y comandos''',
+        description='''COMANDO .help''',
+        usage='.help [category|command]'
+    )
+    @commands.has_permissions(add_reactions=True,embed_links=True)
+    async def _help(self, ctx, *nombre):
 
-        '''Escribe los comandos disponibles para el usuario que mandó el mensaje'''
-        embed = discord.Embed(
-            title=".help", 
-            description="Estos son los comandos disponibles para {.author.mention}:".format(context.message), 
-            color=0x00ecff)
+        if not nombre:
+            halp=discord.Embed(
+                title='.help', 
+                description='Estos son los comandos disponibles para {0.author.mention}:'.format(ctx), 
+                color=discord.Color.green()
+            )
+            for cog in self.bot.cogs.values():
+                commands_desc = ''
+                for x in cog.get_commands():
+                    if await x.can_run(ctx):
+                        commands_desc += ('{0: <15} {1}'.format(x.name,x.brief) + '\n')
 
-        embed.add_field(name=".help", value="Enseña los comandos disponibles", inline=False)
-        embed.add_field(name=".ctc 'name'", value="create text channel en categoria donde se envía el mensaje", inline=False)
-        if context.message.author.guild_permissions.administrator:
-            embed.add_field(name=".rtc", value="remove text channel donde se envía el mensaje", inline=False)
-        embed.add_field(name=".cvc 'name'", value="create voice channel en categoria donde está el usuario", inline=False)
-        if context.message.author.guild_permissions.administrator:
-            embed.add_field(name=".rvc", value="remove voice channel en el que está el usuario", inline=False)
-        await context.message.channel.send(embed=embed)
-        return
+                if commands_desc:
+                    halp.add_field(
+                        name=cog.qualified_name,
+                        value=commands_desc,
+                        inline=False
+                    )
+            return await ctx.send(embed=halp)
 
+        else:
+            cog = self.bot.get_cog(' '.join(nombre))
+            if cog:
+                commands_desc = ''
+                for x in cog.get_commands():
+                    if await x.can_run(ctx):
+                        commands_desc += ('{0: <15} {1}'.format(x.name,x.brief) + '\n')
+
+                if not commands_desc:
+                    halp=discord.Embed(
+                        title='Lo siento {0.author.mention}'.format(ctx),
+                        description='No tienes permisos para utilizar ninguno de los comandos de la categoria {0}'.format(cog.qualified_name),
+                        color=discord.Color.red()
+                    )
+                    return await ctx.send(embed=halp)
+
+                else:
+                    halp=discord.Embed(
+                        title='.help {}'.format(cog.qualified_name), 
+                        description=cog.__doc__,
+                        color=discord.Color.blue()
+                    )
+                    halp.add_field(
+                        name='Comandos de la categoria {0.qualified_name}'.format(cog),
+                        value=commands_desc,
+                        inline=False
+                    )
+                    return await ctx.send(embed=halp)
+
+            command = self.bot.get_command(' '.join(nombre))
+            if command:
+                halp=discord.Embed(
+                        title=command.description, 
+                        description=command.brief,
+                        color=discord.Color.blue()
+                    )
+                if len(command.aliases) > 1:
+                    halp.add_field(
+                        name='Tambien llamado:',
+                        value=' / '.join(command.aliases),
+                        inline=False
+                    )
+                if command.usage:
+                    halp.add_field(
+                        name='Como lo uso?',
+                        value='```' + command.usage + '```',
+                        inline=False
+                    )
+                if command.help:
+                    halp.add_field(
+                        name='Que hace?',
+                        value=command.help,
+                        inline=False
+                    )
+                return await ctx.send(embed=halp)
+
+        halp=discord.Embed(
+            title='Lo siento...'.format(ctx),
+            description='''No existe ninguna categoria o comando llamado {}.
+             **Prueba .help** para ver todos los comandos disponibles para ti'''.format(' '.join(nombre)),
+            color=discord.Color.red()
+        )
+        return await ctx.send(embed=halp)
+
+        
+def setup(bot):
+    bot.add_cog(help_command(bot))
