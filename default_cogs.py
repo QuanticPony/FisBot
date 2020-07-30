@@ -501,7 +501,7 @@ class poll(
                 'Si señor, claro. Bien. Buena...',
                 '\'Tamos tontos??',
                 'Las encuestas suelen tener al menos 2 elementos',
-                'Y la segunda opcion? me la invento yo?',
+                'Y las opciones? me las invento yo?',
                 'lol no'
             ]
             things_list.append('NULL')
@@ -509,9 +509,10 @@ class poll(
         if len(things_list) > 20:
             await context.send("Pero de que vas {0.message.author.mention}? Para que necesitas tantas opciones?".format(context))
 
-        codepoint_start = 127462  # represents "regional_indicator_a" unicode value
+        codepoint_start = 127462  # Letra A en unicode en emoji
         things_list = {chr(i): f"{chr(i)} - {v}" for i, v in enumerate(things_list, start=codepoint_start)}
         embed = discord.Embed(title=self.tit, description="\n".join(things_list.values()))
+        await context.message.delete()
         message = await context.send( '@everyone',embed=embed)
         for reaction in things_list:
             await message.add_reaction(reaction) 
@@ -530,6 +531,7 @@ class poll(
     )
     async def separator(self, context, *separator):
         if separator:
+            await context.message.delete()
             self.sep = separator[0]
         else:
             await context.send('Actualmente el separador de elementos de .poll es \'{0.sep}\''.format(self))
@@ -545,6 +547,7 @@ class poll(
     )
     async def polltitle(self, context, *,title):
         if title:
+            await context.message.delete()
             self.tit = title
         else:
             await context.send('Actualmente el titulo de la encuesta de .poll es \'{0.tit}\''.format(self))
