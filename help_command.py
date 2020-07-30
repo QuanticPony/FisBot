@@ -5,7 +5,8 @@ class help_command(
     commands.Cog,
     name='Ayuda'
     ):
-    '''¿Necesitas ayuda? **.help [comando]**'''
+    '''¿Necesitas ayuda porque no entiendes lo que hace o como se utiliza cierto comando o categoria de comandos? **.help [command|category]**
+    **Le recomendamos** que pruebe *.help help*'''
 
     def __init__(self, bot):
         self.bot = bot
@@ -15,18 +16,19 @@ class help_command(
     @commands.command(
         name='help',
         aliases=['ayuda','h'],
-        help='''Muestra la informacion disponible sobre el bot. Si no se introduce nada muestra todas las categorias y sus comandos
-        con una breve descripcion. Si se escribe seguido de una categoria muestra la informacion y comandos de ella. Si se escribe
-        seguido de un comando se muestra la informacion relativa al comando, funcionamiento y uso del mismo.
-        Y si, tenemos tanto tiempo que hemos completado el comando .help help''',
+        help='''¿Dudas sobre como poner musica? .help Musica
+        ¿Duda sobre el comando .play? .help play''',
         brief='''Muestra informacion de categorias y comandos''',
-        description='''COMANDO .help''',
+        description='''Muestra la informacion disponible sobre el bot. Si no se introduce nada muestra todas las categorias y sus comandos con una breve descripcion. 
+        Si se escribe seguido de una categoria muestra la informacion y comandos de ella. 
+        Si se escribe seguido de un comando se muestra la informacion relativa al comando, funcionamiento y uso del mismo.
+        Y si, tenemos tanto tiempo que hemos completado el comando .help help''',
         usage='.help [category|command]'
     )
     @commands.has_permissions(add_reactions=True,embed_links=True)
     async def _help(self, ctx, *nombre):
-
-        if not nombre:
+    # No se da ni categoria ni comando 
+        if not nombre:  
             halp=discord.Embed(
                 title='.help', 
                 description='Estos son los comandos disponibles para {0.author.mention}:'.format(ctx), 
@@ -46,8 +48,12 @@ class help_command(
                     )
             return await ctx.send(embed=halp)
 
+
+    # Se da categoria o comando
         else:
             cog = self.bot.get_cog(' '.join(nombre))
+
+        # Se da categoria
             if cog:
                 commands_desc = ''
                 for x in cog.get_commands():
@@ -69,34 +75,42 @@ class help_command(
                         color=discord.Color.blue()
                     )
                     halp.add_field(
-                        name='Comandos de la categoria {0.qualified_name}'.format(cog),
+                        name='Comandos de la categoria {0.qualified_name}:'.format(cog),
                         value=commands_desc,
                         inline=False
                     )
                     return await ctx.send(embed=halp)
 
+
             command = self.bot.get_command(' '.join(nombre))
+        # Se da comando
             if command:
                 halp=discord.Embed(
-                        title=command.description, 
+                        title='**{0.cog.qualified_name}**: *.{0.name}*'.format(command), 
                         description=command.brief,
                         color=discord.Color.blue()
                     )
                 if len(command.aliases) > 1:
                     halp.add_field(
-                        name='Tambien llamado:',
+                        name='**Tambien llamado:**',
                         value=' / '.join(command.aliases),
                         inline=False
                     )
                 if command.usage:
                     halp.add_field(
-                        name='Como lo uso?',
+                        name='**Como lo uso?**',
                         value='```' + command.usage + '```',
                         inline=False
                     )
                 if command.help:
                     halp.add_field(
-                        name='Que hace?',
+                        name='**Que hace?**',
+                        value=command.description,
+                        inline=False
+                    )
+                if command.description:
+                    halp.add_field(
+                        name='**Ejemplo(s):**',
                         value=command.help,
                         inline=False
                     )

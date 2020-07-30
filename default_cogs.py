@@ -19,9 +19,9 @@ class admin_basic_commands(
     @commands.command(
         pass_context=True, 
         aliases=['estado','juego'],
-        help='''Cambia el estado del bot. En el caso default pone como estado .help''',
-        brief='''Cambia el estadod el bot''',
-        description='''COMANDO .status''',
+        help='''¿Quiere cambiar el estado del bot a patatas? ```.status patatas```''',
+        brief='''Cambia el estado del bot''',
+        description='''Cambia el estado del bot. En el caso default pone como estado .help''',
         usage='.status [estado]'
     )
     async def status(self, context, game=None):
@@ -33,9 +33,9 @@ class admin_basic_commands(
     @commands.command(
         pass_context=True, 
         aliases=['sd', 'shut', 'apagar'],
-        help='''Apaga el bot,''',
+        help='''¿Quiere apagar el bot? No lo haga si no es imprescindible, pero se hace asi: ```.shutdown```''',
         brief='''Apaga el bot''',
-        description='''COMANDO .shutdown''',
+        description='''Apaga el bot. No lo haga si no es imprescindible''',
         usage='.shutdown'
     )
     async def shutdown(self, ctx):
@@ -45,9 +45,9 @@ class admin_basic_commands(
     @commands.command(
         pass_context=True, 
         aliases=['reset','restart', 'reiniciar'],
-        help='''Recarga el bot y actualiza los comandos de todas las extensiones habilitadas''',
+        help='''¿Se ha cambiado alguna libreria del bot y quiere actualizar su configuracion no imprescindible? ```.reload```''',
         brief='''Recarga el bot''',
-        description='''COMANDO .reload''',
+        description='''Recarga el bot y actualiza los comandos de todas las extensiones habilitadas''',
         usage='.reload'
         )
     async def reload(self, ctx):
@@ -77,14 +77,16 @@ class extensions_managment(
     @commands.command(
         pass_context=True, 
         aliases=['ext'],
-        help='''Permite la manipulación de las extensiones del bot. Las diferentes ordenes son:
-        \nenabled\t\t\t Muestra las extensiones habilitada
-        \nload\t[extension]\t Carga la extensión [extension]
-        \nreload\t[extension]\t Recarga la extensión [extension]
-        \nunload\t[extension]\t Descarga la extensión [extension]
+        help='''¿Ha añadido un archivo llamado hola_mundo.py a la carpeta de FisBot y quiere añadir los comandos al bot?```.extensions load hola_mundo```
+        ¿Quiere recargar la extension hola_mundo porque ha actualizado los ejemplos de un comando?```.extensions reload hola_mundo```
+        ¿Se ha cansado de la extension hola_mundo?```.extensions unload hola_mundo```
         ''',
-        brief='''Controla las extensiones''',
-        description='''COMANDO .extensions''',
+        brief='''Controla las extensiones del bot. Permite habilitarlas y quitarlas''',
+        description='''Permite la manipulación de las extensiones del bot. Las diferentes ordenes son:
+        \nenabled: Muestra las extensiones habilitada
+        \nload:    Carga la extensión [extension]
+        \nreload:  Recarga la extensión [extension]
+        \nunload:  Descarga la extensión [extension]''',
         usage='.extensions <enabled|load|reload|unload> [extension]'
     )
     async def extensions(self, ctx, order, *extension):
@@ -198,19 +200,25 @@ class channels_managment(
     commands.Cog,
     name='Canales'
     ):
-    '''Conjunto de comandos que permiten manipular los canales y categorias. Incluye alguna funcionalidad de interaccion con usuarios'''
+    '''Esta categoria de comandos te permite crear, eliminar y renombrar canales y categorias de canales del servidor
+    **Le sugerimos** que pruebe ```.help text```'''
     
     def __init__(self, bot):
         self.bot = bot
         self.last_tipo = ''
     
-
+    #TODO: cambiar esto para que sea mas entendible
 
     @commands.group(
         pass_context=True, 
         aliases=['text','voice'],
         help='''
-        Permite modificar, crear y eliminar los canales y categorias del servidor:
+        ¿Quieres crear un canal de texto en la categoria donde enviase el mensaje? ```.text create <name>```
+        ¿Quieres borrar un canal de voz, donde estas en el momento? ```.voice delete```
+        ¿Quieres cambiar el nombre de la categoria donde esta el canal de texto donde enviaste el mensaje? ```.category rename <name>```
+        ''',
+        brief='''**ESTE COMANDO VA A CAMBIAR EN ALGUN MOMENTO 101%**''',
+        description='''Permite modificar, crear y eliminar los canales y categorias del servidor:
 
         .text <create|delete|rename> [nombre]
             create: Crea un canal de texto en la categoria donde se envio el mensaje con el nombre dado
@@ -220,10 +228,7 @@ class channels_managment(
         .voice <create|delete|rename> [nombre]
             create: Crea un canal de voz en la categoria donde esta el autor del mensaje. Si no esta en ninguna en la misma categoria del mensaje
             delete: Borra el canal de voz donde esta el autor del mensaje
-            rename: Renombra  el canal de voz donde esta el autor del mensaje al nombre dado
-        ''',
-        brief='''.help text / .help voice''',
-        description='''COMANDO .category / .text / .voice''',
+            rename: Renombra  el canal de voz donde esta el autor del mensaje al nombre dado''',
         usage='''.<text|voice|category> <orden> [argumentos...]'''
     )
     async def category(self, context):
@@ -284,9 +289,11 @@ class channels_managment(
     @commands.command(
         pass_context=True, 
         aliases=['elimine','borra','elimina'],
-        help='''Elimina [amount] mensajes. Por defecto elmina el enviado y el anterior''',
+        help='''¿El del mensaje anterior ha ofendido a algun colectivo sensible? ```.purge -1```
+        ¿El mensaje anterior (solo 1) es altamente ofensivo contra los pitufos? ```.purge```
+        ¿Quiere borrar 23 mensajes?```.purge 23```''',
         brief='''Elimina mensajes''',
-        description='''COMANDO .purge''',
+        description='''Elimina [amount] mensajes. Por defecto elmina el enviado y el anterior''',
         usage='.purge [amount]',
         checks=[context_is_admin]
     )
@@ -399,9 +406,11 @@ class channels_managment(
 
     @commands.command(
         pass_context=True, 
-        help='''Cambia a [member...] de canal de voz y lo vuelve a poner donde estaba. En el caso defaul cambia a Jose''',
+        help='''¿No escucha a Jose y tiene que cambiarlo a otro canal y de vuelta?```.jose```
+        ¿Quiere cambiar a otro canal y de vuelta a una persona en concreto?```.jose @member```
+        ¿Quiere cambiar a otro canal y de vuelta a todo el mundo conectado?```.jose @everyone```''',
         brief='''Jovial Olor a Separacion Espontanea''',
-        description='''COMANDO .jose''',
+        description='''Cambia a [member...] de canal de voz y lo vuelve a poner donde estaba. En el caso defaul cambia a Jose''',
         usage='.jose [member|role|group]'
     )
     async def jose(self, context, *member):
@@ -479,9 +488,10 @@ class poll(
     @commands.command(
         pass_context=True, 
         aliases=['encuesta','p'],
-        help='''Hace una encuesta entre todos los elementos separados por el separador. Este se puede consultar con el comando **.separator**''',
+        help='''¿Grados o radianes, cual es mejor? Suponemos que el separador es el default: \_. Y que ya se ha introducido el titulo de la encuesta con *.polltitle*:
+        ```.poll Grados_Radianes```''',
         brief='''Hace una encuesta''',
-        description='''COMANDO .poll''',
+        description='''Hace una encuesta entre todos los elementos separados por el separador. Este se puede consultar con el comando **.separator**''',
         usage='.poll <elem1> separador <elem2> [separador [...]]'
     )
     async def poll(self, context, *, elementos):
@@ -511,9 +521,11 @@ class poll(
     @commands.command(
         pass_context=True, 
         aliases=['pollsep','sep','separador'],
-        help='''Cambia la string de separacion de elementos de encuesta en el comando .poll''',
+        help='''¿Quiere hacer una encuesta y por casualidad en uno de los elementos a elegir hay una barra baja (\_)? 
+        Puedes cambiar el separador a otro caracter diferente para poder poner lo que necesites. Pongamos que te interesa @ porque no te interfiere en nada:
+        ```.separator @```''',
         brief='''Cambia el separador de .poll''',
-        description='''COMANDO .separator''',
+        description='''Cambia la string de separacion de elementos de encuesta en el comando .poll''',
         usage='.separator [new_separator]'
     )
     async def separator(self, context, *separator):
@@ -526,9 +538,9 @@ class poll(
     @commands.command(
         pass_context=True, 
         aliases=['pollt','pt'],
-        help='''Cambia el titulo de la encuesta .poll. Por defecto es \'Encuesta:\'''',
+        help='''¿Quiere hacer una encuesta para saber si son mejores los grados o los gradianes? ```.polltitle ¿Grados o radianes, cual es mejor?```''',
         brief='''Cambia el titulo de la encuesta .poll''',
-        description='''COMANDO .polltitle''',
+        description='''Cambia el titulo de la encuesta .poll. Por defecto es \'Encuesta:\'''',
         usage='.polltitle [title...]'
     )
     async def polltitle(self, context, *,title):
