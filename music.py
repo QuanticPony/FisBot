@@ -564,9 +564,11 @@ class Music(
     @commands.command(
         name='remove',
         aliases=['quita'],
-        help='''Quita la cancion con el indice dado de la lista de reproduccion. Se puede mirar el indice en **.queue**''',
+        help='''¿Alguien ha pedido despacito y usted es una persona decente que por supuesto no puede con ella y quiere librar al resto de escucharla?
+        Supongamos para el ejemplo que se encuentra en el indice 14 de la **.queue**:
+        ```.remove 14```''',
         brief='''Quita una cancion de la lista de reproduccion''',
-        description='''COMANDO .remove''',
+        description='''Quita la cancion con el indice dado de la lista de reproduccion. Se puede mirar el indice en **.queue**''',
         usage='remove <song_index>'
         )
     async def _remove(self, ctx: commands.Context, index: int):
@@ -597,15 +599,18 @@ class Music(
 
     @commands.command(
         name='play',
-        help='''Reproduce una cancion
-        Si hay canciones en la lista de reproduccion la pondra al final hasta
-        que el resto se terminen.
-        Este comando busca automaticamente entre varios sitios si no se le da una URL.
-        Se puede consultar la lista de sitios aqui: <https://rg3.github.io/youtube-dl/supportedsites.html>
+        help='''¿Quiere escuchar una buena cancion y sabe la URL?```.play https://youtu.be/RvBQ2N8w71A```
+        ¿Quiere escuchar una cancion pero no sabe muy bien como se llama?```.play dQw4w9WgXcQ```
+        ¿Quiere escuchar despacito?```no lo haga, por favor```
+        ¿Quiere escuchar musica decente pero solo saba el titulo?```.play Vitas - 7th Element```
         ''',
         brief='Reproduce una cancion',
         aliases=['toca'],
-        description='COMANDO .play',
+        description='''Reproduce una cancion
+        Si hay canciones en la lista de reproduccion la pondra al final hasta
+        que el resto se terminen.
+        Este comando busca automaticamente entre varios sitios si no se le da una URL.
+        Se puede consultar la lista de sitios aqui: <https://rg3.github.io/youtube-dl/supportedsites.html>''',
         usage='.play <search|URL>'
     )
     async def _play(self, ctx: commands.Context, *, search: str):
