@@ -56,8 +56,8 @@ class admin_basic_commands(
         for cog_name in self.bot.extensions_list:
             if cog_name != 'default_cogs':
                 self.bot.reload_extension(cog_name)
-        await ctx.message.add_reaction("🔄")
         self.bot.reload_extension('default_cogs')
+        await ctx.message.add_reaction("🔄")
 
 
 class extensions_managment(
