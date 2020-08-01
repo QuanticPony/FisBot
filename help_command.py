@@ -5,7 +5,8 @@ class help_command(
     commands.Cog,
     name='Ayuda'
     ):
-    '''¿Necesitas ayuda porque no entiendes lo que hace o como se utiliza cierto comando o categoria de comandos? **.help [command|category]**
+    '''¿Necesita informacion general del servidor y su estructura? ```.ayuda```
+    ¿Necesitas ayuda porque no entiendes lo que hace o como se utiliza cierto comando o categoria de comandos? ```.help [command|category]```
     **Le recomendamos** que pruebe *.help help*'''
 
     def __init__(self, bot):
