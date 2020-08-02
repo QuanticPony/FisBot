@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-class help_command(
+class help_commands(
     commands.Cog,
     name='Ayuda'
     ):
@@ -12,6 +12,17 @@ class help_command(
     def __init__(self, bot):
         self.bot = bot
         self.bot.remove_command('help')
+        
+        
+        
+    @commands.command(
+      name='roles',
+      brief='Muestra informacion de los roles',
+      description='''Muestra informacion sobre los roles existentes y si son accesibles por niveles''',
+      usage='.roles'
+    )
+    async def _roles(self, ctx):
+      
 
     @commands.command(
         name='ayuda',
@@ -170,4 +181,4 @@ class help_command(
 
         
 def setup(bot):
-    bot.add_cog(help_command(bot))
+    bot.add_cog(help_commands(bot))
