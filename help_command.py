@@ -13,16 +13,6 @@ class help_commands(
         self.bot = bot
         self.bot.remove_command('help')
         
-        
-        
-    @commands.command(
-      name='roles',
-      brief='Muestra informacion de los roles',
-      description='''Muestra informacion sobre los roles existentes y si son accesibles por niveles''',
-      usage='.roles'
-    )
-    async def _roles(self, ctx):
-      
 
     @commands.command(
         name='ayuda',
