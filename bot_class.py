@@ -2,8 +2,6 @@ import discord
 import asyncio
 from discord.ext import commands
 
-ID_ALBITA = 592426257170432001
-
 
 def context_is_admin(context):
     '''Devuelve True si el author del contexto que activa cierta funcion del Bot tiene permisos de administrador en dicho Servidor.
@@ -18,7 +16,8 @@ class FisBot(commands.Bot):
         self.extensions_list = [
             'help_command',
             'default_cogs',
-            'music'
+            'music',
+            'custom_roles'
             ]
         self.add_extensions(self.extensions_list)
 
