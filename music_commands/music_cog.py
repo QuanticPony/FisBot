@@ -9,42 +9,6 @@ import youtube_dl
 from async_timeout import timeout
 from discord.ext import commands
 
-class music(
-    commands.Cog, 
-    name='Musica',
-    ):
-    '''
-    '''
-
-    def __init__(self, bot):
-        self.bot = bot
-
-    #@commands.command()
-    #async def join(self, context):
-    #    if context.message.author.voice:
-    #        channel = context.message.author.voice.channel
-    #        await channel.connect()
-    #    else:
-    #        context.send('')
-#
-    #@commands.command()
-    #async def leave(self, context):
-    #    guild = context.guild
-    #    for client in self.bot.voice_clients:
-    #        if guild.id == client.guild.id:
-    #            await client.disconnect()
-    #    else:
-    #        context.send('No me puedo desconectar si no estoy conectado')
-#
-    #@commands.command()
-    #async def play(self, context, url):
-    #    for client in self.bot.voice_clients:
-    #        if client.channel == context.message.author.voice.channel:
-    #            client.play(url)
-    #        else:
-    #            context.send('No se puedo completar')
-
-
 '''
 Python 3.5+
 pip install -U discord.py pynacl youtube-dl
