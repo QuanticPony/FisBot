@@ -14,7 +14,7 @@ class FisBot(commands.Bot):
     def __init__(self, command_prefix: str):
         super().__init__(command_prefix=commands.when_mentioned_or("."))
         self.extensions_list = [
-            'help_command',
+            'custom_help.loader',
             'basics.loader',
             'music',
             #'custom_roles'
