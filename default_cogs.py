@@ -285,7 +285,6 @@ class channels_managment(
 
 
 
-
     @commands.command(
         pass_context=True, 
         aliases=['elimine','borra','elimina'],

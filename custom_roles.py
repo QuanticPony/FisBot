@@ -1,3 +1,9 @@
+import discord
+import asyncio
+from discord.ext import commands
+
+
+"""En proceso, no usar"""
 
 class custom_roles(
     commands.Cog,
@@ -23,6 +29,7 @@ class custom_roles(
                     value='Desbloqueado al nivel {0}'.format(nivel),
                     inline=False
                 )
+                nivel += 1
 
 
     @commands.group(
@@ -42,4 +49,6 @@ class custom_roles(
 
 
     
+def setup(bot):
+    bot.add_cog(custom_roles(bot))
       

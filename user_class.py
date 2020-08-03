@@ -1,6 +1,10 @@
 import discord
 import random
 
+
+"""Esto esta por acabar, no tienes que mirar nada aqui.
+Lo unico interesante es ver como se pueden definir funciones y variables en una clase (objeto) de python"""
+
 class FisUser(discord.User):
     def __init__(self, *, state, data):
         self.karma = 0

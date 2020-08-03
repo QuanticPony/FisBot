@@ -1,6 +1,12 @@
 import discord
+import asyncio
 from discord.ext import commands
 
+# Este archivo tiene cosas de bastante complejidad. Recomiendo que no la modifiques y si tienes cualquier duda me preguntes
+
+# Esta clase tiene la implementacion de todos los comandos de ayuda: .ayuda y .help.
+# Te sirven para ver los comandos disponibles y una breve ayuda de los canales del servidor
+# NO HAY ACLARACIONES DE COMO FUNCIONA ESTO. SI ESTAIS APRENDIENDO NO LO MIREIS
 class help_commands(
     commands.Cog,
     name='Ayuda'
@@ -17,7 +23,7 @@ class help_commands(
     @commands.command(
         name='ayuda',
         brief='''Muestra informacion general del servidor''',
-        description='''Te da informacion basica sobre el funcionamiento del servidor. Para informaicon de comandos y categorias prueba ```.help [command|category]```''',
+        description='''Te da informacion basica sobre el funcionamiento del servidor. Para informacion de comandos y categorias prueba ```.help [command|category]```''',
         usage='.ayuda'
     )
     @commands.has_permissions(embed_links=True)
