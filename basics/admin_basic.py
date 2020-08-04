@@ -3,7 +3,7 @@ import discord
 import asyncio
 import random
 from discord.ext import commands
-from bot_class import context_is_admin
+from classes.bot_class import context_is_admin
 
 class admin_basic_commands(
     commands.Cog,
