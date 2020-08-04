@@ -6,3 +6,4 @@
 /ffmpeg.exe
 /.gitignore
 /run.cmd
+__pycache__/
