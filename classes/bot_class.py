@@ -16,7 +16,7 @@ class FisBot(commands.Bot):
         self.extensions_list = [
             'custom_help.loader',
             'basics.loader',
-            'music',
+            'music_commands.loader',
             #'custom_roles'
             ]
         self.add_extensions(self.extensions_list)
