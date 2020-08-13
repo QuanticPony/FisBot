@@ -70,6 +70,8 @@ class tareas_commands(
         [context_is_admin]
     )
     async def Añade(self, context, asignatura, elementos):
+        for key in Asignaturas.key
+        
 
     
 )
