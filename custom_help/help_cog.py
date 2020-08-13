@@ -1,6 +1,8 @@
 import discord
+import asyncio
 from discord.ext import commands
-from custom_help.custom_help_command import custom_help_implementation
+from custom_help.custom_help_command import custom_help_implementation_command
+from custom_help.custom_help_command import custom_help_implementation_general
 
 class help_commands(
     commands.Cog,
@@ -73,4 +75,7 @@ class help_commands(
     )
     @commands.has_permissions(embed_links=True)
     async def _help(self, ctx, *nombre):
-        custom_help_implementation(self.bot, ctx, nombre)
+        if not nombre:
+            await custom_help_implementation_general(self.bot, ctx)
+        else:
+            await custom_help_implementation(self.bot, ctx, ' '.join(nombre))
