@@ -7,11 +7,16 @@ from classes.bot_class import context_is_admin
 class Trabajo():
     def __init__(self, fecha, nombre, description):
         #*TODO: url a donde lo han mandado/foto
-        self.fecha=fecha
-        self.nombre=nombre
-        self.description=description
+        if fecha:
+            self.fecha = fecha
+        if nombre:
+            self.nombre=nombre
+        if description:
+            self.description=description
 
-    def Fecha(self):
+    def add_date(self, fecha):
+        self.fecha = fecha
+    
         
 
 
