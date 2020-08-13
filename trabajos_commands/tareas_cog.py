@@ -16,7 +16,8 @@ class Trabajo():
 
     def add_date(self, fecha):
         self.fecha = fecha
-    
+    def add_description(self, description):
+        self.description= description
         
 
 
@@ -86,15 +87,42 @@ class tareas_commands(
         usage='.....',
         check=[context_is_admin]
     )
-    async def Añade(self, context, asignatura, titulo, *descripcion):
-        for key in self.Asignaturas.key:
-            name = ''
-            if key.find(asignatura):
-                name = key
-            else:
-                await context.send('Parece que la asignatura que has puesto no existe')
-        if name:
-            self.Asignaturas[name][titulo] = descripcion
+    async def Añade(self, context):
+        def CompruebaAutor():
+            #TODO:saber como definir esta función
+        if not context.author.dm_channel:
+            await context.author.create_dm()
+        await context.author.dm_channel.send("Muy buenos días, a qué asignatura añades el trabajo?")
+        asignatura = await client.wait_for('message', check=True) #esta puesto el true de momento hasta que la funcion este hecha
+        i=0
+        for key in self.Asignaturas:
+            if asignatura.find(self.Asignaturas) != -1:
+                nombre_Asignatura=self.Asignaturas[i]#es un intento de que el nombre de la asignautra se reemplace por el nombre completo de la key del diccoinario
+                                                    #porque me preocupa que si por ejemplo nombre asignatura es Termo, en vez de meterlo en Termodinamica 
+                                                    #cree una nueva key llamado termo y lo meta ahi, asi si Termo esta en termodinamica, el nombre de la asignatura 
+                                                    #sera termodinamica, no estoy seguro que lo pueda hacer asi con la i tan facil pero es la idea
+        i++
+        else: 
+            if not context.author.dm_channel:
+                await context.author.create_dm()
+            await context.author.dm_channel.send('No existe tal asignatura, repite el proceso')#TODO que sea un bucle
+        if nombre_Asignatura!=Null:
+            if not context.author.dm_channel:
+                await context.author.create_dm()
+            await context.author.dm_channel.send("Ahora dime la fecha de entrega del trabajo/fecha de examen")#TODO crear categoría especial para examen
+            fecha = await client.wait_for('message',check=True)
+            if not context.author.create_dm()
+                await context.author.create_dm()
+            await context.author.dm_channel.send("Bien, queda poco, a continuación ponle un nombre al trabajo/examen")
+            nombre = await client.wait_for('message', check=True)
+            if not context.author.create_dm()
+                await context.author.create_dm()
+            await context.author.dm_channel.send("Por último, añade una descripción al trabajo/examen")
+            descripcion = await client.wait_for('message',check=True)
+            Trabajo1= Trabajo(fecha,nombre,descripcion)
+            self.Asignaturas[nombre_Asignatura]=Trabajo1
+
+
 
 
     @commands.command(
