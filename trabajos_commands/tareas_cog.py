@@ -62,16 +62,41 @@ class tareas_commands(
         }
     @commands.command(
         pass_context=True,
-        aliases=['añadir']
-        help=''' asad'''
-        brief='''añadir algo a la lista'''
-        description='''asdasd'''
-        usage='.....'
+        aliases=['añadir'],
+        help=''' asad''',
+        brief='''añadir algo a la lista''',
+        description='''asdasd''',
+        usage='.....',
         [context_is_admin]
     )
-    async def Añade(self, context, asignatura, elementos):
-        for key in Asignaturas.key
-        
+    async def Añade(self, context, asignatura, titulo, *descripcion):
+        for key in Asignaturas.key:
+            if key.find asignatura:
+                name =asignatura
+            else:
+                await context.send('Parece que la asignatura que has puesto no existe')
+        if name !=Null:
+        Asignaturas[name][titulo]=descripcion
+
+
+    @commands.command(
+        pass_context=True,
+        aliases=['busca','mira','deberes'],
+        help='''asdads''',
+        brief='''asdasdasd''',
+        description='''asdasdasd''',
+        usage='sdasdasd'
+    )
+
+    async def comprobar(self, context, *asignaturas):
+        lista_asignaturas=asignaturas.split(',')
+        if len(lista_asignaturas)<1:
+            await context.send("Bro que no has puesto ninguna")
+        embed=discord.Embed(title="Trabajos pendientes", )
+        for thing in lista_asignaturas:
+
+            
+
 
     
 )
