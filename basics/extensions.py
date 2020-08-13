@@ -1,6 +1,6 @@
 import discord
-from discord.ext import commands
 import asyncio
+from discord.ext import commands
 from classes.bot_class import context_is_admin
 
 class extensions_managment(
@@ -50,7 +50,7 @@ class extensions_managment(
             self.bot.reload_extension(extension[0])
             await ctx.message.add_reaction("🔄")
         
-        if order == 'unload' and extension != 'default_cogs':
+        if order == 'unload' and extension != 'basics.loader':
             self.bot.extensions_list.remove(extension[0])
             self.bot.unload_extension(extension[0])
-            await ctx.message.add_reaction("❌")
+            await ctx.message.add_reaction("✅")
