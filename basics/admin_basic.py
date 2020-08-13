@@ -50,8 +50,6 @@ class admin_basic_commands(
         check=[context_is_admin]
         )
     async def reload(self, ctx):
-        if ctx.message.author.guild_permissions.administrator == False:
-             return
         for cog_name in self.bot.extensions_list:
             if cog_name != 'basics.loader':
                 self.bot.reload_extension(cog_name)
