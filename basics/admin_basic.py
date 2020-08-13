@@ -47,7 +47,7 @@ class admin_basic_commands(
         brief='''Recarga el bot''',
         description='''Recarga el bot y actualiza los comandos de todas las extensiones habilitadas''',
         usage='.reload',
-        check=context_is_admin
+        check=[context_is_admin]
         )
     async def reload(self, ctx):
         if ctx.message.author.guild_permissions.administrator == False:
