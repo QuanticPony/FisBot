@@ -62,16 +62,23 @@ class tareas_commands(
         }
     @commands.command(
         pass_context=True,
-        aliases=['añadir']
-        help=''' asad'''
-        brief='''añadir algo a la lista'''
-        description='''asdasd'''
-        usage='.....'
+        aliases=['añadir'],
+        help=''' asad''',
+        brief='''añadir algo a la lista''',
+        description='''asdasd''',
+        usage='.....',
         [context_is_admin]
     )
-    async def Añade(self, context, asignatura, elementos):
+    async def Añade(self, context, asignatura, titulo, *descripcion):
         for key in Asignaturas.key
-        
+            if key.find asignatura:
+                name =asignatura
+            else:
+                await context.send('Parece que la asignatura que has puesto no existe')
+        if name !=Null
+        Asignaturas[name][titulo]=descripcion
+
+
 
     
 )
