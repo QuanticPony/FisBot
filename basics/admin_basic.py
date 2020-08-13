@@ -1,4 +1,3 @@
-
 import discord
 import asyncio
 import random
@@ -47,13 +46,14 @@ class admin_basic_commands(
         help='''¿Se ha cambiado alguna libreria del bot y quiere actualizar su configuracion no imprescindible? ```.reload```''',
         brief='''Recarga el bot''',
         description='''Recarga el bot y actualiza los comandos de todas las extensiones habilitadas''',
-        usage='.reload'
+        usage='.reload',
+        check=context_is_admin
         )
     async def reload(self, ctx):
         if ctx.message.author.guild_permissions.administrator == False:
              return
         for cog_name in self.bot.extensions_list:
-            if cog_name != 'default_cogs':
+            if cog_name != 'basics.loader':
                 self.bot.reload_extension(cog_name)
-        self.bot.reload_extension('default_cogs')
         await ctx.message.add_reaction("🔄")
+        self.bot.reload_extension('basics.loader')
