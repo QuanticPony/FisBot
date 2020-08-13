@@ -30,12 +30,6 @@ class extensions_managment(
         usage='.extensions <enabled|load|reload|unload> [extension]'
     )
     async def extensions(self, ctx, order, *extension):
-        if ctx.message.author.guild_permissions.administrator == False:
-            await ctx.message.add_reaction("❌")
-            return
-        #print(orden)
-        #print(str(extension[0]))
-
         if order == 'enabled':
             enabled_extensions = '```\n'
 

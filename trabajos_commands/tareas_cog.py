@@ -12,7 +12,7 @@ class Trabajo():
         self.description=description
 
     def myfunc(self):
-         
+
 
 class tareas_commands(
     commands.Cog,
@@ -22,7 +22,7 @@ class tareas_commands(
     que nos van mandando durante el curso. 
     Para mirar fechas de exámenes y trabajos, prueba *.trabajos ['''
 
-    def __init__(self,bot):
+    def __init__(self, bot):
         self.bot = bot
         Asignaturas={
             "Astronomía" : [
@@ -78,16 +78,17 @@ class tareas_commands(
         brief='''añadir algo a la lista''',
         description='''asdasd''',
         usage='.....',
-        [context_is_admin]
+        check=[context_is_admin]
     )
     async def Añade(self, context, asignatura, titulo, *descripcion):
-        for key in Asignaturas.key:
-            if key.find asignatura:
-                name =asignatura
+        for key in self.Asignaturas.key:
+            name = ''
+            if key.find(asignatura):
+                name = key
             else:
                 await context.send('Parece que la asignatura que has puesto no existe')
-        if name !=Null:
-        Asignaturas[name][titulo]=descripcion
+        if name:
+            self.Asignaturas[name][titulo] = descripcion
 
 
     @commands.command(
@@ -105,10 +106,5 @@ class tareas_commands(
             await context.send("Bro que no has puesto ninguna")
         embed=discord.Embed(title="Trabajos pendientes", )
         for thing in lista_asignaturas:
-
-            
-
-
-    
-)
+            pass
 
