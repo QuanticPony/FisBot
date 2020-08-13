@@ -11,3 +11,10 @@ def setup(bot):
     bot.add_cog(cog_managment(bot))
     bot.add_cog(channels_managment(bot))
     bot.add_cog(poll(bot))
+
+def teardown(bot):
+    bot.remove_cog(extensions_managment(bot))
+    bot.remove_cog(admin_basic_commands(bot))
+    bot.remove_cog(cog_managment(bot))
+    bot.remove_cog(channels_managment(bot))
+    bot.remove_cog(poll(bot))
