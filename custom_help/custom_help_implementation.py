@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-async def custom_help_implementation_general():
+async def custom_help_implementation_general(bot, ctx):
     halp=discord.Embed(
             title='.help', 
             description='Estos son los comandos disponibles para {0.author.mention}:'.format(ctx), 

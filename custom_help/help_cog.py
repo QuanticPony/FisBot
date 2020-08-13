@@ -78,4 +78,4 @@ class help_commands(
         if not nombre:
             await custom_help_implementation_general(self.bot, ctx)
         else:
-            await custom_help_implementation(self.bot, ctx, ' '.join(nombre))
+            await custom_help_implementation_command(self.bot, ctx, ' '.join(nombre))
