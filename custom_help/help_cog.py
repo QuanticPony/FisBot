@@ -25,8 +25,12 @@ class help_commands(
     )
     @commands.has_permissions(embed_links=True)
     async def _ayuda(self, ctx):
+        nick = ctx.author.nick
+        if not nick:
+            nick = ctx.author.name
+
         ayuda=discord.Embed(
-            title='Hola {.nick}:'.format(ctx.author),
+            title='Hola ' + nick,
             description='Vemos que has pedido ayuda en {0.channel.mention} sobre el servidor {0.guild.name}:'.format(ctx),
             color=discord.Color.gold()
         )
