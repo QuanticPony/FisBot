@@ -13,8 +13,8 @@ def setup(bot):
     bot.add_cog(poll(bot))
 
 def teardown(bot):
-    bot.remove_cog(extensions_managment(bot))
-    bot.remove_cog(admin_basic_commands(bot))
-    bot.remove_cog(cog_managment(bot))
-    bot.remove_cog(channels_managment(bot))
-    bot.remove_cog(poll(bot))
+    bot.remove_cog('Control de extensiones')
+    bot.remove_cog('Comandos basicos')
+    bot.remove_cog('Control de comandos')
+    bot.remove_cog('Canales')
+    bot.remove_cog('Encuestas')

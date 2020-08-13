@@ -4,4 +4,4 @@ def setup(bot):
     bot.add_cog(Music(bot))
 
 def teardown(bot):
-    bot.remove_cog(Music(bot))
+    bot.remove_cog('Musica')
