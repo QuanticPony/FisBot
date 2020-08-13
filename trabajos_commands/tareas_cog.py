@@ -3,6 +3,17 @@ import asyncio
 from discord.ext import commands
 from classes.bot_class import context_is_admin
 
+
+class Trabajo():
+    def __init__(self, fecha, nombre, description):
+        #*TODO: url a donde lo han mandado/foto
+        self.fecha=fecha
+        self.nombre=nombre
+        self.description=description
+
+    def myfunc(self):
+         
+
 class tareas_commands(
     commands.Cog,
     name='Trabajos'
@@ -14,51 +25,51 @@ class tareas_commands(
     def __init__(self,bot):
         self.bot = bot
         Asignaturas={
-            "Astronomía" : {
+            "Astronomía" : [
 
-            },
-            "Técnicas físicas II" : {
+            ],
+            "Técnicas físicas II" : [
 
-            },
-            "Microondas: propagación y antenas": {
+            ],
+            "Microondas: propagación y antenas": [
 
-            },
-            "Física cuántica I" : {
+            ],
+            "Física cuántica I" : [
 
-            },
-            "Óptica" : {
+            ],
+            "Óptica" : [
 
-            },
-            "Termodinámica" : {
+            ],
+            "Termodinámica" : [
 
-            },
-            "Física de fluidos" : {
+            ],
+            "Física de fluidos" : [
 
-            },
-            "Historia de la ciencia" : {
+            ],
+            "Historia de la ciencia" : [
 
-            },
-            "Física de la atmósfera" : {
+            ],
+            "Física de la atmósfera" : [
 
-            },
-            "Micro y nano sistemas" : {
+            ],
+            "Micro y nano sistemas" : [
 
-            },
-            "Física estadística" : {
+            ],
+            "Física estadística" : [
 
-            },
-            "Física cuántica II" : {
+            ],
+            "Física cuántica II" : [
 
-            },
-            "Láser y aplicaciones" : {
+            ],
+            "Láser y aplicaciones" : [
 
-            },
-            "Gravitación y cosmología" : {
+            ],
+            "Gravitación y cosmología" : [
 
-            },
-            "Caos y sistemas dinámicos no lineales" : {
+            ],
+            "Caos y sistemas dinámicos no lineales" : [
 
-            }
+            ]
         }
     @commands.command(
         pass_context=True,
