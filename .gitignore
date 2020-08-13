@@ -7,3 +7,4 @@
 /.gitignore
 /run.cmd
 __pycache__/
+/DS_Store
