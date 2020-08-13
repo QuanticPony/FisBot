@@ -11,7 +11,8 @@ class Trabajo():
         self.nombre=nombre
         self.description=description
 
-    def myfunc(self):
+    def Fecha(self):
+        
 
 
 class tareas_commands(
