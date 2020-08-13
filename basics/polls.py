@@ -39,7 +39,7 @@ class poll(
                 'lol no'
             ]
             things_list.append('NULL')
-            await context.send(responses[random.randint(0,3)])
+            await context.send(responses[random.randint(0,4)])
         if len(things_list) > 20:
             await context.send("Pero de que vas {0.message.author.mention}? Para que necesitas tantas opciones?".format(context))
 
@@ -51,6 +51,7 @@ class poll(
         for reaction in things_list:
             await message.add_reaction(reaction) 
         self.tit = 'Encuesta:'
+        self.sep='_'
 
 
     @commands.command(
