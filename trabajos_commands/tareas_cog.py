@@ -96,12 +96,12 @@ class tareas_commands(
         asignatura = await client.wait_for('message', check=True) #esta puesto el true de momento hasta que la funcion este hecha
         i=0
         for key in self.Asignaturas:
-            if asignatura.find(self.Asignaturas) != -1:
+            if asignatura in self.Asignaturas[i]
                 nombre_Asignatura=self.Asignaturas[i]#es un intento de que el nombre de la asignautra se reemplace por el nombre completo de la key del diccoinario
                                                     #porque me preocupa que si por ejemplo nombre asignatura es Termo, en vez de meterlo en Termodinamica 
                                                     #cree una nueva key llamado termo y lo meta ahi, asi si Termo esta en termodinamica, el nombre de la asignatura 
                                                     #sera termodinamica, no estoy seguro que lo pueda hacer asi con la i tan facil pero es la idea
-        i++
+        i=i+1
         else: 
             if not context.author.dm_channel:
                 await context.author.create_dm()
