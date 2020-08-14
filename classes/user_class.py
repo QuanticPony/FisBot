@@ -1,14 +1,14 @@
 import discord
 import random
 
-class FisUser(discord.User):
-    def __init__(self, *, state, data):
+class FisUser():
+    def __init__(self, user):
+        self.id = user.id
+        self.name = user.nick
         self.karma = 0
         self.level = 0
         self.xp = 0
-        self.User = super().__init__()
         return
-
 
     def addkarma(self):
         self.karma += 1
@@ -40,6 +40,19 @@ class FisUser(discord.User):
 
     def setxp(self, exp):
         self.xp += exp
+
+    def read_user(self, ):
+        self.level = int
+        self.xp = int
+        self.karma = int
+
+
+    def modifi_user(self, ):
+        pass
+
+    def write_user(self, ):
+        pass
+
 
 
 
