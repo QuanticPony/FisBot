@@ -81,10 +81,12 @@ class tareas_commands(
     @commands.command(
         pass_context=True,
         aliases=['añadir'],
-        help=''' asad''',
-        brief='''añadir algo a la lista''',
-        description='''asdasd''',
-        usage='.....',
+        help='''Quiero añadir un trabajo de astro? .Añade Astro, y luego tocará una conversa
+        ción agradable con el bot en la que introduzco fecha, nombre y descripción''',
+        brief='''Añade un trabajo/examen''',
+        description='''Añade un trabajo/examen a la base de datos de manera que haya fácil acceso
+        para el resto de usuarios para luego mirar fechas de entrega''',
+        usage='.Añade <nombre_asignatura> ... responder a las preguntas del bot',
         check=[context_is_admin]
     )
     async def Añade(self, context):
@@ -107,11 +109,11 @@ class tareas_commands(
                                                     #cree una nueva key llamado termo y lo meta ahi, asi si Termo esta en termodinamica, el nombre de la asignatura 
                                                     #sera termodinamica, no estoy seguro que lo pueda hacer asi con la i tan facil pero es la idea
         i=i+1
-        else: 
+        if nombre_Asignatura == Null:
             if not context.author.dm_channel:
                 await context.author.create_dm()
             await context.author.dm_channel.send('No existe tal asignatura, repite el proceso')#TODO que sea un bucle
-        if nombre_Asignatura!=Null:
+        else: 
             if not context.author.dm_channel:
                 await context.author.create_dm()
             await context.author.dm_channel.send("Ahora dime la fecha de entrega del trabajo/fecha de examen")#TODO crear categoría especial para examen
@@ -126,9 +128,6 @@ class tareas_commands(
             descripcion = await client.wait_for('message',check=CompruebaAutor(ctx))
             Trabajo1= Trabajo(fecha,nombre,descripcion)
             self.Asignaturas[nombre_Asignatura]=Trabajo1
-
-
-
 
     @commands.command(
         pass_context=True,
