@@ -132,17 +132,22 @@ class tareas_commands(
     @commands.command(
         pass_context=True,
         aliases=['busca','mira','deberes'],
-        help='''asdads''',
-        brief='''asdasdasd''',
-        description='''asdasdasd''',
-        usage='sdasdasd'
+        help='''Quieres ver que trabajos hay de fluidos? .comprobar fluidos''',
+        brief='''Permite ver trabajos pendientes''',
+        description='''Permite ver trabajos y exámenes pendientes, así como su fecha de entrega y una pequeña descripción
+        de lo que hay que hacer, si hay algo que consideres que haya que cambiar de esta base de datos, contacta con un moderador''',
+        usage='.comprobar <asigatura> [, <asignatura2>,...]'
     )
 
     async def comprobar(self, context, *asignaturas):
         lista_asignaturas=asignaturas.split(',')
         if len(lista_asignaturas)<1:
             await context.send("Bro que no has puesto ninguna")
-        embed=discord.Embed(title="Trabajos pendientes", )
+        mensaje=''
         for thing in lista_asignaturas:
-            pass
-
+            for key in self.Asignaturas:
+                if thing in key:
+                    mensaje= mensaje+ *key* + '\n'
+                    for x in self.Asignatura[key]:
+                        mensaje= mensaje + x + '\n'
+        embed=discord.Embed(title="Trabajos pendientes", description=mensaje)
