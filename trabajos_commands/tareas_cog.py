@@ -88,12 +88,17 @@ class tareas_commands(
         check=[context_is_admin]
     )
     async def Añade(self, context):
-        def CompruebaAutor():
-            #TODO:saber como definir esta función
+        def CompruebaAutor(ctx):
+            if ctx.message.author.id == original:
+                original=ctx.message.author.id
+                return True
+            else: 
+                return False
+        original=context.message.author.id
         if not context.author.dm_channel:
             await context.author.create_dm()
         await context.author.dm_channel.send("Muy buenos días, a qué asignatura añades el trabajo?")
-        asignatura = await client.wait_for('message', check=True) #esta puesto el true de momento hasta que la funcion este hecha
+        asignatura = await client.wait_for('message', check=CompruebaAutor(ctx)) #No se como asegurar que le he pasado como parámetro a la función ctx, osea el contexto de quien lo manda
         i=0
         for key in self.Asignaturas:
             if asignatura in self.Asignaturas[i]
@@ -110,15 +115,15 @@ class tareas_commands(
             if not context.author.dm_channel:
                 await context.author.create_dm()
             await context.author.dm_channel.send("Ahora dime la fecha de entrega del trabajo/fecha de examen")#TODO crear categoría especial para examen
-            fecha = await client.wait_for('message',check=True)
+            fecha = await client.wait_for('message',check=CompruebaAutor(ctx))
             if not context.author.create_dm()
                 await context.author.create_dm()
             await context.author.dm_channel.send("Bien, queda poco, a continuación ponle un nombre al trabajo/examen")
-            nombre = await client.wait_for('message', check=True)
+            nombre = await client.wait_for('message', check=CompruebaAutor(ctx))
             if not context.author.create_dm()
                 await context.author.create_dm()
             await context.author.dm_channel.send("Por último, añade una descripción al trabajo/examen")
-            descripcion = await client.wait_for('message',check=True)
+            descripcion = await client.wait_for('message',check=CompruebaAutor(ctx))
             Trabajo1= Trabajo(fecha,nombre,descripcion)
             self.Asignaturas[nombre_Asignatura]=Trabajo1
 
