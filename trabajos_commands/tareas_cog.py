@@ -1,5 +1,6 @@
 import discord
 import asyncio
+import unicodedata
 from discord.ext import commands
 from classes.bot_class import context_is_admin
 
@@ -96,23 +97,51 @@ class tareas_commands(
                 return True
             else: 
                 return False
+        # Lo que has hecho esta mas o menos bien, salvo porque original tiene que ser un imput de la funcion. Pero es mas correcto de la siguiente manera:
+        def _CompruebaAutor(ctx, original):
+            return ctx.message.author.id == original
+
+        
+
         original=context.message.author.id
         if not context.author.dm_channel:
             await context.author.create_dm()
         await context.author.dm_channel.send("Muy buenos días, a qué asignatura añades el trabajo?")
-        asignatura = await client.wait_for('message', check=CompruebaAutor(ctx)) #No se como asegurar que le he pasado como parámetro a la función ctx, osea el contexto de quien lo manda
-        i=0
-        for key in self.Asignaturas:
-            if asignatura in self.Asignaturas[i]
-                nombre_Asignatura=self.Asignaturas[i]#es un intento de que el nombre de la asignautra se reemplace por el nombre completo de la key del diccoinario
-                                                    #porque me preocupa que si por ejemplo nombre asignatura es Termo, en vez de meterlo en Termodinamica 
-                                                    #cree una nueva key llamado termo y lo meta ahi, asi si Termo esta en termodinamica, el nombre de la asignatura 
-                                                    #sera termodinamica, no estoy seguro que lo pueda hacer asi con la i tan facil pero es la idea
-        i=i+1
+        try:
+            msg = await client.wait_for('message', timeout== 60.0, check=CompruebaAutor(ctx)) # No se como asegurar que le he pasado como parámetro a la función ctx, osea el contexto de quien lo manda
+                                                                                     # Solo hace falta cambiar el parametro de CompruebaAutor a context, y no ctx
+        except asyncio.TimeoutError:
+            return
+
+
+        asignatura = unicodedata.normalize('NFKD', msg.content)\
+            .encode('ascii', 'ignore').decode('ascii').title()
+
+        
+        while not
+        try:
+            # TODO: Ver si asignatura esta en la base de datos
+        except:
+            
+
+
+        for key in self.Asignaturas.keys():
+            if asignatura in key:
+                nombre_Asignatura = key #es un intento de que el nombre de la asignautra se reemplace por el nombre completo de la key del diccoinario
+                                        #porque me preocupa que si por ejemplo nombre asignatura es Termo, en vez de meterlo en Termodinamica 
+                                        #cree una nueva key llamado termo y lo meta ahi, asi si Termo esta en termodinamica, el nombre de la asignatura 
+                                        #sera termodinamica, no estoy seguro que lo pueda hacer asi con la i tan facil pero es la idea
+                break # Esto es para que salga del bucle for. Y asi key ya sera el nombre de la asignatura
+        else:
+            await context.author.dm_channel.send('No existe tal asignatura, pruebe de nuevo: (compruebe que este bien escrita)')
+            return context.command.
+
+        
         if nombre_Asignatura == Null:
             if not context.author.dm_channel:
                 await context.author.create_dm()
             await context.author.dm_channel.send('No existe tal asignatura, repite el proceso')#TODO que sea un bucle
+        # En lo siguiente has puesto muchas veces lo de crear un canal dm. No es necesario porque ya lo has creado arriba
         else: 
             if not context.author.dm_channel:
                 await context.author.create_dm()
