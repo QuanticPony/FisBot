@@ -83,33 +83,31 @@ class tareas_commands(
         pass_context=True,
         aliases=['añadir'],
         help='''Quiero añadir un trabajo de astro? .Añade Astro, y luego tocará una conversa
-        ción agradable con el bot en la que introduzco fecha, nombre y descripción''',
+        ción agradable con el bot en la que introduzco fecha, nombre y descripcion''',
         brief='''Añade un trabajo/examen''',
         description='''Añade un trabajo/examen a la base de datos de manera que haya fácil acceso
         para el resto de usuarios para luego mirar fechas de entrega''',
         usage='.Añade <nombre_asignatura> ... responder a las preguntas del bot',
         check=[context_is_admin]
     )
-    async def Añade(self, context): #funcion para añadir un trabajo nuevo, si eres admin
-        def CompruebaAutor(ctx,original): #funcion que en principio comprueba si la id que le han pasado como parametro es la misma que una id original
+    async def añade(self, context): #funcion para añadir un trabajo nuevo, si eres admin
+        def _CompruebaAutor(ctx, original): #funcion que en principio comprueba si la id que le han pasado como parametro es la misma que una id original
             if ctx.message.author.id == original:
                 original=ctx.message.author.id
                 return True
             else: 
                 return False
         # Lo que has hecho esta mas o menos bien, salvo porque original tiene que ser un imput de la funcion. Pero es mas correcto de la siguiente manera:
-        def _CompruebaAutor(ctx, original):
-            return ctx.message.author.id == original
+        def CompruebaAutor(context):
+            return ctx.message.author.id == original_ctx.author.id
 
-        
-
-        original=context.message.author.id
+        original_ctx=context
         if not context.author.dm_channel: #el if este que hay que ponerlo para mandar un dm
             await context.author.create_dm()
-        await context.author.dm_channel.send("Muy buenos días, a qué asignatura añades el trabajo?")
+    
+        await context.author.dm_channel.send("Muy buenos dias, a que asignatura añades el trabajo?")
         try:
-            msg = await client.wait_for('message', timeout== 60.0, check=CompruebaAutor(ctx)) # No se como asegurar que le he pasado como parámetro a la función ctx, osea el contexto de quien lo manda
-                                                                                     # Solo hace falta cambiar el parametro de CompruebaAutor a context, y no ctx
+            msg = await client.wait_for('message', timeout== 30.0, check=CompruebaAutor)
         except asyncio.TimeoutError:
             return
 
@@ -117,49 +115,41 @@ class tareas_commands(
         asignatura = unicodedata.normalize('NFKD', msg.content)\
             .encode('ascii', 'ignore').decode('ascii').title()
 
-        
-        while not
-        try:
-            # TODO: Ver si asignatura esta en la base de datos
-        except:
-            
 
-
-        for key in self.Asignaturas.keys():
-            if asignatura in key:
-                nombre_Asignatura = key #es un intento de que el nombre de la asignautra se reemplace por el nombre completo de la key del diccoinario
-                                        #porque me preocupa que si por ejemplo nombre asignatura es Termo, en vez de meterlo en Termodinamica 
-                                        #cree una nueva key llamado termo y lo meta ahi, asi si Termo esta en termodinamica, el nombre de la asignatura 
-                                        #sera termodinamica, no estoy seguro que lo pueda hacer asi con la i tan facil pero es la idea
-                break # Esto es para que salga del bucle for. Y asi key ya sera el nombre de la asignatura
+        for i in range(0,1):
+            try:
+                pass
+                # TODO: Ver si asignatura esta en la base de datos
+            except:
+                pass
+                # preguntar de nuevo
         else:
-            await context.author.dm_channel.send('No existe tal asignatura, pruebe de nuevo: (compruebe que este bien escrita)')
-            return context.command.
-
-        
-        if nombre_Asignatura == Null:
-            if not context.author.dm_channel:
-                await context.author.create_dm()
-            await context.author.dm_channel.send('No existe tal asignatura, repite el proceso')#TODO que sea un bucle
+            await context.author.dm_channel.send('Anda, vuelve a escribir el comando si quieres hacer algo')
+            return
 
         # En lo siguiente has puesto muchas veces lo de crear un canal dm. No es necesario porque ya lo has creado arriba
-        else: 
+         
         #cuando tenemos el nombre de la asignatura bien recolectamos los datos necesarios para definir un trabajo nuevo
 
-            if not context.author.dm_channel:
-                await context.author.create_dm()
-            await context.author.dm_channel.send("Ahora dime la fecha de entrega del trabajo/fecha de examen")#TODO crear categoría especial para examen
-            fecha = await client.wait_for('message',check=CompruebaAutor(ctx))
-            if not context.author.create_dm()
-                await context.author.create_dm()
-            await context.author.dm_channel.send("Bien, queda poco, a continuación ponle un nombre al trabajo/examen")
-            nombre = await client.wait_for('message', check=CompruebaAutor(ctx))
-            if not context.author.create_dm()
-                await context.author.create_dm()
-            await context.author.dm_channel.send("Por último, añade una descripción al trabajo/examen")
-            descripcion = await client.wait_for('message',check=CompruebaAutor(ctx))
-            Trabajo1= Trabajo(fecha,nombre,descripcion) 
-            self.Asignaturas[nombre_Asignatura].append(Trabajo1) #añadimos al final de la lista un nuevo trabajo
+        #TODO crear categoría especial para examen
+
+        await context.author.dm_channel.send("Ahora dime la fecha de entrega del trabajo/fecha de examen") 
+
+        msg = await client.wait_for('message',check=CompruebaAutor(ctx))
+       
+        await context.author.dm_channel.send("Bien, queda poco, a continuación ponle un nombre al trabajo/examen")
+        nombre = await client.wait_for('message', check=CompruebaAutor(ctx))
+        
+        await context.author.dm_channel.send("Por último, añade una descripción al trabajo/examen")
+        descripcion = await client.wait_for('message',check=CompruebaAutor(ctx))
+        Trabajo1= Trabajo(fecha,nombre,descripcion) 
+        self.Asignaturas[nombre_Asignatura].append(Trabajo1) #añadimos al final de la lista un nuevo trabajo
+
+
+
+
+
+
 
     @commands.command(
         pass_context=True,
@@ -170,7 +160,6 @@ class tareas_commands(
         de lo que hay que hacer, si hay algo que consideres que haya que cambiar de esta base de datos, contacta con un moderador''',
         usage='.comprobar <asigatura> [, <asignatura2>,...]'
     )
-
     async def comprobar(self, context, *asignaturas): #comando para poder ver los trabajos que hay
         lista_asignaturas=asignaturas.split(',')
         if len(lista_asignaturas)<1:
@@ -184,16 +173,22 @@ class tareas_commands(
                         mensaje= mensaje + x + '\n' #por cada elemento de la lista de cada asignatura añade un mensaje con su contenido, no se si habría que pasar por cada cosa de trabajo
         embed=discord.Embed(title="Trabajos pendientes", description=mensaje)
 
+
+
+
+
+
+
+
     @commands.comand(
         pass_context=True,
         aliases=['quita','elimina'],
-        help='''vadvadv'''
-        brief='''asbfafba'''
-        description='''adfbafdbava'''
+        help='''vadvadv''',
+        brief='''asbfafba''',
+        description='''adfbafdbava''',
         usage='dvaisudnviansdv',
         check=[context_is_admin]
     )
-
     async def quitar(self, context): #para quitar ctrabajos
          if ctx.message.author.id == original:
                 original=ctx.message.author.id
