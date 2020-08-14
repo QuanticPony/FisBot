@@ -5,7 +5,7 @@ from discord.ext import commands
 from classes.bot_class import context_is_admin
 
 
-class Trabajo():
+class Trabajo(): #definimos clase trabajo para poder meterle fechas, descripciones...
     def __init__(self, fecha, nombre, description):
         #*TODO: url a donde lo han mandado/foto
         if fecha:
@@ -14,8 +14,8 @@ class Trabajo():
             self.nombre=nombre
         if description:
             self.description=description
-
-    def add_date(self, fecha):
+     #definimos las funciones que podamos usar para cada cosa
+    def add_date(self, fecha): 
         self.fecha = fecha
     def add_description(self, description):
         self.description= description
@@ -31,7 +31,7 @@ class tareas_commands(
     Para mirar fechas de exámenes y trabajos, prueba *.trabajos ['''
 
     def __init__(self, bot):
-        self.bot = bot
+        self.bot = bot #defino un diccionario que hará de base de datos de los trabajos
         Asignaturas={
             "Astronomía" : [
 
@@ -79,7 +79,7 @@ class tareas_commands(
 
             ]
         }
-    @commands.command(
+    @commands.command( #lo tipico de los comandos
         pass_context=True,
         aliases=['añadir'],
         help='''Quiero añadir un trabajo de astro? .Añade Astro, y luego tocará una conversa
@@ -90,8 +90,8 @@ class tareas_commands(
         usage='.Añade <nombre_asignatura> ... responder a las preguntas del bot',
         check=[context_is_admin]
     )
-    async def Añade(self, context):
-        def CompruebaAutor(ctx):
+    async def Añade(self, context): #funcion para añadir un trabajo nuevo, si eres admin
+        def CompruebaAutor(ctx,original): #funcion que en principio comprueba si la id que le han pasado como parametro es la misma que una id original
             if ctx.message.author.id == original:
                 original=ctx.message.author.id
                 return True
@@ -104,7 +104,7 @@ class tareas_commands(
         
 
         original=context.message.author.id
-        if not context.author.dm_channel:
+        if not context.author.dm_channel: #el if este que hay que ponerlo para mandar un dm
             await context.author.create_dm()
         await context.author.dm_channel.send("Muy buenos días, a qué asignatura añades el trabajo?")
         try:
@@ -141,8 +141,11 @@ class tareas_commands(
             if not context.author.dm_channel:
                 await context.author.create_dm()
             await context.author.dm_channel.send('No existe tal asignatura, repite el proceso')#TODO que sea un bucle
+
         # En lo siguiente has puesto muchas veces lo de crear un canal dm. No es necesario porque ya lo has creado arriba
         else: 
+        #cuando tenemos el nombre de la asignatura bien recolectamos los datos necesarios para definir un trabajo nuevo
+
             if not context.author.dm_channel:
                 await context.author.create_dm()
             await context.author.dm_channel.send("Ahora dime la fecha de entrega del trabajo/fecha de examen")#TODO crear categoría especial para examen
@@ -155,8 +158,8 @@ class tareas_commands(
                 await context.author.create_dm()
             await context.author.dm_channel.send("Por último, añade una descripción al trabajo/examen")
             descripcion = await client.wait_for('message',check=CompruebaAutor(ctx))
-            Trabajo1= Trabajo(fecha,nombre,descripcion)
-            self.Asignaturas[nombre_Asignatura]=Trabajo1
+            Trabajo1= Trabajo(fecha,nombre,descripcion) 
+            self.Asignaturas[nombre_Asignatura].append(Trabajo1) #añadimos al final de la lista un nuevo trabajo
 
     @commands.command(
         pass_context=True,
@@ -168,7 +171,7 @@ class tareas_commands(
         usage='.comprobar <asigatura> [, <asignatura2>,...]'
     )
 
-    async def comprobar(self, context, *asignaturas):
+    async def comprobar(self, context, *asignaturas): #comando para poder ver los trabajos que hay
         lista_asignaturas=asignaturas.split(',')
         if len(lista_asignaturas)<1:
             await context.send("Bro que no has puesto ninguna")
@@ -176,7 +179,51 @@ class tareas_commands(
         for thing in lista_asignaturas:
             for key in self.Asignaturas:
                 if thing in key:
-                    mensaje= mensaje+ *key* + '\n'
+                    mensaje= mensaje+ *key* + '\n' #a falta de ponerlo en secciones, pone el nombre de cada asignatura en negrita
                     for x in self.Asignatura[key]:
-                        mensaje= mensaje + x + '\n'
+                        mensaje= mensaje + x + '\n' #por cada elemento de la lista de cada asignatura añade un mensaje con su contenido, no se si habría que pasar por cada cosa de trabajo
         embed=discord.Embed(title="Trabajos pendientes", description=mensaje)
+
+    @commands.comand(
+        pass_context=True,
+        aliases=['quita','elimina'],
+        help='''vadvadv'''
+        brief='''asbfafba'''
+        description='''adfbafdbava'''
+        usage='dvaisudnviansdv',
+        check=[context_is_admin]
+    )
+
+    async def quitar(self, context): #para quitar ctrabajos
+         if ctx.message.author.id == original:
+                original=ctx.message.author.id
+                return True
+            else: 
+                return False
+        original=context.message.author.id
+        if not context.author.dm_channel:
+            await context.author.create_dm()
+        await context.author.dm_channel.send("Muy buenos días, de qué asignatura eliminas el trabajo?")
+        asignatura = await client.wait_for('message', check=CompruebaAutor(ctx)) #No se como asegurar que le he pasado como parámetro a la función ctx, osea el contexto de quien lo manda
+        i=0
+        for key in self.Asignaturas:
+            if asignatura in self.Asignaturas[i]:
+                nombre_Asignatura=self.Asignaturas[i]
+            i=i+1
+        if nombre_Asignatura == Null:
+            if not context.author.dm_channel:
+            await context.author.create_dm()
+        await context.author.dm_channel.send("No parece existir la asignatura de la que quieres borrar el nombre")
+        else:
+            mensaje = ''
+            for x in self.Asignatura[nombre_Asignatura]:
+                mensaje = mensaje + x + '\n'
+            if not context.author.dm_channel:
+            await context.author.create_dm()
+        await context.author.dm_channel.send("Estos son los trabajos que hay, por favor introduce el número cardinal que corresponde al trabajo que quieras eliminar")
+        eliminar = await client.wait_for('message', check=CompruebaAutor(ctx))
+        eliminar = eliminar - 1 #como es una lista, si quieres eliminar el trabajo 1 será el elemento 0
+        self.Asignatura[nombre_Asignatura].pop(eliminar)
+        if not context.author.dm_channel:
+            await context.author.create_dm()
+        await context.author.dm_channel.send("Muchas gracias, ten un buen día")
