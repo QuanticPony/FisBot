@@ -1,33 +1,27 @@
-import discord
 import random
 
 class FisUser():
-    def __init__(self, user):
-        self.id = user.id
-        self.name = user.nick
-        self.karma = 0
-        self.level = 0
-        self.xp = 0
-        return
+    def __init__(self, user_id, name, karma=0, level=0, xp=0):
+        self.id = user_id
+        self.name = name
+        self.karma = karma
+        self.level = level
+        self.xp = xp
 
     def addkarma(self):
         self.karma += 1
-        return
     
     def xp_to_lvl_up(self) -> int:
         return self.xp * 10
 
     def addlevel(self):
         self.level += 1
-        return
 
     def setlevel(self, lvl):
         self.level = lvl
-        return
     
     def setkarma(self, krm):
         self.karma = krm
-        return
     
     def addxp(self, amount):
         newxp = self.xp + amount
