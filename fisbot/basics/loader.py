@@ -1,9 +1,8 @@
-import classes.bot_class
-from basics.extensions import extensions_managment
-from basics.admin_basic import admin_basic_commands
-from basics.cog import cog_managment
-from basics.channels import channels_managment
-from basics.polls import poll
+from .extensions import extensions_managment
+from .admin_basic import admin_basic_commands
+from .cog import cog_managment
+from .channels import channels_managment
+from .polls import poll
 
 def setup(bot):
     bot.add_cog(extensions_managment(bot))

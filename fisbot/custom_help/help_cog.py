@@ -1,8 +1,8 @@
 import discord
 import asyncio
 from discord.ext import commands
-from custom_help.custom_help_implementation import custom_help_implementation_command
-from custom_help.custom_help_implementation import custom_help_implementation_general
+from .custom_help_implementation import custom_help_implementation_command
+from .custom_help_implementation import custom_help_implementation_general
 
 class help_commands(
     commands.Cog,

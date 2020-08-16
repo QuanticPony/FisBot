@@ -2,7 +2,7 @@ import discord
 import asyncio
 import random
 from discord.ext import commands
-from classes.bot_class import context_is_admin
+from ..classes.bot_class import context_is_admin
 
 class admin_basic_commands(
     commands.Cog,
@@ -26,6 +26,27 @@ class admin_basic_commands(
         if game == None:
             game = context.prefix + 'help'
         await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(name=game))
+
+    @commands.command(
+        pass_context=True,
+        hidden=True,
+        check=[context_is_admin]
+    )
+    async def prueba(self, ctx):
+        from ..database.users import UsersDB
+        from ..classes.user_class import FisUser
+
+        bd = UsersDB()
+        server = ctx.guild
+        for member in server.members:
+            if member.nick:
+                user = FisUser(member.id, member.nick)
+            else:
+                user = FisUser(member.id, member.name)
+            bd.update_user(user)
+
+        await ctx.message.add_reaction("🔄")
+
 
 
     @commands.command(
@@ -51,7 +72,7 @@ class admin_basic_commands(
         )
     async def reload(self, ctx):
         for cog_name in self.bot.extensions_list:
-            if cog_name != 'basics.loader':
+            if cog_name != 'fisbot.basics.loader':
                 self.bot.reload_extension(cog_name)
         await ctx.message.add_reaction("🔄")
-        self.bot.reload_extension('basics.loader')
+        self.bot.reload_extension('fisbot.basics.loader')

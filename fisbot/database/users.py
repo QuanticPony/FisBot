@@ -78,6 +78,8 @@ class UsersDB():
                 result = c.execute('SELECT * FROM Users WHERE id = ?', (user_id,)).fetchone()
         except sqlite3.Error:
             return None
+        if not result:
+            return None
         return FisUser(*result)
 
     def get_all_users(self) -> tuple:
