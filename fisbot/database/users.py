@@ -4,7 +4,7 @@ from sqlite3 import Connection
 
 class UsersDB():
 
-    FILE_NAME = 'users.db'
+    FILE_NAME = 'database.db'
 
     def _create_db(self) -> Connection:
         '''Crea una base de datos para usuarios FisBot y devuelve una conexión a esta.
