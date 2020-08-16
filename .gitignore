@@ -8,3 +8,4 @@
 /run.cmd
 __pycache__/
 /DS_Store
+/users.db
