@@ -64,15 +64,28 @@ class admin_basic_commands(
     @commands.command(
         pass_context=True, 
         aliases=['reset','restart', 'reiniciar'],
-        help='''¿Se ha cambiado alguna libreria del bot y quiere actualizar su configuracion no imprescindible? ```.reload```''',
+        help='''¿Se ha cambiado alguna libreria del bot y quiere actualizar su configuracion no imprescindible? ```.reload```
+        ¿Quieres y necesitas reiniciar, pero tienes la musica activada y no te apetece volverle a pedir que reproduzca?```.restart -music```''',
         brief='''Recarga el bot''',
         description='''Recarga el bot y actualiza los comandos de todas las extensiones habilitadas''',
         usage='.reload',
         check=[context_is_admin]
         )
-    async def reload(self, ctx):
+    async def reload(self, ctx, *arg):
+        if arg:
+            arg[0] = arg[0].strip('-')
+
+        def check(arg, cog_name):
+            if not arg:
+                return True
+            else:
+                return arg[0] in cog_name
+
         for cog_name in self.bot.extensions_list:
-            if cog_name != 'fisbot.basics.loader':
+            if cog_name != 'fisbot.basics.loader' and check:
                 self.bot.reload_extension(cog_name)
+
+
         await ctx.message.add_reaction("🔄")
         self.bot.reload_extension('fisbot.basics.loader')
+        
