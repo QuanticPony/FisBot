@@ -26,18 +26,22 @@ class FisTask():
         '''Crea un mensaje tipo discord.Embed que muestra la tarea'''
 
         task_embed = discord.Embed(
-            title=self.title,
-            description=self.subject,
-            color=discord.Color.magenta()
+            title='**{0.subject}**: *{0.title}*'.format(self),
+            description='Fecha: {0.day}/{0.month}'.format(self) + ('/{0.year}'.format(self)) if self.year else '',
+            color=discord.Color.purple()
         )
-        if self.day and self.month:
+
+        if self.description:
             task_embed.add_field(
-                name='Fecha limite/entrega/examen:',
-                value=self.day + '/' + self.month + ('/' + self.year) if self.year else '',
+                name='**Descripcion:**',
+                value=self.description if self.description else '*Sin especificar*',
                 inline=False
             )
 
         task_embed.add_field(
-            name='Descripcion',
-            value=self.description if self.description else '*Sin especificar*'
-        )
+                name='**Id={0.id}**'.format(self),
+                value='Si cree necesaria alguna modificacion en este mensaje por favor pongase en contacto con algun moderador',
+                inline=False
+            )
+
+        return task_embed
