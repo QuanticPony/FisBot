@@ -60,17 +60,15 @@ class ProyectsDB():
         except sqlite3.Error:
             return False
 
-    def del_task(self, task=None) -> bool:
+    def del_task(self, task) -> bool:
         '''Elimina una tarea de la base de datos si su id coincide con el de `task`. 
+        Si no se introduce `task` asume que has llamado a esta funcion desde un objeto `FisTask` y lo borra.
         Si la tarea se ha eliminado devuelve `True`, en caso contrario devuelve `False`.'''
 
         try:
             with self._connect() as conn:
                 c = conn.cursor()
-                if task:
-                    c.execute('DELETE FROM Tasks WHERE id = ?', (task.id,))
-                else:
-                    c.execute('DELETE FROM Tasks WHERE id = ?', (self.id,))
+                c.execute('DELETE FROM Tasks WHERE id = ?', (task.id,))
             return True
         except sqlite3.Error:
             return False

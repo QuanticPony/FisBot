@@ -72,7 +72,6 @@ class task_commands(
         except asyncio.TimeoutError:
             await msg_out.delete()
         date = msg_in.content.split('/')
-        print(date)
         self.day = int(date[0])
         self.month = date[1]
         try:
@@ -170,45 +169,84 @@ class task_commands(
         #                mensaje= mensaje + x + '\n' #por cada elemento de la lista de cada asignatura añade un mensaje con su contenido, no se si habría que pasar por cada cosa de trabajo
         #embed=discord.Embed(title="Trabajos pendientes", description=mensaje)
 
-    #@task.command(
-    #    pass_context=True,
-    #    aliases=['del','quita','elimina'],
-    #    help='''vadvadv''',
-    #    brief='''asbfafba''',
-    #    description='''adfbafdbava''',
-    #    usage='dvaisudnviansdv',
-    #    check=[context_is_admin]
-    #)
-    #async def delete(self, context): #para quitar ctrabajos
-    #     if ctx.message.author.id == original:
-    #            original=ctx.message.author.id
-    #            return True
-    #        else: 
-    #            return False
-    #    original=context.message.author.id
-    #    if not context.author.dm_channel:
-    #        await context.author.create_dm()
-    #    await context.author.dm_channel.send("Muy buenos días, de qué asignatura eliminas el trabajo?")
-    #    asignatura = await client.wait_for('message', check=CompruebaAutor(ctx)) #No se como asegurar que le he pasado como parámetro a la función ctx, osea el contexto de quien lo manda
-    #    i=0
-    #    for key in self.Asignaturas:
-    #        if asignatura in self.Asignaturas[i]:
-    #            nombre_Asignatura=self.Asignaturas[i]
-    #        i=i+1
-    #    if nombre_Asignatura == Null:
-    #        if not context.author.dm_channel:
-    #        await context.author.create_dm()
-    #    await context.author.dm_channel.send("No parece existir la asignatura de la que quieres borrar el nombre")
-    #    else:
-    #        mensaje = ''
-    #        for x in self.Asignatura[nombre_Asignatura]:
-    #            mensaje = mensaje + x + '\n'
-    #        if not context.author.dm_channel:
-    #        await context.author.create_dm()
-    #    await context.author.dm_channel.send("Estos son los trabajos que hay, por favor introduce el número cardinal que corresponde al trabajo que quieras eliminar")
-    #    eliminar = await client.wait_for('message', check=CompruebaAutor(ctx))
-    #    eliminar = eliminar - 1 #como es una lista, si quieres eliminar el trabajo 1 será el elemento 0
-    #    self.Asignatura[nombre_Asignatura].pop(eliminar)
-    #    if not context.author.dm_channel:
-    #        await context.author.create_dm()
-    #    await context.author.dm_channel.send("Muchas gracias, ten un buen día")
+    @task.command(
+        pass_context=True,
+        aliases=['del','quita','elimina'],
+        help='''¿Quiere eliminar una tarea de id 14, por alguna razon magico-fantastica? ```.task delete 14```''',
+        brief='''Elimina una tarea o examen de la base de datos''',
+        description='''Permite eliminar un elemento de la tabla Tareas de la base de datos. Si lo que quiere es modificar una tarea, pruebe: ```.help task modify```''',
+        usage='.task delete <task_id>',
+        check=[context_is_admin]
+    )
+    async def delete(self, ctx, *, task_id): #para quitar trabajos
+
+        task_id = unicodedata.normalize('NFKD', task_id)\
+            .encode('ascii', 'ignore').decode('ascii')
+
+        if task_id.isnumeric() and int(task_id) >= 0: # Contiene una id
+            
+            task = FisTask().database.get_task(int(task_id))
+
+            if task:
+
+                msg_conf = await ctx.send('¿Seguro que quiere borrar esto de la base de datos {.author.mention}?'.format(ctx),embed=task.embed())
+                await msg_conf.add_reaction("✅")
+                await msg_conf.add_reaction("❌")
+
+                def confirm(reaction, user):
+                    return str(reaction.emoji) == '✅' and ctx.message.author == user
+
+                try:
+                    reaction, user = await self.bot.wait_for('reaction_add', timeout=10.0, check=confirm)
+                except asyncio.TimeoutError:
+                    await msg_conf.delete()
+                else:
+                    task.database.del_task(task)
+                    await ctx.message.delete()
+                    await msg_conf.delete()
+                return
+
+
+            else:
+                await ctx.send('No se ha encontrado nada en la base de datos con id={}'.format(task_id))
+            return
+
+
+        await ctx.send('''**Lo siento**, pero la id de un elemento es un entero positivo. *{}* no es un entero positivo'''.format(task_id))
+
+
+
+
+
+        #if ctx.message.author.id == original:
+        #        original=ctx.message.author.id
+        #        return True
+        #    else: 
+        #        return False
+        #original=context.message.author.id
+        #if not context.author.dm_channel:
+        #    await context.author.create_dm()
+        #await context.author.dm_channel.send("Muy buenos días, de qué asignatura eliminas el trabajo?")
+        #asignatura = await client.wait_for('message', check=CompruebaAutor(ctx)) #No se como asegurar que le he pasado como parámetro a la función ctx, osea el contexto de quien lo manda
+        #i=0
+        #for key in self.Asignaturas:
+        #    if asignatura in self.Asignaturas[i]:
+        #        nombre_Asignatura=self.Asignaturas[i]
+        #    i=i+1
+        #if nombre_Asignatura == Null:
+        #    if not context.author.dm_channel:
+        #    await context.author.create_dm()
+        #await context.author.dm_channel.send("No parece existir la asignatura de la que quieres borrar el nombre")
+        #else:
+        #    mensaje = ''
+        #    for x in self.Asignatura[nombre_Asignatura]:
+        #        mensaje = mensaje + x + '\n'
+        #    if not context.author.dm_channel:
+        #    await context.author.create_dm()
+        #await context.author.dm_channel.send("Estos son los trabajos que hay, por favor introduce el número cardinal que corresponde al trabajo que quieras eliminar")
+        #eliminar = await client.wait_for('message', check=CompruebaAutor(ctx))
+        #eliminar = eliminar - 1 #como es una lista, si quieres eliminar el trabajo 1 será el elemento 0
+        #self.Asignatura[nombre_Asignatura].pop(eliminar)
+        #if not context.author.dm_channel:
+        #    await context.author.create_dm()
+        #await context.author.dm_channel.send("Muchas gracias, ten un buen día")
