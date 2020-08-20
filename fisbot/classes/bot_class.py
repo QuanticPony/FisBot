@@ -63,7 +63,7 @@ class FisBot(commands.Bot):
             user = FisUser(member.id, member.name)
         bd.add_user(user)
 
-        hello_message = create_embed_hello(self, context.author)
+        hello_message = self.create_embed_hello(self, context.author)
         if not context.author.dm_channel:
             await context.author.create_dm()
         await context.author.dm_channel.send(embed=hello_message)
