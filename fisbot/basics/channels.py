@@ -78,6 +78,8 @@ class channels_managment(
             await self.dvc(context)
 
     
+
+    # TODO: hacer esto
     @category.command(
         hidden=True,
         pass_context=True, 
@@ -120,13 +122,7 @@ class channels_managment(
             else:
                 await context.channel.purge(limit=int(float(amount[0]))+1, check=check)
         
-    #@commands.command(
-    #    hidden=True,
-    #    pass_context=True, 
-    #    help='''Crea canal de texto en la categoría donde se envió el mensaje con el nombre especificado''',
-    #    brief='''Create Text Channel''',
-    #    description='''COMANDO .ctc''',
-    #)
+    
     async def ctc(self, context, name):
         if not name:
             await context.message.channel.send('''Es necesario <name>''')
@@ -135,13 +131,7 @@ class channels_managment(
             await category.create_text_channel(name=name)
         return
 
-    #@commands.command(
-    #    hidden=True,
-    #    pass_context=True, 
-    #    help='''Borra el canal de texto donde se envió el mensaje''',
-    #    brief='''Remove Text Channel''',
-    #    description='''COMANDO .dtc''',
-    #)
+    
     async def dtc(self, context):
         if context_is_admin(context):
             def confirm(reaction, user):
@@ -157,13 +147,7 @@ class channels_managment(
                 await context.message.channel.delete()
             return
 
-    #@commands.command(
-    #    hidden=True,
-    #    pass_context=True, 
-    #    help='''Crea canal de voz con el nombre especificado en la categoría donde se encuentra el autor del mensaje''',
-    #    brief='''Create Voice Channel''',
-    #    description='''COMANDO .cvc''',
-    #)
+    
     async def cvc(self, context, name):
         if not name:
             await context.message.channel.send('''Es necesario <name>''')
@@ -171,13 +155,7 @@ class channels_managment(
             channel = context.message.author.voice.channel
             await channel.category.create_voice_channel(name=name)
 
-    #@commands.command(
-    #    hidden=True,
-    #    pass_context=True, 
-    #    help='''Elimina el canal de voz en el que se encuentra el usuario al enviar el mensaje''',
-    #    brief='''Remove Voice Channel''',
-    #    description='''COMANDO .dvc''',
-    #)
+    
     async def dvc(self, context: commands.Context):
         if context_is_admin(context):
             msg_conf = await context.message.channel.send("¿Está seguro de que quiere borrar {.channel.mention}? Si: ✅   No: ❌".format(context.message.author.voice))
@@ -195,22 +173,6 @@ class channels_managment(
                 await msg_conf.delete()
                 await channel.delete()
 
-    #@commands.command(pass_context=True)
-    #async def subnormal(self, context, member, *thing):
-    #    '''Manda un mensaje tts y le llama a <member> [thing] de tu parte, de nada'''
-    #    user_origin = context.message.author
-    #    user_destination = context.message.mentions[0]
-    #    lil_frase = ''
-    #    for thong in thing:
-    #        lil_frase += ' '
-    #        lil_frase += thong
-    #    frase = "Hola {0.mention}.\n".format(user_destination) 
-    #    frase += "Quería decirte de parte de {0.name}".format(user_origin) 
-    #    frase += " que eres" 
-    #    frase += lil_frase 
-    #    frase += ".\nDe nada😎"
-    #    await context.send(frase, tts=True)
-    #    await context.message.delete()
 
 
 
