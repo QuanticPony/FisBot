@@ -16,7 +16,7 @@ class task_commands(
     Para mirar fechas de exámenes y trabajos, prueba *.trabajos ['''
 
     def __init__(self, bot):
-        self.bot = bot #defino un diccionario que hará de base de datos de los trabajos
+        self.bot = bot 
     
 
     @commands.group(
@@ -30,7 +30,7 @@ class task_commands(
         usage='.Añade <nombre_asignatura> ... responder a las preguntas del bot',
         check=[context_is_admin]
     )
-    async def task(self, context):...
+    async def task(self, context):... #what is this
         
 
     @task.command(
@@ -45,18 +45,18 @@ class task_commands(
         check=[context_is_admin]
     )
     async def add(self, ctx, subject):
-        task=FisTask(subject=subject)
-        msg_out = await ctx.send('Escribe el titulo del trabajo/examen:')
+        task=FisTask(subject=subject) #esto es la base de datos?
+        msg_out = await ctx.send('Escribe el titulo del trabajo/examen:') #entonces no hay dms?
         def confirm(msg_in):
-            return ctx.message.author.id == msg_in.author.id
+            return ctx.message.author.id == msg_in.author.id #ah, asi se puede definir
         try:
-            msg_in = await self.bot.wait_for('message', timeout=30.0, check=confirm)
+            msg_in = await self.bot.wait_for('message', timeout=30.0, check=confirm) #esto es para que si no responde nunca pare no?
         except asyncio.TimeoutError:
             await msg_out.delete()
         
 
         task.title = unicodedata.normalize('NFKD', msg_in.content)\
-            .encode('ascii', 'ignore').decode('ascii').title()
+            .encode('ascii', 'ignore').decode('ascii').title() #NFKD? y ahora estas pasando el titulo a ascii?
 
         msg_out = await ctx.send('Escribe la descripcion:')
         try:
@@ -75,9 +75,9 @@ class task_commands(
         self.day = int(date[0])
         self.month = date[1]
         try:
-            self.year = int(date[2])  
+            self.year = int(date[2])  #esto pilla la fecha del ordenador asumo, y el 2?
         except:
-            self.year = 2020
+            self.year = 2020 
 
         task.database.add_task(task)
 
@@ -129,9 +129,9 @@ class task_commands(
                 inline=False
             )
         
-        await ctx.send(ctx.author.mention,embed=embed)
+        await ctx.send(ctx.author.mention,embed=embed) 
 
-
+    #Entonces, el comando que acaba de acabar en la 132 le pones una asignatura y te dice todos los trabajos, y el de abajo le dices una id y te da toda la descripcion no?
 
     @task.command(
         pass_context=True,
