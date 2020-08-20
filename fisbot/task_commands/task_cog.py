@@ -87,11 +87,10 @@ class task_commands(
         pass_context=True,
         name='list',
         aliases=['lista'],
-        help='''Quiero añadir un trabajo de astro? ```.task add Astro``` 
-        y luego tocará una conversación agradable con el bot en la que introduzco fecha, nombre y descripcion''',
-        brief='''Añade un trabajo/examen''',
-        description='''Añade un trabajo/examen a la base de datos de manera que haya fácil acceso para el resto de usuarios para luego mirar fechas de entrega''',
-        usage='.Añade <nombre_asignatura> ... responder a las preguntas del bot',
+        help='''Quiero mirar los trabajos de astro? ```.task list Astro``` ''',
+        brief='''Mira los trabajos/éxamenes de una asignatura''',
+        description='''Mira todos los trabajos y exámenes que hay actualmente puestos para una, o varias asignaturas mostrando su id para luego poder mirar uno en concreto''',
+        usage='.task list <nombre_asignatura>',
     )
     async def _list(self, ctx, *, subject=None):
         if not subject:
