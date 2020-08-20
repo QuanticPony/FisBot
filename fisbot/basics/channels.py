@@ -41,6 +41,7 @@ class channels_managment(
             rename: Renombra  el canal de voz donde esta el autor del mensaje al nombre dado''',
         usage='''.<text|voice|category> <orden> [argumentos...]'''
     )
+    @commands.guild_only()
     async def category(self, context):
         if context.invoked_subcommand is None:
             await context.send('Y que mas (.<category/text/voice> <orden> [argumentos...])')
@@ -185,6 +186,7 @@ class channels_managment(
         description='''Cambia a [member...] de canal de voz y lo vuelve a poner donde estaba. En el caso defaul cambia a Jose''',
         usage='.jose [member|role|group]'
     )
+    @commands.guild_only()
     async def jose(self, context, *member):
         if context_is_admin(context):
             jose = discord.Member

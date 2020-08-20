@@ -1,6 +1,7 @@
 import discord
 import asyncio
 from discord.ext import commands
+from .custom_help_implementation import custom_help_implementation_all
 from .custom_help_implementation import custom_help_implementation_command
 from .custom_help_implementation import custom_help_implementation_general
 
@@ -24,6 +25,7 @@ class help_commands(
         usage='.ayuda'
     )
     @commands.has_permissions(embed_links=True)
+    @commands.guild_only()
     async def _ayuda(self, ctx):
         nick = ctx.author.nick
         if not nick:
@@ -63,7 +65,7 @@ class help_commands(
             await ctx.author.create_dm()
         return await ctx.author.dm_channel.send(embed=ayuda)
 
-
+    
 
     @commands.command(
         name='help',
@@ -79,6 +81,9 @@ class help_commands(
     )
     @commands.has_permissions(embed_links=True)
     async def _help(self, ctx, *nombre):
+        if not ctx.guild:
+            return await custom_help_implementation_all(self.bot, ctx)
+
         if not nombre:
             await custom_help_implementation_general(self.bot, ctx)
         else:

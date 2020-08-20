@@ -89,18 +89,11 @@ class task_commands(
         pass_context=True,
         name='list',
         aliases=['lista'],
-<<<<<<< HEAD
-        help='''Quiero mirar los trabajos de astro? ```.task list Astro``` ''',
-        brief='''Mira los trabajos/éxamenes de una asignatura''',
-        description='''Mira todos los trabajos y exámenes que hay actualmente puestos para una, o varias asignaturas mostrando su id para luego poder mirar uno en concreto''',
-        usage='.task list <nombre_asignatura>',
-=======
         help='''¿Quieres ver la lista de todos los trabajos y examenes? ```.task list```
         ¿Quieres ver todos los examenes y tareas de la asignatura de electromagnetismo pero no sabes escribir bien? ```.task list eLeCtrOMágnetisMo```''',
         brief='''Muestra una lista de trabajos y examenes''',
         description='''Permite ver la lita completa de tareas y examenes de la base de datos. Tanto de todas las asignaturas, como de alguna en concreto''',
         usage='.task list [subject]',
->>>>>>> d1c92ea0bb0eef72ae94b120e9f8ed731974dfdb
     )
     async def _list(self, ctx, *, subject=None):
         if not subject:

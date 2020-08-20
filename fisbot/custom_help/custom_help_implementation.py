@@ -1,6 +1,29 @@
 import discord
 from discord.ext import commands
 
+
+
+async def custom_help_implementation_all(bot, ctx):
+    commands.Context()
+    halp=discord.Embed(
+            title='.help', 
+            description='Estos son todos los comandos. Probablemente no tengas permisos para usar todos:'.format(ctx), 
+            color=discord.Color.green()
+        )
+    for cog in bot.cogs.values():
+        commands_desc = ''
+        for x in cog.get_commands():
+            commands_desc += ('{0: <15} {1}'.format(x.name,x.brief) + '\n')
+
+        if commands_desc:
+            halp.add_field(
+                name=cog.qualified_name,
+                value=commands_desc,
+                inline=False
+            )
+    return await ctx.send(embed=halp)
+
+
 async def custom_help_implementation_general(bot, ctx):
     halp=discord.Embed(
             title='.help', 

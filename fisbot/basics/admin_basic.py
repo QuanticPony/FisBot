@@ -22,6 +22,7 @@ class admin_basic_commands(
         description='''Cambia el estado del bot. En el caso default pone como estado .help''',
         usage='.status [estado]'
     )
+    @commands.check(context_is_admin)
     async def status(self, context, game=None):
         if game == None:
             game = context.prefix + 'help'
@@ -32,6 +33,7 @@ class admin_basic_commands(
         hidden=True,
         check=[context_is_admin]
     )
+    @commands.check(context_is_admin)
     async def prueba(self, ctx):
         from ..database.users import UsersDB
         from ..classes.user_class import FisUser
@@ -57,6 +59,7 @@ class admin_basic_commands(
         description='''Apaga el bot. No lo haga si no es imprescindible''',
         usage='.shutdown'
     )
+    @commands.check(context_is_admin)
     async def shutdown(self, ctx):
         await self.bot.logout()
     
@@ -70,7 +73,8 @@ class admin_basic_commands(
         description='''Recarga el bot y actualiza los comandos de todas las extensiones habilitadas''',
         usage='.reload',
         check=[context_is_admin]
-        )
+    )
+    @commands.check(context_is_admin)
     async def reload(self, ctx, *arg):
         if arg:
             arg[0] = arg[0].strip('-')
