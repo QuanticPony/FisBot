@@ -237,9 +237,3 @@ class task_commands(
 
 
         await ctx.send('''**Lo siento**, pero la id de un elemento es un entero positivo. *{}* no es un entero positivo'''.format(task_id))
-
-
-
-
-
-        
