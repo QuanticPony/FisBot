@@ -57,17 +57,29 @@ class FisBot(commands.Bot):
         from ..database.users import UsersDB
         from ..classes.user_class import FisUser
         bd = UsersDB()
+
         if member.nick:
             user = FisUser(member.id, member.nick)
         else:
             user = FisUser(member.id, member.name)
         bd.add_user(user)
 
-        hello_message = self.create_embed_hello(self, context.author)
-        if not context.author.dm_channel:
-            await context.author.create_dm()
-        await context.author.dm_channel.send(embed=hello_message)
-        await context.author.guild.system_channel.send('Bienvenido al servidor {0.guild.name}, {0.mention}'.format(context.author, context.author))
+        hello_message = self.create_embed_hello(self, member)
+        if not member.dm_channel:
+            await member.create_dm()
+        await member.dm_channel.send(embed=hello_message)
+        await member.guild.system_channel.send('Bienvenido al servidor {0.guild.name}, {0.mention}'.format(member))
+
+
+    async def on_message(self, message):
+        from ..database.users import UsersDB
+        from ..classes.user_class import FisUser 
+        from random import randint
+        bd = UsersDB()
+        if bd.last_message_cooldown(message.author.id):
+            user = bd.get_user(message.author.id)
+            user.addxp()
+            bd.update_user(user)
 
 
         

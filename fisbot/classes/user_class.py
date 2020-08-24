@@ -8,44 +8,24 @@ class FisUser():
         self.level = level
         self.xp = xp
 
-    def addkarma(self):
-        self.karma += 1
-    
     def xp_to_lvl_up(self) -> int:
-        return self.xp * 10
-
-    def addlevel(self):
-        self.level += 1
-
-    def setlevel(self, lvl):
-        self.level = lvl
+        return self.level * 10
     
-    def setkarma(self, krm):
-        self.karma = krm
-    
-    def addxp(self, amount):
+    def addxp(self):
+        
+        if self.level != 0:
+            amount = random.randint(1, self.level) 
+        else:
+            amount = 10
+
         newxp = self.xp + amount
         xp_required = xp_to_lvl_up(self)
         if newxp >= xp_required:
-            addlevel(self)
             self.xp = newxp - xp_required
+            self.level += 1
         else:
             self.xp = newxp
 
-    def setxp(self, exp):
-        self.xp += exp
-
-    def read_user(self, ):
-        self.level = int
-        self.xp = int
-        self.karma = int
-
-
-    def modifi_user(self, ):
-        pass
-
-    def write_user(self, ):
-        pass
 
 
 
