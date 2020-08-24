@@ -13,14 +13,6 @@ class FisTask():
         from ..database.tasks import ProyectsDB
         self.database = ProyectsDB()
 
-    #def _create_db(self) -> Connection:...
-    #def _connect(self) -> Connection:...
-    #def add_task(self, task: FisTask) -> bool:...
-    #def update_task(self, user: FisTask) -> bool:...
-    #def del_task(self, user: FisTask) -> bool:...
-    #def get_task(self, user_id) -> FisTask:...
-    #def get_all_tasks(self) -> tuple:...
-    #def get_all_subject_tasks(self, subject) -> tuple:...
 
     def embed(self) -> discord.Embed:
         '''Crea un mensaje tipo discord.Embed que muestra la tarea'''
@@ -31,17 +23,44 @@ class FisTask():
             color=discord.Color.purple()
         )
 
-        if self.description:
-            task_embed.add_field(
-                name='**Descripcion:**',
-                value=self.description if self.description else '*Sin especificar*',
-                inline=False
-            )
+        task_embed.add_field(
+            name='**Descripcion:**',
+            value=self.description if self.description else '*Sin especificar*',
+            inline=False
+        )
 
         task_embed.add_field(
-                name='**Id={0.id}**'.format(self),
-                value='Si cree necesaria alguna modificacion en este mensaje por favor pongase en contacto con algun moderador',
+                name='Id:',
+                value='**{0.id}**'.format(self),
                 inline=False
             )
+        task_embed.set_footer(text='Si cree necesaria alguna modificacion en este mensaje por favor pongase en contacto con algun moderador (@mods)')
 
         return task_embed
+
+    async def modify(self, ctx) -> discord.Embed:
+        atributes_dic = self.__dict__
+
+        embed = discord.Embed(
+            title='Modificar: *{0.subject}: {0.title}*'.format(self),
+            description='Selecciona el campo a modificar:',
+            color=discord.Color.dark_orange()
+        )
+        atributes_dic.pop('id')
+        atributes_dic.pop('database')
+
+        codepoint_start = 127462  # Letra A en unicode en emoji
+        #things_list = {chr(i): f"{chr(i)} - {atrib}" for i, atrib in enumerate(atributes_dic.keys(), start=codepoint_start)}
+        things_list = {f"{chr(i)} - {v}:": f"{atributes_dic[v]}" for i, v in enumerate(atributes_dic, start=codepoint_start)}
+
+        for atrib in things_list:
+            embed.add_field(
+                name=atrib,
+                value=things_list[atrib],
+                inline=False
+                )
+
+        message = await ctx.send( '@everyone',embed=embed)
+        for i in range(len(things_list)):
+            await message.add_reaction(chr(i+codepoint_start)) 
+        return embed
