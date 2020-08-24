@@ -111,3 +111,15 @@ class ProyectsDB():
         except sqlite3.Error:
             return None
         return tuple([FisTask(*user) for user in result])
+
+    def subjects(self) -> list:
+        '''Devuelve una coleccion de los nombres de todas las asignaturas'''
+
+        try:
+            with self._connect() as conn:
+                c = conn.cursor()
+                result = c.execute('SELECT DISTINCT subject FROM Tasks').fetchall()
+            
+        except sqlite3.Error:
+            return None
+        return list(element[0] for element in result)
