@@ -1,12 +1,16 @@
 import random
+import discord
 
 class FisUser():
-    def __init__(self, user_id, name, karma=0, level=0, xp=0):
+    def __init__(self, user_id=0, name='', karma=0, level=0, xp=0):
         self.id = user_id
         self.name = name
         self.karma = karma
         self.level = level
         self.xp = xp
+        from ..database.users import UsersDB
+        self.database = UsersDB()
+
 
     def xp_to_lvl_up(self) -> int:
         return 300 + self.level * 10 
@@ -15,7 +19,7 @@ class FisUser():
         '''Sube la experiencia del usuario. Devuelve el nivel si se sube de nivel'''
         
         if self.level != 0:
-            amount = random.randint(1, self.level) 
+            amount = random.randint(1, 5) * self.level
         else:
             amount = 10
 
