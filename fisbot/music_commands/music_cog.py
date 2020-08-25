@@ -602,8 +602,3 @@ class Music(
         if ctx.voice_client:
             if ctx.voice_client.channel != ctx.author.voice.channel:
                 raise commands.CommandError('Ya estoy en un canal de voz')
-
-
-def setup(bot):
-    bot.add_cog(music(bot))
-    bot.add_cog(Music(bot))
