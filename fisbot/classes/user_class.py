@@ -2,6 +2,12 @@ import random
 import discord
 
 class FisUser():
+
+    BASE_XP = 300
+    XP_MULTIPLAYER = 10
+    XP_ADD_BASE = 10
+    XP_MAX_MULT = 5
+
     def __init__(self, user_id=0, name='', karma=0, level=0, xp=0):
         self.id = user_id
         self.name = name
@@ -13,15 +19,15 @@ class FisUser():
 
 
     def xp_to_lvl_up(self) -> int:
-        return 300 + self.level * 10 
+        return BASE_XP + self.level * XP_MULTIPLAYER 
     
     def addxp(self) -> int:
         '''Sube la experiencia del usuario. Devuelve el nivel si se sube de nivel'''
         
         if self.level != 0:
-            amount = random.randint(1, 5) * self.level
+            amount = random.randint(XP_MAX_MULT) * self.level
         else:
-            amount = 10
+            amount = XP_ADD_BASE
 
         newxp = self.xp + amount
         xp_required = self.xp_to_lvl_up()
