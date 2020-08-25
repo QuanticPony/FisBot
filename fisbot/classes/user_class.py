@@ -9,9 +9,10 @@ class FisUser():
         self.xp = xp
 
     def xp_to_lvl_up(self) -> int:
-        return self.level * 10
+        return 300 + self.level * 10 
     
-    def addxp(self):
+    def addxp(self) -> int:
+        '''Sube la experiencia del usuario. Devuelve el nivel si se sube de nivel'''
         
         if self.level != 0:
             amount = random.randint(1, self.level) 
@@ -19,12 +20,14 @@ class FisUser():
             amount = 10
 
         newxp = self.xp + amount
-        xp_required = xp_to_lvl_up(self)
+        xp_required = self.xp_to_lvl_up()
         if newxp >= xp_required:
             self.xp = newxp - xp_required
             self.level += 1
+            return self.level
         else:
             self.xp = newxp
+            return None
 
 
 
