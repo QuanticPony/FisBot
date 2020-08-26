@@ -1,4 +1,5 @@
 import discord
+import asyncio
 
 class FisTask():
     def __init__(self, task_id=None, subject='', title='', description='', day=None, month=None, year=None):
@@ -64,3 +65,13 @@ class FisTask():
         for i in range(len(things_list)):
             await message.add_reaction(chr(i+codepoint_start)) 
         return embed
+        def confirm(reaction, user):
+            return ctx.message.author == user
+        try:
+            reaction, user = await self.bot.wait_for('reaction_add', timeout=10.0, check=confirm)
+            
+        except asyncio.TimeoutError:
+            await message.delete()
+        else:
+            await ctx.message.channel.delete()
+        
