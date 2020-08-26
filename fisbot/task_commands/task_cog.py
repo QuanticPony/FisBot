@@ -287,11 +287,10 @@ class task_commands(
 #            #today = today.strftime("%d/%m/%Y")
 #            #date = today.split("/")
 #            if month_task == month: #en caso de usar la string poner date[1], no he comparado años de momento pues no se por que la verdad, si esto va añadiré los años
-#                if day_task - day == 2:  #en caso de usasr la string poner date[0] he intentado poner un || con mas casos pero no le ha gustado no se por que
+#                if day_task - day == 2:  #en caso de usasr la string poner date[0] he intentado poner un || con mas casos pero no le ha gustado no se por que
 #                    await ctx.send('Quedan 2 días para la entrega de la tarea con id= {}'.format(task))
 #        if loop.time()+1.0 >= end_time:
 #            break
 #        await asyncio.sleep(24*60*60) #ahora debería dormir 24 horas
 #
 #asyncio.run(reminders())
-        
