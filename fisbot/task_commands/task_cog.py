@@ -130,7 +130,7 @@ class task_commands(
                 return await ctx.send('''**Lo siento**. No hay trabajos ni examenes en la base de datos de la asignatura **{}**'''.format(subject))
 
         for task in tasks_list:
-            description = 'id: {0.id} | Fecha: {0.day}/{0.month}'.format(task)
+            description = 'id: {0._id} | Fecha: {0.day}/{0.month}'.format(task)
             if task.year:
                 description += '/{0.year}'.format(task)
             embed.add_field(
@@ -147,26 +147,31 @@ class task_commands(
     @task.command(
         pass_context=True,
         aliases=['busca','mira'],
-        help='''Quieres ver toda la informacion disponible de un cierto trabajo con id=14? ```.task get 14```''',
+        help='''Quieres ver toda la informacion disponible de un cierto trabajo con id=14? ```.task get 14```
+        Quieres mencionar a todo el mundo para enseñar la tarea de id=9 y decirles hola? ```.task get 9 @everyone Hola```''',
         brief='''Muestra la informacion relativa a un trabajo''',
         description='''Permite ver trabajos y exámenes pendientes, así como su fecha de entrega y una pequeña
             descripción de lo que hay que hacer, si hay algo que consideres que haya que cambiar de esta base 
             de datos, contacta con un moderador''',
-        usage='.task get <task_id>'
+        usage='.task get <task_id> [message]'
     )
-    async def get(self, ctx, *, task_id): #comando para poder ver los trabajos que hay
+    async def get(self, ctx, task_id, *args): #comando para poder ver los trabajos que hay
         task_id = unicodedata.normalize('NFKD', task_id)\
             .encode('ascii', 'ignore').decode('ascii')
+
+        message_text = ' '.join(args)
 
         if task_id.isnumeric() and int(task_id) >= 0: # Contiene una id
             task = FisTask().database.get_task(int(task_id))
             if task:
-                await ctx.send('Esta es la tarea que pediste {.author.mention}:'.format(ctx), embed=task.embed())
+                await ctx.send(message_text, embed=task.embed())
             else:
                 await ctx.send('No se ha encontrado nada en la base de datos con id={}'.format(task_id))
-            return
-        
-        await ctx.send('''**Lo siento**, pero la id de un elemento es un entero positivo. *{}* no es un entero positivo'''.format(task_id))
+        else:
+            await ctx.send('''**Lo siento**, pero la id de un elemento es un entero positivo. *{}* no es un entero positivo'''.format(task_id))
+
+        if message_text:
+            await ctx.message.delete()
         
 
 
@@ -257,11 +262,11 @@ class task_commands(
             description='''Permite modificar una tarea o examen. Al llamar al comando aparece un mensaje
             embed que permite elegir los campos a cambiar''',
             usage='.task modify <task_id>',
+            check=[context_is_admin]
         )
     async def modify(self, ctx, task_id):
         requested_task = FisTask().database.get_task(task_id)
         await requested_task.modify(ctx)
-        #await ctx.send(embed=embed)
 
 
 

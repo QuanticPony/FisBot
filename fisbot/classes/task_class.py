@@ -3,7 +3,7 @@ import asyncio
 
 class FisTask():
     def __init__(self, task_id=None, subject='', title='', description='', day=None, month=None, year=None):
-        self.id = task_id
+        self._id = task_id
         self.subject = subject
         self.title = title
         self.description = description
@@ -32,22 +32,22 @@ class FisTask():
 
         task_embed.add_field(
                 name='Id:',
-                value='**{0.id}**'.format(self),
+                value='**{0._id}**'.format(self),
                 inline=False
             )
         task_embed.set_footer(text='Si cree necesaria alguna modificacion en este mensaje por favor pongase en contacto con algun moderador (@mods)')
 
         return task_embed
 
-    async def modify(self, ctx) -> discord.Embed:
-        atributes_dic = self.__dict__
-
+    async def modify(self, ctx):
+        _atributes_dic = self.__dict__
+        atributes_dic = _atributes_dic.copy()
         embed = discord.Embed(
             title='Modificar: *{0.subject}: {0.title}*'.format(self),
             description='Selecciona el campo a modificar:',
             color=discord.Color.dark_orange()
         )
-        atributes_dic.pop('id')
+        atributes_dic.pop('_id')
         atributes_dic.pop('database')
 
         codepoint_start = 127462  # Letra A en unicode en emoji
@@ -64,16 +64,45 @@ class FisTask():
         message = await ctx.send(embed=embed)
         for i in range(len(things_list)):
             await message.add_reaction(chr(i+codepoint_start)) 
+        await message.add_reaction("💾")
 
-        def confirm(reaction, user):
+        def confirm_reaction(reaction, user):
+            return user.id == ctx.message.author.id
+        def confirm_message(response_msg):
+            return response_msg.author.id == ctx.message.author.id
+
+        async def ask_field() -> bool:
+            try:
+                reaction, user = await ctx.bot.wait_for('reaction_add', timeout=15.0, check=confirm_reaction)
+                if str(reaction.emoji) == '💾':
+                    return False
+                
+            except asyncio.TimeoutError:
+                await ctx.send('Se acabo el tiempo...')
+                return False
+            
+            ask_message = await ctx.send(f"Introduce un nuevo {things_list[reaction.emoji]}:")
+
+            try:
+                response_msg = await ctx.bot.wait_for('message', timeout=60.0, check=confirm_message)
+            except asyncio.TimeoutError:
+                await ctx.send('Se acabo el tiempo...')
+                return False
+              
+            setattr(self, things_list[reaction.emoji], response_msg.content)
+            await response_msg.add_reaction("✅")
             return True
-        try:
-            reaction, user = await ctx.bot.wait_for('reaction_add', timeout=15.0, check=confirm)
-        except asyncio.TimeoutError:
-            await message.delete()
-            await ctx.message.delete()
 
-        await ctx.send(f"Introduce un nuevo {things_list[reaction]}")
+
+        while await ask_field():...
+        self.database.update_task(self)
+        return
+
+        
+
+        
+        
+        
 
         
             

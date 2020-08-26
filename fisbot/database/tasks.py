@@ -18,7 +18,7 @@ class ProyectsDB():
                             id INTEGER PRIMARY KEY,
                             subject text,
                             title text,
-                            description integer,
+                            description text,
                             day integer,
                             month text,
                             year integer
@@ -54,8 +54,8 @@ class ProyectsDB():
         try:
             with self._connect() as conn:
                 c = conn.cursor()
-                c.execute('UPDATE Tasks SET subject = ?, title = ?, description = ?, day = ?, month=?, year = ?, WHERE id = ?', 
-                    (task.subject, task.title, task.description, task.day, task.month, task.year, task.id))
+                c.execute('UPDATE Tasks SET subject = ?, title = ?, description = ?, day = ?, month=?, year = ? WHERE id = ?', 
+                    (task.subject, task.title, task.description, task.day, task.month, task.year, task._id))
             return True
         except sqlite3.Error:
             return False
@@ -68,7 +68,7 @@ class ProyectsDB():
         try:
             with self._connect() as conn:
                 c = conn.cursor()
-                c.execute('DELETE FROM Tasks WHERE id = ?', (task.id,))
+                c.execute('DELETE FROM Tasks WHERE id = ?', (task._id,))
             return True
         except sqlite3.Error:
             return False
