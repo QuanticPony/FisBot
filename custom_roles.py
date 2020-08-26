@@ -1,5 +1,13 @@
 import discord
+<<<<<<< HEAD
 from discord.ext import commands
+=======
+import asyncio
+from discord.ext import commands
+
+
+"""En proceso, no usar"""
+>>>>>>> ae5523ec8d133b693b8c2279d7d9419b4833aeee
 
 class custom_roles(
     commands.Cog,
@@ -25,8 +33,11 @@ class custom_roles(
                     inline=False
                 )
                 nivel += 1
+<<<<<<< HEAD
         return ayuda
         
+=======
+>>>>>>> ae5523ec8d133b693b8c2279d7d9419b4833aeee
 
 
     @commands.group(
@@ -67,4 +78,6 @@ class custom_roles(
 
 
     
+def setup(bot):
+    bot.add_cog(custom_roles(bot))
       
