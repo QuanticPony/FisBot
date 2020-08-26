@@ -260,7 +260,7 @@ class task_commands(
         )
     async def modify(self, ctx, task_id):
         requested_task = FisTask().database.get_task(task_id)
-        embed = await requested_task.modify(ctx)
+        await requested_task.modify(ctx)
         #await ctx.send(embed=embed)
 
 

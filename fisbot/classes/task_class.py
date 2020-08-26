@@ -61,17 +61,20 @@ class FisTask():
                 inline=False
                 )
 
-        message = await ctx.send( '@everyone',embed=embed)
+        message = await ctx.send(embed=embed)
         for i in range(len(things_list)):
             await message.add_reaction(chr(i+codepoint_start)) 
-        return embed
+
         def confirm(reaction, user):
-            return ctx.message.author == user
+            return True
         try:
-            reaction, user = await self.bot.wait_for('reaction_add', timeout=10.0, check=confirm)
-            
+            reaction, user = await ctx.bot.wait_for('reaction_add', timeout=15.0, check=confirm)
         except asyncio.TimeoutError:
+            await message.delete()
             await ctx.message.delete()
-        else:
-            await ctx.message.delete()
+
+        await ctx.send(f"Introduce un nuevo {things_list[reaction]}")
+
+        
+            
         
