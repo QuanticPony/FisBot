@@ -78,8 +78,7 @@ class task_commands(
         self.month = date[1]
         try:
             self.year = int(date[2])  
-            # esto pilla la fecha del ordenador asumo, y el 2? 
-            # No, esto lo que hace es guardar la fecha que haas introducido a mano. El dos corresponde al elemento 3: dia/mes/año
+
         except:
             self.year = 2020 
 
@@ -141,8 +140,6 @@ class task_commands(
         
         return await ctx.send(ctx.author.mention,embed=embed) 
 
-    # Entonces, el comando que acaba de acabar en la 132 le pones una asignatura y te dice todos los trabajos, y el de abajo le dices una id y te da toda la descripcion no? 
-    # Yep
 
     @task.command(
         pass_context=True,
@@ -223,8 +220,6 @@ class task_commands(
         await ctx.send('''**Lo siento**, pero la id de un elemento es un entero positivo. *{}* no es un entero positivo'''.format(task_id))
 
 
-
-
     @task.command(
             pass_context=True,
             aliases=['asignaturas'],
@@ -267,35 +262,3 @@ class task_commands(
     async def modify(self, ctx, task_id):
         requested_task = FisTask().database.get_task(task_id)
         await requested_task.modify(ctx)
-
-
-
-
-
-
-
-
-
-#import datetime
-#
-#async def reminders():
-#    loop = asyncio.get_running_loop() #nos dará el loop del evento que este ejecutandose en el momenot, con su tiempo de ejecución
-#    end_time = loop.time() #el tiempo de acabar será ahora, para que solo lo haga una vez
-#    today = date.today()
-#    while True:
-#        tasks_list = FisTask().database.get_all_subject_tasks(subject)
-#        for task in tasks_list:
-#            month_task = '{0.month}'.format(task)
-#            day_task = '{0.day}'.format(task) #no se si esto y lo anterior se tiene que poner así o hay modo simplificado, pero de momento lo dejo asi
-#            month = today.strftime("%m") #en los ejemplos que he visto de sacar la fecha de hoy siempre saca los tres de golpe, con lo que no se si solo funciona si sacas los tres en una string y leugo los separo, dejo comentado un código que haría eso
-#            day = today.strftime("%d")
-#            #today = today.strftime("%d/%m/%Y")
-#            #date = today.split("/")
-#            if month_task == month: #en caso de usar la string poner date[1], no he comparado años de momento pues no se por que la verdad, si esto va añadiré los años
-#                if day_task - day == 2:  #en caso de usasr la string poner date[0] he intentado poner un || con mas casos pero no le ha gustado no se por que
-#                    await ctx.send('Quedan 2 días para la entrega de la tarea con id= {}'.format(task))
-#        if loop.time()+1.0 >= end_time:
-#            break
-#        await asyncio.sleep(24*60*60) #ahora debería dormir 24 horas
-#
-#asyncio.run(reminders())
