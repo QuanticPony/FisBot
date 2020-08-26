@@ -52,12 +52,12 @@ class FisTask():
 
         codepoint_start = 127462  # Letra A en unicode en emoji
         #things_list = {chr(i): f"{chr(i)} - {atrib}" for i, atrib in enumerate(atributes_dic.keys(), start=codepoint_start)}
-        things_list = {f"{chr(i)} - {v}:": f"{atributes_dic[v]}" for i, v in enumerate(atributes_dic, start=codepoint_start)}
+        things_list = {f"{chr(i)}": v for i, v in enumerate(atributes_dic, start=codepoint_start)}
 
         for atrib in things_list:
             embed.add_field(
-                name=atrib,
-                value=things_list[atrib],
+                name=f"{atrib} - {things_list[atrib]}:" ,
+                value=atributes_dic[things_list[atrib]],
                 inline=False
                 )
 
@@ -71,7 +71,7 @@ class FisTask():
             reaction, user = await self.bot.wait_for('reaction_add', timeout=10.0, check=confirm)
             
         except asyncio.TimeoutError:
-            await message.delete()
+            await ctx.message.delete()
         else:
             await ctx.message.delete()
         
