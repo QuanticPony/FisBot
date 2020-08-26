@@ -17,17 +17,19 @@ class FisUser():
         from ..database.users import UsersDB
         self.database = UsersDB()
 
+        
+
 
     def xp_to_lvl_up(self) -> int:
-        return BASE_XP + self.level * XP_MULTIPLAYER 
+        return self.BASE_XP + self.level * self.XP_MULTIPLAYER 
     
     def addxp(self) -> int:
         '''Sube la experiencia del usuario. Devuelve el nivel si se sube de nivel'''
         
         if self.level != 0:
-            amount = random.randint(XP_MAX_MULT) * self.level
+            amount = random.randint(1, self.XP_MAX_MULT) * self.level
         else:
-            amount = XP_ADD_BASE
+            amount = self.XP_ADD_BASE
 
         newxp = self.xp + amount
         xp_required = self.xp_to_lvl_up()
