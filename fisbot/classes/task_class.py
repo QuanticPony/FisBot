@@ -73,5 +73,5 @@ class FisTask():
         except asyncio.TimeoutError:
             await message.delete()
         else:
-            await ctx.message.channel.delete()
+            await ctx.message.delete()
         
