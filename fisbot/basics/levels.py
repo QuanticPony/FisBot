@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from ..classes.user_class import FisUser
-discord.Asset
+
 class levels(
     commands.Cog,
     name='Niveles'

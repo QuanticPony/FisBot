@@ -7,7 +7,7 @@ class extensions_managment(
     commands.Cog,
     name='''Control de extensiones'''
     ):
-    ''' Conjunto de comandos que permite la manipulación de las extensiones del bot'''
+    ''' Conjunto de comandos que permite la manipulacion de las extensiones del bot'''
 
     def __init__(self, bot):
         self.bot = bot
@@ -22,11 +22,11 @@ class extensions_managment(
         ¿Se ha cansado de la extension hola_mundo?```.extensions unload hola_mundo```
         ''',
         brief='''Controla las extensiones del bot. Permite habilitarlas y quitarlas''',
-        description='''Permite la manipulación de las extensiones del bot. Las diferentes ordenes son:
+        description='''Permite la manipulacion de las extensiones del bot. Las diferentes ordenes son:
         \nenabled: Muestra las extensiones habilitada
-        \nload:    Carga la extensión [extension]
-        \nreload:  Recarga la extensión [extension]
-        \nunload:  Descarga la extensión [extension]''',
+        \nload:    Carga la extension [extension]
+        \nreload:  Recarga la extension [extension]
+        \nunload:  Descarga la extension [extension]''',
         usage='.extensions <enabled|load|reload|unload> [extension]'
     )
     async def extensions(self, ctx, order, *extension):

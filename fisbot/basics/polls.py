@@ -57,14 +57,16 @@ class poll_cog(
     commands.Cog, 
     name='Encuestas',
     ):
-    '''Comandos para realizar encuestas. Pasos para realizar una: escriba .p'''
+    '''Comandos para realizar encuestas. Pasos para realizar una: escriba ```.poll``` donde quiere que aparezca la encuesta.
+    Cambia los campos de la encuesta por mensajes privados. Cuando este acabado pulsa 💾'''
 
     def __init__(self, bot):
         self.bot = bot
 
 
     async def create_poll(self, ctx) -> (discord.Embed, list):
-        ''''''
+        '''Crea una encuesta a traves de un dialogo por mensajes privados. Devuelve una `tupla` cuyos 
+        elementos son el `embed` y una `lista` de las opciones respectivamente'''
 
         poll = Poll()
         channel = ctx.author.dm_channel
@@ -181,8 +183,4 @@ class poll_cog(
             msg = await ctx.author.dm_channel.send(embed=embed)
 
         for emoji in emojis:
-            await msg.add_reaction(emoji)
-
-
-        
-        
+            await msg.add_reaction(emoji)  

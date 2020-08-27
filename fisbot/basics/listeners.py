@@ -14,20 +14,20 @@ class listeners(
     def create_embed_hello(self, member):
         embed = discord.Embed(
             title='''Bienvenido al servidor **{0.guild.name}**, {0.name}:'''.format(member), 
-            description='''El equipo de moderadores de {.guild.name} esperamos que disfrute del servidor y le sea realmente útil.'''.format(member), 
+            description='''El equipo de moderadores de {.guild.name} esperamos que disfrute del servidor y le sea realmente util.'''.format(member), 
             color=0x00ecff)
         embed.add_field(
             name="Antes de empezar:", 
-            value='''Dicho esto, esperamos también que cumpla algunas **normas básicas**: sea **respetuoso** y pongase su **nombre real** (no sabemos quien es *xX_DraG0nSlayerr3_Xx*)''', 
+            value='''Dicho esto, esperamos tambien que cumpla algunas **normas basicas**: sea **respetuoso** y pongase su **nombre real** (no sabemos quien es *xX_DraG0nSlayerr3_Xx*)''', 
             inline=False)
         embed.add_field(
             name='''Dudas?''',
-            value='''Para más información sobre el servidor, su funcionamiento y todo lo que puede hacer en él, le sugerimos que visite los canales de la **categoría GENERAL**
-            Si aun así tiene dudas, suele haber siempre al menos un miembro conectado que seguro puede ayudarle''',
+            value='''Para mas informacion sobre el servidor, su funcionamiento y todo lo que puede hacer en el, le sugerimos que visite los canales de la **categoria GENERAL**
+            Si aun asi tiene dudas, suele haber siempre al menos un miembro conectado que seguro puede ayudarle''',
             inline=False)
         embed.add_field(
             name='''Disfrute!''',
-            value='''[Más informacion]({})'''.format('https://www.youtube.com/watch?v=dQw4w9WgXcQ'),
+            value='''[Mas informacion]({})'''.format('https://www.youtube.com/watch?v=dQw4w9WgXcQ'),
             inline=False
         )
         return embed
