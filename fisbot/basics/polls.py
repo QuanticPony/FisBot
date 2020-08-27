@@ -4,85 +4,185 @@ import random
 from discord.ext import commands
 from ..classes.bot_class import context_is_admin
 
-class poll(
+
+class Poll():
+    CODE_POINT = 127462
+    def __init__(self, title='Titulo', description='Descripcion', values=['Elemento 1']):
+        self.index = 0
+        self.options = {
+            '🟫': ['Titulo', title],
+            '🟩': ['Descripcion', description]
+        }
+        self.options.update({f"{chr(self.index + self.CODE_POINT)}": [v, 'Null'] for self.index, v in enumerate(values)})
+
+
+    def add_element(self, value):
+        '''Añade un nuevo elemento al objeto Poll'''
+
+        self.index += 1
+        element = [f'Elemento {self.index}', value]
+        self.options[chr(self.index + self.CODE_POINT)] = element
+        
+
+
+    def mod_element(self, key, value):
+        '''Modifica un elemento del objeto Poll'''
+
+        self.options[key][1] = value
+
+
+    def del_element(self, key) -> bool:
+        '''Borra un campo del objeto Poll y devuelve `True`. Si ese campo es el titulo o la descripcion, devuelve `False`'''
+
+        if key == '🟫' or '🟩':
+            return False
+        else:
+            self.options.pop(key)
+            self.index -= 1
+            return True
+    
+    def return_values(self) -> dict:
+        '''Devuelve los elementos de la encuesta en un diccionario cuya key es un `Emoji` y el value es la opcion'''
+
+        dict_copy = self.options.copy()
+        dict_copy.pop('🟫')
+        dict_copy.pop('🟩')
+        return dict_copy
+
+
+
+
+
+class poll_cog(
     commands.Cog, 
     name='Encuestas',
     ):
-    '''Comandos para realizar encuestas. Pasos para realizar una:
-    \t1º: Poner un titulo a la encuesta: ```.polltitle <Titulo>```
-    \t2º: Asegurarse de utilizar el separador adecuadamente, para ver cual hay: ```.separator```
-    \t3º: En el caso de querer cambiar el separador: ```.separator <nuevo_separador>```
-    \t4º: Dar los elementos de la encuesta separados por el separador actual (default:\'\_\'): ```.poll <elem1> _ <elem2> [ _ [...]]```'''
+    '''Comandos para realizar encuestas. Pasos para realizar una: escriba .p'''
 
     def __init__(self, bot):
         self.bot = bot
-        self.sep = '_'
-        self.tit = 'Encuesta:'
-    
+
+
+    async def create_poll(self, ctx) -> (discord.Embed, list):
+        ''''''
+
+        poll = Poll()
+        channel = ctx.author.dm_channel
+        if not channel:
+            channel = await ctx.author.create_dm()
+
+
+        new_poll = discord.Embed(
+            title='Nueva encuesta:',
+            description='❎ Añade una opcion y ❌ borra el campo con el emoticono que envies en tu siguiente mensaje. Selecciona el campo a modificar:',
+            color=discord.Color.blurple()
+        )
+
+        for element in poll.options:
+            new_poll.add_field(
+                name=f"{element} - {poll.options[element][0]}",
+                value=f"{poll.options[element][1]}",
+                inline=False
+            )
+
+        config_message = await channel.send(embed=new_poll)
+
+        for i in poll.options:
+            await config_message.add_reaction(i) 
+        await config_message.add_reaction("❎")
+        await config_message.add_reaction("❌")
+        await config_message.add_reaction("💾")
+
+
+
+        def confirm_reaction(reaction, user):
+            return user.id == ctx.message.author.id
+        def confirm_message(response_msg):
+            return response_msg.author.id == ctx.message.author.id
+
+
+
+        async def ask_field() -> bool:
+            try:
+                reaction, user = await ctx.bot.wait_for('reaction_add', timeout=15.0, check=confirm_reaction)
+                if str(reaction.emoji) == '💾':
+                    return False
+
+            except asyncio.TimeoutError:
+                await ctx.send('Se acabo el tiempo...')
+                return False
+
+            ask_message = await ctx.send('Introduce el nuevo valor:')
+            try:
+                response_msg = await ctx.bot.wait_for('message', timeout=120.0, check=confirm_message)
+            except asyncio.TimeoutError:
+                await ctx.send('Se acabo el tiempo...')
+                return False
+
+            if reaction.emoji == '❎':
+                poll.add_element(response_msg.content)
+            elif reaction.emoji == '❌':
+                if response_msg.content in poll.keys():
+                    poll.del_element(response_msg.content)
+                else:
+                    channel.send('No existe ese campo')
+            else:
+                poll.mod_element(reaction.emoji, response_msg.content)
+            
+            await ask_message.delete()
+            return True
+
+
+        while await ask_field():
+            new_poll.clear_fields()
+            for element in poll.options:
+                new_poll.add_field(
+                    name=f"{element} - {poll.options[element][0]}",
+                    value=f"{poll.options[element][1]}",
+                    inline=False
+            )
+            await config_message.edit(embed=new_poll)
+
+
+        final_poll = discord.Embed(
+            title=poll.options['🟫'][1],
+            description=poll.options['🟩'][1],
+            color=discord.Color.blurple()
+        )
+        elements_dic = poll.return_values()
+
+        frase = ''
+        for i in elements_dic:
+            frase += f"{i} - {elements_dic[i][1]}\n"
+
+        final_poll.add_field(
+            name='Opciones:',
+            value=frase,
+            inline=False
+            )
+        return (final_poll, list(elements_dic.keys()))
+
+
+
     @commands.command(
         pass_context=True, 
         aliases=['encuesta','p'],
-        help='''¿Grados o radianes, cual es mejor? Suponemos que el separador es el default: \_. Y que ya se ha introducido el titulo de la encuesta con *.polltitle*:
-        ```.poll Grados_Radianes```''',
+        help='''¿Quieres hacer una encuesta? Escribe ```.poll``` Y sigue los pasos''',
         brief='''Hace una encuesta''',
-        description='''Hace una encuesta entre todos los elementos separados por el separador. Este se puede consultar con el comando **.separator**''',
-        usage='.poll <elem1> separador <elem2> [separador [...]]'
+        description='''Hace una encuesta preguntandote por privado los campos que quieres que tenga''',
+        usage='.poll'
     )
-    async def poll(self, context, *, elementos):
-        things_list = elementos.split(self.sep)
-        if len(things_list) < 2:
-            responses = [
-                'Si señor, claro. Bien. Buena...',
-                '\'Tamos tontos??',
-                'Las encuestas suelen tener al menos 2 elementos',
-                'Y las opciones? me las invento yo?',
-                'lol no'
-            ]
-            things_list.append('NULL')
-            await context.send(responses[random.randint(0,4)])
-        if len(things_list) > 20:
-            await context.send("Pero de que vas {0.message.author.mention}? Para que necesitas tantas opciones?".format(context))
+    async def poll(self, ctx):
+        embed, emojis= await self.create_poll(ctx)
+        try:
+            await ctx.message.delete()
+            msg = await ctx.send(embed=embed)
+        except discord.Forbidden:
+            msg = await ctx.author.dm_channel.send(embed=embed)
 
-        codepoint_start = 127462  # Letra A en unicode en emoji
-        things_list = {chr(i): f"{chr(i)} - {v}" for i, v in enumerate(things_list, start=codepoint_start)}
-        embed = discord.Embed(title=self.tit, description="\n".join(things_list.values()))
-        await context.message.delete()
-        message = await context.send( '@everyone',embed=embed)
-        for reaction in things_list:
-            await message.add_reaction(reaction) 
-        self.tit = 'Encuesta:'
-        self.sep='_'
+        for emoji in emojis:
+            await msg.add_reaction(emoji)
 
 
-    @commands.command(
-        pass_context=True, 
-        aliases=['pollsep','sep','separador'],
-        help='''¿Quiere hacer una encuesta y por casualidad en uno de los elementos a elegir hay una barra baja (\_)? 
-        Puedes cambiar el separador a otro caracter diferente para poder poner lo que necesites. Pongamos que te interesa @ porque no te interfiere en nada:
-        ```.separator @```''',
-        brief='''Cambia el separador de .poll''',
-        description='''Cambia la string de separacion de elementos de encuesta en el comando .poll''',
-        usage='.separator [new_separator]'
-    )
-    async def separator(self, context, *separator):
-        if separator:
-            await context.message.delete()
-            self.sep = separator[0]
-        else:
-            await context.send('Actualmente el separador de elementos de .poll es \'{0.sep}\''.format(self))
-
-
-    @commands.command(
-        pass_context=True, 
-        aliases=['pollt','pt'],
-        help='''¿Quiere hacer una encuesta para saber si son mejores los grados o los gradianes? ```.polltitle ¿Grados o radianes, cual es mejor?```''',
-        brief='''Cambia el titulo de la encuesta .poll''',
-        description='''Cambia el titulo de la encuesta .poll. Por defecto es \'Encuesta:\'''',
-        usage='.polltitle [title...]'
-    )
-    async def polltitle(self, context, *,title):
-        if title:
-            await context.message.delete()
-            self.tit = title
-        else:
-            await context.send('Actualmente el titulo de la encuesta de .poll es \'{0.tit}\''.format(self))
+        
+        
