@@ -16,8 +16,6 @@ FFmpeg en PATH
 o ffmpeg.exe en .\fis_bot
 '''
 
-
-
 # Silence useless bug reports messages
 youtube_dl.utils.bug_reports_message = lambda: ''
 
