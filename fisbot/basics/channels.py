@@ -70,6 +70,7 @@ class channels_managment(
         hidden=True,
         pass_context=True, 
         aliases=['d'],
+        checks=[context_is_admin]
     )
     async def delete(self, context):
         if self.last_tipo == 'text':
@@ -85,6 +86,7 @@ class channels_managment(
         hidden=True,
         pass_context=True, 
         aliases=['r'],
+        checks=[context_is_admin]
     )
     async def rename(self, context, name):
         if self.last_tipo == 'text':
@@ -118,7 +120,7 @@ class channels_managment(
             await context.channel.purge(limit=2, check=check)
         else:
             if float(amount[0]) <= 0:
-                await context.send("Bravo campeón")
+                await context.send("Bravo campeon")
                 return
             else:
                 await context.channel.purge(limit=int(float(amount[0]))+1, check=check)
@@ -137,7 +139,7 @@ class channels_managment(
         if context_is_admin(context):
             def confirm(reaction, user):
                 return str(reaction.emoji) == '✅' and context.message.author == user
-            msg_conf = await context.message.channel.send('''¿Está seguro de que quiere borrar {.channel.mention}?\tSi: ✅\t No: ❌'''.format(context.message))
+            msg_conf = await context.message.channel.send('''¿Esta seguro de que quiere borrar {.channel.mention}?\tSi: ✅\t No: ❌'''.format(context.message))
             await msg_conf.add_reaction("✅")
             await msg_conf.add_reaction("❌")
             try:
@@ -159,7 +161,7 @@ class channels_managment(
     
     async def dvc(self, context: commands.Context):
         if context_is_admin(context):
-            msg_conf = await context.message.channel.send("¿Está seguro de que quiere borrar {.channel.mention}? Si: ✅   No: ❌".format(context.message.author.voice))
+            msg_conf = await context.message.channel.send("¿Esta seguro de que quiere borrar {.channel.mention}? Si: ✅   No: ❌".format(context.message.author.voice))
             await msg_conf.add_reaction("✅")
             await msg_conf.add_reaction("❌")
 

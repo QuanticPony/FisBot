@@ -1,51 +1,43 @@
 import random
+import discord
 
 class FisUser():
-    def __init__(self, user_id, name, karma=0, level=0, xp=0):
+
+    BASE_XP = 300
+    XP_MULTIPLAYER = 10
+    XP_ADD_BASE = 10
+    XP_MAX_MULT = 5
+
+    def __init__(self, user_id=0, name='', karma=0, level=0, xp=0):
         self.id = user_id
         self.name = name
         self.karma = karma
         self.level = level
         self.xp = xp
+        from ..database.users import UsersDB
+        self.database = UsersDB()
 
-    def addkarma(self):
-        self.karma += 1
-    
     def xp_to_lvl_up(self) -> int:
-        return self.xp * 10
-
-    def addlevel(self):
-        self.level += 1
-
-    def setlevel(self, lvl):
-        self.level = lvl
+        return self.BASE_XP + self.level * self.XP_MULTIPLAYER 
     
-    def setkarma(self, krm):
-        self.karma = krm
-    
-    def addxp(self, amount):
+    def addxp(self) -> int:
+        '''Sube la experiencia del usuario. Devuelve el nivel si se sube de nivel'''
+        
+        if self.level != 0:
+            amount = random.randint(1, self.XP_MAX_MULT) * self.level
+        else:
+            amount = self.XP_ADD_BASE
+
         newxp = self.xp + amount
-        xp_required = xp_to_lvl_up(self)
+        xp_required = self.xp_to_lvl_up()
         if newxp >= xp_required:
-            addlevel(self)
             self.xp = newxp - xp_required
+            self.level += 1
+            return self.level
         else:
             self.xp = newxp
+            return None
 
-    def setxp(self, exp):
-        self.xp += exp
-
-    def read_user(self, ):
-        self.level = int
-        self.xp = int
-        self.karma = int
-
-
-    def modifi_user(self, ):
-        pass
-
-    def write_user(self, ):
-        pass
 
 
 

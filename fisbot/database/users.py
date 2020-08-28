@@ -1,6 +1,7 @@
 from ..classes.user_class import FisUser
 import sqlite3
 from sqlite3 import Connection
+import time
 
 class UsersDB():
 
@@ -93,3 +94,27 @@ class UsersDB():
         except sqlite3.Error:
             return None
         return tuple([FisUser(*user) for user in result])
+
+
+    def last_message_cooldown(self, user_id)-> bool:
+        '''Comprueba si la llamada a esta funcion y con la ultima llamada a la misma del mismo `user_id` es mayor que el cooldown'''
+
+        now_time = time.time()
+        try:
+            with self._connect() as conn:
+                c = conn.cursor()
+                last_time = c.execute('SELECT last_message FROM Messages WHERE id = ?', (user_id,)).fetchone()
+        except sqlite3.Error:
+            return False
+
+        if not last_time:
+            c.execute('INSERT INTO Messages VALUES (?,?)', 
+                (user_id, now_time))
+            return True
+        else:
+            c.execute('UPDATE Messages SET last_message = ? WHERE id = ?', 
+                (now_time, user_id))
+            if now_time - last_time >= 5:
+                return True
+            else:
+                return False

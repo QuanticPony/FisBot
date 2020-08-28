@@ -1,8 +1,7 @@
 import discord
 import asyncio
 import fisbot
-from fisbot import FisBot, FisUser
-from fisbot import UsersDB
+from fisbot import FisBot, FisUser, UsersDB
 
 bot = FisBot(command_prefix='.')
 

@@ -8,7 +8,7 @@ class cog_managment(
     commands.Cog,
     name='''Control de comandos'''
     ):
-    '''Conjunto de comandos que permite la manipulación de los conjuntos de commandos del bot'''
+    '''Conjunto de comandos que permite la manipulacion de los conjuntos de commandos del bot'''
 
     def __init__(self, bot):
         self.bot = bot
@@ -34,8 +34,6 @@ class cog_managment(
             await context.send(message)
     
 
-
-    #TODO: Preguntar a Aitor a ver como podría hacer esto. La otra froma es hacer un diccionario de todos los cogs posibles.
     @cog.command(
         pass_context=True, 
         help='''

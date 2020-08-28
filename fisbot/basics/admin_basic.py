@@ -8,7 +8,7 @@ class admin_basic_commands(
     commands.Cog,
     name='Comandos basicos',
     ):
-    '''Conjunto de comandos que permite la manipulación básica del bot'''
+    '''Conjunto de comandos que permite la manipulación basica del bot'''
     
     def __init__(self, bot):
         self.bot = bot
@@ -17,7 +17,8 @@ class admin_basic_commands(
     @commands.command(
         pass_context=True, 
         aliases=['estado','juego'],
-        help='''¿Quiere cambiar el estado del bot a patatas? ```.status patatas```''',
+        help='''¿Quiere cambiar el estado del bot a patatas? ```.status patatas```
+        ¿Quieres reiniciar el estado del bot al por defecto? ```.status```''',
         brief='''Cambia el estado del bot''',
         description='''Cambia el estado del bot. En el caso default pone como estado .help''',
         usage='.status [estado]'
@@ -27,27 +28,6 @@ class admin_basic_commands(
         if game == None:
             game = context.prefix + 'help'
         await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(name=game))
-
-    @commands.command(
-        pass_context=True,
-        hidden=True,
-        check=[context_is_admin]
-    )
-    @commands.check(context_is_admin)
-    async def prueba(self, ctx):
-        from ..database.users import UsersDB
-        from ..classes.user_class import FisUser
-
-        bd = UsersDB()
-        server = ctx.guild
-        for member in server.members:
-            if member.nick:
-                user = FisUser(member.id, member.nick)
-            else:
-                user = FisUser(member.id, member.name)
-            bd.update_user(user)
-
-        await ctx.message.add_reaction("🔄")
 
 
 
@@ -72,7 +52,6 @@ class admin_basic_commands(
         brief='''Recarga el bot''',
         description='''Recarga el bot y actualiza los comandos de todas las extensiones habilitadas''',
         usage='.reload',
-        check=[context_is_admin]
     )
     @commands.check(context_is_admin)
     async def reload(self, ctx, *arg):

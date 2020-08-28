@@ -4,8 +4,6 @@ import unicodedata
 from discord.ext import commands
 from ..classes.bot_class import context_is_admin
 from ..classes.task_class import FisTask
-        
-
 
 class task_commands(
     commands.Cog,
@@ -13,7 +11,7 @@ class task_commands(
     ):
     '''Con estos comandos podrás ver y depende quién seas, editar, los trabajos y exmámenes
     que nos van mandando durante el curso. 
-    Para mirar fechas de exámenes y trabajos, prueba *.trabajos ['''
+    Para mirar fechas de exámenes y trabajos, prueba ```.task list```'''
 
     def __init__(self, bot):
         self.bot = bot 
@@ -31,8 +29,8 @@ class task_commands(
         description='''Engloba el conjunto de comandos para modificar, añadir, y borrar tareas y examenes de la base de datos''',
         usage='.task <order> [args]'
     )
-    async def task(self, context):... #what is this
-        
+    async def task(self, context):
+        pass
         
 
     @task.command(
@@ -47,18 +45,18 @@ class task_commands(
         check=[context_is_admin]
     )
     async def add(self, ctx, subject):
-        task=FisTask(subject=subject) #esto es la base de datos?
-        msg_out = await ctx.send('Escribe el titulo del trabajo/examen:') #entonces no hay dms?
+        task=FisTask(subject=subject)
+        msg_out = await ctx.send('Escribe el titulo del trabajo/examen:')
         def confirm(msg_in):
-            return ctx.message.author.id == msg_in.author.id #ah, asi se puede definir
+            return ctx.message.author.id == msg_in.author.id
         try:
-            msg_in = await self.bot.wait_for('message', timeout=30.0, check=confirm) #esto es para que si no responde nunca pare no?
+            msg_in = await self.bot.wait_for('message', timeout=30.0, check=confirm)
         except asyncio.TimeoutError:
             await msg_out.delete()
         
 
         task.title = unicodedata.normalize('NFKD', msg_in.content)\
-            .encode('ascii', 'ignore').decode('ascii').title() #NFKD? y ahora estas pasando el titulo a ascii?
+            .encode('ascii', 'ignore').decode('ascii').title()
 
         msg_out = await ctx.send('Escribe la descripcion:')
         try:
@@ -77,12 +75,12 @@ class task_commands(
         self.day = int(date[0])
         self.month = date[1]
         try:
-            self.year = int(date[2])  #esto pilla la fecha del ordenador asumo, y el 2?
+            self.year = int(date[2])  
+
         except:
             self.year = 2020 
 
         task.database.add_task(task)
-
 
         
     @task.command(
@@ -96,6 +94,7 @@ class task_commands(
         usage='.task list [subject]',
     )
     async def _list(self, ctx, *, subject=None):
+
         if not subject:
             tasks_list = FisTask().database.get_all_tasks()
             embed = discord.Embed(
@@ -105,11 +104,28 @@ class task_commands(
                 color=discord.Color.purple()
             )
             if not tasks_list:
-                await ctx.send('**Lo siento**. No hay trabajos ni examenes en la base de datos')
+                return await ctx.send('**Lo siento**. No hay trabajos ni examenes en la base de datos')
 
         else:
+            if subject.isdigit():
+                school_year = int(subject)
+                if 0 < school_year < 5:
+                    # TODO. Completar esto
+                    tasks_list = FisTask().database.get_all_school_year_subjects()
+                    pass
+                else:
+                    await ctx.send('Solo hay 4 cursos, y son enteros positivos distintos de 0') 
+                return 
+
+
             subject = unicodedata.normalize('NFKD', subject)\
              .encode('ascii', 'ignore').decode('ascii').title()
+            asignaturas = FisTask().database.subjects()
+
+            for asignatura in asignaturas:
+                if subject in asignatura:
+                    subject = asignatura
+                    break
 
             tasks_list = FisTask().database.get_all_subject_tasks(subject)
             embed = discord.Embed(
@@ -119,79 +135,50 @@ class task_commands(
             )
 
             if not tasks_list:
-                await ctx.send('''**Lo siento**. No hay trabajos ni examenes en la base de datos de la asignatura **{}**'''.format(subject))
+                return await ctx.send('''**Lo siento**. No hay trabajos ni examenes en la base de datos de la asignatura **{}**'''.format(subject))
 
         for task in tasks_list:
-            fecha = 'id: {0.id} | Fecha: {0.day}/{0.month}'.format(task)
-            if task.year:
-                fecha += '/{0.year}'.format(task)
+            description = f"id: {task._id} | " + f"Fecha: {task.day}/{task.month}" + f"/{task.year}" if task.year else '' 
+            description += f" | [Fuente]({task.url})" if task.url else ''
+
             embed.add_field(
-                name='**{0.subject}**: *{0.title}*'.format(task),
-                value=fecha,
+                name=f"{task.school_year}º -> **{task.subject}**: {task.title}",
+                value=description,
                 inline=False
             )
         
-        await ctx.send(ctx.author.mention,embed=embed) 
+        return await ctx.send(ctx.author.mention,embed=embed) 
 
-    #Entonces, el comando que acaba de acabar en la 132 le pones una asignatura y te dice todos los trabajos, y el de abajo le dices una id y te da toda la descripcion no?
 
     @task.command(
         pass_context=True,
         aliases=['busca','mira'],
-        help='''Quieres ver toda la informacion disponible de un cierto trabajo con id=14? ```.task get 14```''',
+        help='''Quieres ver toda la informacion disponible de un cierto trabajo con id=14? ```.task get 14```
+        Quieres mencionar a todo el mundo para enseñar la tarea de id=9 y decirles hola? ```.task get 9 @everyone Hola```''',
         brief='''Muestra la informacion relativa a un trabajo''',
         description='''Permite ver trabajos y exámenes pendientes, así como su fecha de entrega y una pequeña
             descripción de lo que hay que hacer, si hay algo que consideres que haya que cambiar de esta base 
             de datos, contacta con un moderador''',
-        usage='.task get <task_id>'
+        usage='.task get <task_id> [message]'
     )
-    async def get(self, ctx, *, task_id): #comando para poder ver los trabajos que hay
+    async def get(self, ctx, task_id, *args):
         task_id = unicodedata.normalize('NFKD', task_id)\
             .encode('ascii', 'ignore').decode('ascii')
 
-        if task_id.isnumeric() and int(task_id) >= 0: # Contiene una id
+        message_text = ' '.join(args)
+
+        if task_id.isnumeric() and int(task_id) >= 0:
             task = FisTask().database.get_task(int(task_id))
             if task:
-                await ctx.send('Esta es la tarea que pediste {.author.mention}:'.format(ctx), embed=task.embed())
+                await ctx.send(message_text, embed=task.embed())
             else:
                 await ctx.send('No se ha encontrado nada en la base de datos con id={}'.format(task_id))
-            return
-        
-        await ctx.send('''**Lo siento**, pero la id de un elemento es un entero positivo. *{}* no es un entero positivo'''.format(task_id))
-        
-        #if ctx.message.author.id == original:
-        #        original=ctx.message.author.id
-        #        return True
-        #    else: 
-        #        return False
-        #original=context.message.author.id
-        #if not context.author.dm_channel:
-        #    await context.author.create_dm()
-        #await context.author.dm_channel.send("Muy buenos días, de qué asignatura eliminas el trabajo?")
-        #asignatura = await client.wait_for('message', check=CompruebaAutor(ctx)) #No se como asegurar que le he pasado como parámetro a la función ctx, osea el contexto de quien lo manda
-        #i=0
-        #for key in self.Asignaturas:
-        #    if asignatura in self.Asignaturas[i]:
-        #        nombre_Asignatura=self.Asignaturas[i]
-        #    i=i+1
-        #if nombre_Asignatura == Null:
-        #    if not context.author.dm_channel:
-        #    await context.author.create_dm()
-        #await context.author.dm_channel.send("No parece existir la asignatura de la que quieres borrar el nombre")
-        #else:
-        #    mensaje = ''
-        #    for x in self.Asignatura[nombre_Asignatura]:
-        #        mensaje = mensaje + x + '\n'
-        #    if not context.author.dm_channel:
-        #    await context.author.create_dm()
-        #await context.author.dm_channel.send("Estos son los trabajos que hay, por favor introduce el número cardinal que corresponde al trabajo que quieras eliminar")
-        #eliminar = await client.wait_for('message', check=CompruebaAutor(ctx))
-        #eliminar = eliminar - 1 #como es una lista, si quieres eliminar el trabajo 1 será el elemento 0
-        #self.Asignatura[nombre_Asignatura].pop(eliminar)
-        #if not context.author.dm_channel:
-        #    await context.author.create_dm()
-        #await context.author.dm_channel.send("Muchas gracias, ten un buen día")
-       
+        else:
+            await ctx.send('''**Lo siento**, pero la id de un elemento es un entero positivo. *{}* no es un entero positivo'''.format(task_id))
+
+        if message_text:
+            await ctx.message.delete()
+
 
     @task.command(
         pass_context=True,
@@ -202,12 +189,12 @@ class task_commands(
         usage='.task delete <task_id>',
         check=[context_is_admin]
     )
-    async def delete(self, ctx, *, task_id): #para quitar trabajos
+    async def delete(self, ctx, *, task_id):
 
         task_id = unicodedata.normalize('NFKD', task_id)\
             .encode('ascii', 'ignore').decode('ascii')
 
-        if task_id.isnumeric() and int(task_id) >= 0: # Contiene una id
+        if task_id.isnumeric() and int(task_id) >= 0:
             
             task = FisTask().database.get_task(int(task_id))
 
@@ -239,27 +226,44 @@ class task_commands(
         await ctx.send('''**Lo siento**, pero la id de un elemento es un entero positivo. *{}* no es un entero positivo'''.format(task_id))
 
 
-#import datetime
-#
-#async def reminders():
-#    loop = asyncio.get_running_loop() #nos dará el loop del evento que este ejecutandose en el momenot, con su tiempo de ejecución
-#    end_time = loop.time() #el tiempo de acabar será ahora, para que solo lo haga una vez
-#    today = date.today()
-#    while True:
-#        tasks_list = FisTask().database.get_all_subject_tasks(subject)
-#        for task in tasks_list:
-#            month_task = '{0.month}'.format(task)
-#            day_task = '{0.day}'.format(task) #no se si esto y lo anterior se tiene que poner así o hay modo simplificado, pero de momento lo dejo asi
-#            month = today.strftime("%m") #en los ejemplos que he visto de sacar la fecha de hoy siempre saca los tres de golpe, con lo que no se si solo funciona si sacas los tres en una string y leugo los separo, dejo comentado un código que haría eso
-#            day = today.strftime("%d")
-#            #today = today.strftime("%d/%m/%Y")
-#            #date = today.split("/")
-#            if month_task == month: #en caso de usar la string poner date[1], no he comparado años de momento pues no se por que la verdad, si esto va añadiré los años
-#                if day_task - day == 2:  #en caso de usasr la string poner date[0] he intentado poner un || con mas casos pero no le ha gustado no se por que
-#                    await ctx.send('Quedan 2 días para la entrega de la tarea con id= {}'.format(task))
-#        if loop.time()+1.0 >= end_time:
-#            break
-#        await asyncio.sleep(24*60*60) #ahora debería dormir 24 horas
-#
-#asyncio.run(reminders())
-#        
+    @task.command(
+            pass_context=True,
+            aliases=['asignaturas'],
+            help='''¿Quieres ver la lista de asignaturas? ```.task subjects```''',
+            brief='''Muestra las asignaturas de la base de datos''',
+            description='''Muestra una lista de todas las asignaturas en la base de datos''',
+            usage='.task subjects',
+        )
+    async def subjects(self, ctx):
+        asignaturas = FisTask().database.subjects()
+
+        embed = discord.Embed(
+            title='Asignaturas en la base de datos:',
+            description='''Si quieres informacion sobre las tareas de una asignatura en concreto prueba: 
+                ```.task list [asignatura]```''',
+            color=discord.Color.dark_purple()
+        )
+        asignaturas.sort()
+        embed.add_field(
+            name='Asignaturas actualmente activas:',
+            value='-'+'\n-'.join(asignaturas),
+            inline=False
+            )
+        embed.set_footer(text='Si falta alguna asignatura pongase en contacto con @mods')
+        
+        return await ctx.send(embed=embed)
+
+
+    @task.command(
+            pass_context=True,
+            aliases=['modificar', 'mod'],
+            help='''¿Quieres modificar la tarea de id 4? ```.task modify 4```''',
+            brief='''Permite modificar una tarea o examen''',
+            description='''Permite modificar una tarea o examen. Al llamar al comando aparece un mensaje
+            embed que permite elegir los campos a cambiar''',
+            usage='.task modify <task_id>',
+            check=[context_is_admin]
+        )
+    async def modify(self, ctx, task_id):
+        requested_task = FisTask().database.get_task(task_id)
+        await requested_task.modify(ctx)
