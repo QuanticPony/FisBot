@@ -111,14 +111,14 @@ class poll_cog(
                     return False
 
             except asyncio.TimeoutError:
-                await ctx.send('Se acabo el tiempo...')
+                await channel.send('Se acabo el tiempo...')
                 return False
 
-            ask_message = await ctx.send('Introduce el nuevo valor:')
+            ask_message = await channel.send('Introduce el nuevo valor:')
             try:
                 response_msg = await ctx.bot.wait_for('message', timeout=120.0, check=confirm_message)
             except asyncio.TimeoutError:
-                await ctx.send('Se acabo el tiempo...')
+                await channel.send('Se acabo el tiempo...')
                 return False
 
             if reaction.emoji == '❎':

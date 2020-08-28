@@ -4,8 +4,6 @@ import unicodedata
 from discord.ext import commands
 from ..classes.bot_class import context_is_admin
 from ..classes.task_class import FisTask
-        
-
 
 class task_commands(
     commands.Cog,
@@ -13,7 +11,7 @@ class task_commands(
     ):
     '''Con estos comandos podrás ver y depende quién seas, editar, los trabajos y exmámenes
     que nos van mandando durante el curso. 
-    Para mirar fechas de exámenes y trabajos, prueba *.trabajos ['''
+    Para mirar fechas de exámenes y trabajos, prueba ```.task list```'''
 
     def __init__(self, bot):
         self.bot = bot 
@@ -31,8 +29,8 @@ class task_commands(
         description='''Engloba el conjunto de comandos para modificar, añadir, y borrar tareas y examenes de la base de datos''',
         usage='.task <order> [args]'
     )
-    async def task(self, context):... #what is this
-        
+    async def task(self, context):
+        pass
         
 
     @task.command(
@@ -47,18 +45,18 @@ class task_commands(
         check=[context_is_admin]
     )
     async def add(self, ctx, subject):
-        task=FisTask(subject=subject) #esto es la base de datos?
-        msg_out = await ctx.send('Escribe el titulo del trabajo/examen:') #entonces no hay dms?
+        task=FisTask(subject=subject)
+        msg_out = await ctx.send('Escribe el titulo del trabajo/examen:')
         def confirm(msg_in):
-            return ctx.message.author.id == msg_in.author.id #ah, asi se puede definir
+            return ctx.message.author.id == msg_in.author.id
         try:
-            msg_in = await self.bot.wait_for('message', timeout=30.0, check=confirm) #esto es para que si no responde nunca pare no?
+            msg_in = await self.bot.wait_for('message', timeout=30.0, check=confirm)
         except asyncio.TimeoutError:
             await msg_out.delete()
         
 
         task.title = unicodedata.normalize('NFKD', msg_in.content)\
-            .encode('ascii', 'ignore').decode('ascii').title() #NFKD? y ahora estas pasando el titulo a ascii?
+            .encode('ascii', 'ignore').decode('ascii').title()
 
         msg_out = await ctx.send('Escribe la descripcion:')
         try:
@@ -84,7 +82,6 @@ class task_commands(
 
         task.database.add_task(task)
 
-
         
     @task.command(
         pass_context=True,
@@ -97,6 +94,7 @@ class task_commands(
         usage='.task list [subject]',
     )
     async def _list(self, ctx, *, subject=None):
+
         if not subject:
             tasks_list = FisTask().database.get_all_tasks()
             embed = discord.Embed(
@@ -109,6 +107,17 @@ class task_commands(
                 return await ctx.send('**Lo siento**. No hay trabajos ni examenes en la base de datos')
 
         else:
+            if subject.isdigit():
+                school_year = int(subject)
+                if 0 < school_year < 5:
+                    # TODO. Completar esto
+                    tasks_list = FisTask().database.get_all_school_year_subjects()
+                    pass
+                else:
+                    await ctx.send('Solo hay 4 cursos, y son enteros positivos distintos de 0') 
+                return 
+
+
             subject = unicodedata.normalize('NFKD', subject)\
              .encode('ascii', 'ignore').decode('ascii').title()
             asignaturas = FisTask().database.subjects()
@@ -129,11 +138,11 @@ class task_commands(
                 return await ctx.send('''**Lo siento**. No hay trabajos ni examenes en la base de datos de la asignatura **{}**'''.format(subject))
 
         for task in tasks_list:
-            description = 'id: {0._id} | Fecha: {0.day}/{0.month}'.format(task)
-            if task.year:
-                description += '/{0.year}'.format(task)
+            description = f"id: {task._id} | " + f"Fecha: {task.day}/{task.month}" + f"/{task.year}" if task.year else '' 
+            description += f" | [Fuente]({task.url})" if task.url else ''
+
             embed.add_field(
-                name='**{0.subject}**: *{0.title}*'.format(task),
+                name=f"{task.school_year}º -> **{task.subject}**: {task.title}",
                 value=description,
                 inline=False
             )
@@ -152,13 +161,13 @@ class task_commands(
             de datos, contacta con un moderador''',
         usage='.task get <task_id> [message]'
     )
-    async def get(self, ctx, task_id, *args): #comando para poder ver los trabajos que hay
+    async def get(self, ctx, task_id, *args):
         task_id = unicodedata.normalize('NFKD', task_id)\
             .encode('ascii', 'ignore').decode('ascii')
 
         message_text = ' '.join(args)
 
-        if task_id.isnumeric() and int(task_id) >= 0: # Contiene una id
+        if task_id.isnumeric() and int(task_id) >= 0:
             task = FisTask().database.get_task(int(task_id))
             if task:
                 await ctx.send(message_text, embed=task.embed())
@@ -169,9 +178,6 @@ class task_commands(
 
         if message_text:
             await ctx.message.delete()
-        
-
-
 
 
     @task.command(
@@ -183,12 +189,12 @@ class task_commands(
         usage='.task delete <task_id>',
         check=[context_is_admin]
     )
-    async def delete(self, ctx, *, task_id): #para quitar trabajos
+    async def delete(self, ctx, *, task_id):
 
         task_id = unicodedata.normalize('NFKD', task_id)\
             .encode('ascii', 'ignore').decode('ascii')
 
-        if task_id.isnumeric() and int(task_id) >= 0: # Contiene una id
+        if task_id.isnumeric() and int(task_id) >= 0:
             
             task = FisTask().database.get_task(int(task_id))
 
@@ -228,7 +234,7 @@ class task_commands(
             description='''Muestra una lista de todas las asignaturas en la base de datos''',
             usage='.task subjects',
         )
-    async def subjects(self, ctx): # para ver una lista de las asignaturas
+    async def subjects(self, ctx):
         asignaturas = FisTask().database.subjects()
 
         embed = discord.Embed(
@@ -243,7 +249,6 @@ class task_commands(
             value='-'+'\n-'.join(asignaturas),
             inline=False
             )
-        #else:
         embed.set_footer(text='Si falta alguna asignatura pongase en contacto con @mods')
         
         return await ctx.send(embed=embed)

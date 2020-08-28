@@ -2,7 +2,7 @@ import discord
 import asyncio
 
 class FisTask():
-    def __init__(self, task_id=None, subject='', title='', description='', day=None, month=None, year=None):
+    def __init__(self, task_id=None, subject='', title='', description='', day=None, month=None, year=None, school_year = None, url=None):
         self._id = task_id
         self.subject = subject
         self.title = title
@@ -10,31 +10,36 @@ class FisTask():
         self.day = day
         self.month = month
         self.year = year
+        self.school_year = school_year
+        self.url = url
 
         from ..database.tasks import ProyectsDB
         self.database = ProyectsDB()
 
 
     def embed(self) -> discord.Embed:
-        '''Crea un mensaje tipo discord.Embed que muestra la tarea'''
+        '''Devuelve un mensaje tipo `discord.Embed` que muestra la tarea'''
 
         task_embed = discord.Embed(
-            title='**{0.subject}**: *{0.title}*'.format(self),
-            description='Fecha: {0.day}/{0.month}'.format(self) + ('/{0.year}'.format(self)) if self.year else '',
+            title=f"**{self.school_year}º -> {self.subject}**",
+            description=f"[**{self.title}**]({self.url})" if self.url else f"**{self.title}**",
             color=discord.Color.purple()
         )
-
+        task_embed.add_field(
+            name='Fecha:',
+            value='{0.day}/{0.month}'.format(self) + ('/{0.year}'.format(self)) if self.year else '',
+            inline=True
+        )
+        task_embed.add_field(
+                name='Id:',
+                value=f'**{self._id}**',
+                inline=True
+        )
         task_embed.add_field(
             name='**Descripcion:**',
             value=self.description if self.description else '*Sin especificar*',
             inline=False
         )
-
-        task_embed.add_field(
-                name='Id:',
-                value='**{0._id}**'.format(self),
-                inline=False
-            )
         task_embed.set_footer(text='Si cree necesaria alguna modificacion en este mensaje por favor pongase en contacto con algun moderador (@mods)')
 
         return task_embed
@@ -43,7 +48,7 @@ class FisTask():
         _atributes_dic = self.__dict__
         atributes_dic = _atributes_dic.copy()
         embed = discord.Embed(
-            title='Modificar: *{0.subject}: {0.title}*'.format(self),
+            title=f"Modificar: {self.subject} ({self.school_year}º): {self.title}*",
             description='Selecciona el campo a modificar:',
             color=discord.Color.dark_orange()
         )
@@ -51,7 +56,6 @@ class FisTask():
         atributes_dic.pop('database')
 
         codepoint_start = 127462  # Letra A en unicode en emoji
-        #things_list = {chr(i): f"{chr(i)} - {atrib}" for i, atrib in enumerate(atributes_dic.keys(), start=codepoint_start)}
         things_list = {f"{chr(i)}": v for i, v in enumerate(atributes_dic, start=codepoint_start)}
 
         for atrib in things_list:
@@ -94,7 +98,8 @@ class FisTask():
             return True
 
 
-        while await ask_field():...
+        while await ask_field():
+            pass
         self.database.update_task(self)
         return
 

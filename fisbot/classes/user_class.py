@@ -17,9 +17,6 @@ class FisUser():
         from ..database.users import UsersDB
         self.database = UsersDB()
 
-        
-
-
     def xp_to_lvl_up(self) -> int:
         return self.BASE_XP + self.level * self.XP_MULTIPLAYER 
     

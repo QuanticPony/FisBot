@@ -1,4 +1,5 @@
 import discord
+from random import randint
 from discord.ext import commands
 from ..database.users import UsersDB
 from ..classes.user_class import FisUser 
@@ -49,7 +50,13 @@ class listeners(
             user = bd.get_user(message.author.id)
             level = user.addxp()
             if level:
-                await message.guild.system_channel.send(f"Buena {message.author.mention}!! Alguien ha subido al nivel {level}...")
+                new_level_frases = {
+                    0: f"Buena {message.author.mention}!! Alguien ha subido al nivel {level}...",
+                    1: f"{message.author.mention} ha ascendido al nivel {level}!! Esperemos que no se le suba a la cabeza...",
+                    2: f"Felicidades {message.author.mention}!! Disfruta de tu nivel {level}!",
+                    3: f"Ya falta poco! Dentro de tan solo {1000-level} te damos rango admin {message.author.mention}!"
+                }
+                await message.guild.system_channel.send(new_level_frases[randint(0,len(new_level_frases) + 1)])
             bd.update_user(user)
         return
 

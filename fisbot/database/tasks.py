@@ -21,7 +21,9 @@ class ProyectsDB():
                             description text,
                             day integer,
                             month text,
-                            year integer
+                            year integer,
+                            school_year integer,
+                            url text
                         )''')
             return conn
 
@@ -41,8 +43,8 @@ class ProyectsDB():
         try:
             with self._connect() as conn:
                 c = conn.cursor()
-                c.execute('INSERT INTO Tasks (subject, title, description, day, month, year) VALUES (?,?,?,?,?,?)', 
-                    (task.subject, task.title, task.description, task.day, task.month, task.year))
+                c.execute('INSERT INTO Tasks (subject, title, description, day, month, year, school_year, url) VALUES (?,?,?,?,?,?,?,?)', 
+                    ( task.subject, task.title, task.description, task.day, task.month, task.year, task.school_year, task.url))
             return True
         except sqlite3.IntegrityError:
             return False
@@ -54,8 +56,8 @@ class ProyectsDB():
         try:
             with self._connect() as conn:
                 c = conn.cursor()
-                c.execute('UPDATE Tasks SET subject = ?, title = ?, description = ?, day = ?, month=?, year = ? WHERE id = ?', 
-                    (task.subject, task.title, task.description, task.day, task.month, task.year, task._id))
+                c.execute('UPDATE Tasks SET subject = ?, title = ?, description = ?, day = ?, month=?, year = ?, school_year = ?, url = ? WHERE id = ?', 
+                    (task.subject, task.title, task.description, task.day, task.month, task.year, task.school_year, task.url, task._id))
             return True
         except sqlite3.Error:
             return False
@@ -123,3 +125,6 @@ class ProyectsDB():
         except sqlite3.Error:
             return None
         return list(element[0] for element in result)
+
+    def get_all_school_year_subjects(self) -> tuple:...
+    def get_all_school_year_tasks(self) -> tuple:...
