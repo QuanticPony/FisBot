@@ -150,6 +150,7 @@ class task_commands(
         if not tasks_list:
             await ctx.send('''**Lo siento**. No hay trabajos ni examenes en la base de datos de la asignatura **{}**'''.format(subject))
             return
+            
 
         for task in tasks_list:
             description = f"id: {task._id} | " + f"Fecha: {task.day}/{task.month}"
