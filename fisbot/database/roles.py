@@ -49,7 +49,7 @@ class RolesDB():
         try:
             with self._connect() as conn:
                 c = conn.cursor()
-                c.execute('UPDATE Roles SET level = ?, description = ?, privileges = ? WHERE id = ?', 
+                c.execute('UPDATE Roles SET lvl = ?, description = ?, privileges = ? WHERE id = ?', 
                     (rol.level, rol.description, rol.privileges, rol.rol_id))
             return True
         except sqlite3.Error:
@@ -81,7 +81,7 @@ class RolesDB():
             return None
         return FisRol(*result)
 
-    def get_all_roles(self) -> tuple:
+    def get_all_roles(self) ->list:
         '''Devuelve una colección de todos los roles registrados en la base de datos
         ordenados por nivel necesario.'''
 
@@ -91,5 +91,5 @@ class RolesDB():
                 result = c.execute('SELECT * FROM Roles ORDER BY lvl').fetchall()
         except sqlite3.Error:
             return None
-        return tuple([FisRol(*rol) for rol in result])
+        return list([FisRol(*rol) for rol in result])
 

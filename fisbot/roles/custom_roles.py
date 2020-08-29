@@ -1,5 +1,7 @@
 import discord
 from discord.ext import commands
+from ..classes.bot_class import context_is_admin
+from ..classes.rol_class import FisRol
 
 class custom_roles(
     commands.Cog,
@@ -11,20 +13,25 @@ class custom_roles(
 
 
     def __help_embed(self, ctx) -> discord.Embed:
+
+
         ayuda=discord.Embed(
             title='Roles:',
             description='Estos son los roles disponibles por subida de nivel:',
             color=discord.Color.purple()
         )
-        nivel = 0
-        for rol in ctx.guild.roles:
-            if not rol.permissions.manage_roles:
+            
+        rol_list = FisRol().database.get_all_roles()
+
+        while rol_list:
+            rol = rol_list.pop()
+            disc_rol = ctx.guild.get_rol(rol.rol_id)
+            if disc_rol:
                 ayuda.add_field(
-                    name='{.mention}'.format(rol),
-                    value='Desbloqueado al nivel {0}'.format(nivel),
+                    name=f"{disc_rol.mention}",
+                    value=f"Desbloqueado al nivel {rol.level}",
                     inline=False
                 )
-                nivel += 1
         return ayuda
         
 
@@ -44,24 +51,37 @@ class custom_roles(
         if context.invoked_subcommand is None:
             await context.send(embed=custom_roles._help_embed(context))
 
-    @_roles.group(
+    @_roles.command(
         pass_context=True,
         name='create',
         aliases=['c'],
         brief='Crea un nuevo rol con permisos personalizados',
         description='Crea un rol ',
-        help='''C''',
+        help='''¿Quieres crear un rol? ```.rol create```''',
+        checks=[context_is_admin]
     )
-    async def _create(self, ctx):
-        if ctx.invoked_subcommand is None:
-            await ctx.send('Debes especificar el tipo de permisos, si quieres consultarlos prueba: ```.help rol create```')
+    async def _create(self, ctx, *, rol_name):
+        pass
 
-    @_roles._create.command(
+
+    @_roles.command(
         pass_context=True,
-        name='general',
-        aliases=['g'],
-        brief='Crea un rol'
+        brief='Hola'
     )
-    async def _general(self, ctx, *, name):
-        discord.Permissions
+    async def add(self, ctx):
+        
+        disc_rol_list = ctx.message.role_mentions
+        if len(disc_rol_list) == 1:
+            disc_rol = disc_rol_list.pop()
+
+            new_rol = FisRol(rol_id=disc_rol.id)
+            await new_rol.modify(ctx)
+            new_rol.database.add_rol(new_rol)
+            await ctx.message.add_reaction('✅')
+
+        else:
+            await ctx.send('Estoy diseñado para añadir roles de uno en uno, lo siento')
+        
+        
+
 
