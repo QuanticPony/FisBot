@@ -11,10 +11,15 @@ class levels(
         self.bot = bot
 
     
-    def show(self, ctx, user_id) -> discord.Embed:
+    def show(self, ctx, *, user_id=None, user=None) -> discord.Embed:
         '''Crea un objeto `discord.Embed` que muestra la informacion relativa al usuario requerido'''
-        dis_user = ctx.guild.get_member(int(user_id))
-        fis_user = FisUser().database.get_user(user_id)
+
+        if ctx.guild and user_id:
+            dis_user = ctx.guild.get_member(int(user_id))
+        if user:
+            dis_user = user
+        
+        fis_user = FisUser().database.get_user(dis_user.id)
         fis_user.name = dis_user.nick
         fis_user.database.update_user(fis_user)
         embed = discord.Embed(
@@ -53,14 +58,14 @@ class levels(
             user = FisUser().database.get_user(ctx.author.id)
             if not user:
                 user.database.add_user(user)
-            embeds_list.append(self.show(ctx, user.id))
+            embeds_list.append(self.show(ctx, user_id=user.id))
 
         else:
             for user in ctx.message.mentions:
                 user = FisUser().database.get_user(user.id)
                 if not user:
                     user.database.add_user(user)
-                embeds_list.append(self.show(ctx, user.id))
+                embeds_list.append(self.show(ctx, user_id=user.id))
 
         for embed in embeds_list:
             await ctx.send(f"{ctx.author.mention}", embed=embed)
