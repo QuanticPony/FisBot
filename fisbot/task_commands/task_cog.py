@@ -9,9 +9,9 @@ class task_commands(
     commands.Cog,
     name='Trabajos y Examenes'
     ):
-    '''Con estos comandos podrás ver y depende quién seas, editar, los trabajos y exmámenes
+    '''Con estos comandos podras ver y depende quien seas, editar, los trabajos y exmamenes
     que nos van mandando durante el curso. 
-    Para mirar fechas de exámenes y trabajos, prueba ```.task list```'''
+    Para mirar fechas de examenes y trabajos, prueba ```.task list```'''
 
     def __init__(self, bot):
         self.bot = bot 
@@ -37,40 +37,51 @@ class task_commands(
         pass_context=True,
         aliases=['añadir'],
         help='''Quiero añadir un trabajo de astro? ```.task add Astro``` 
-        y luego tocará una conversación agradable con el bot en la que introduzco fecha, nombre y descripcion''',
+        y luego tocara una conversacion agradable con el bot en la que introduzco fecha, nombre y descripcion''',
         brief='''Añade un trabajo/examen''',
-        description='''Añade un trabajo/examen a la base de datos de manera que haya fácil acceso
+        description='''Añade un trabajo/examen a la base de datos de manera que haya facil acceso
         para el resto de usuarios para luego mirar fechas de entrega''',
         usage='.task add <nombre_asignatura> <+ responder a las preguntas del bot>',
         check=[context_is_admin]
     )
     async def add(self, ctx, subject):
         task=FisTask(subject=subject)
-        msg_out = await ctx.send('Escribe el titulo del trabajo/examen:')
+
+        channel = ctx.author.dm_channel
+        if not channel:
+            channel = await ctx.author.create_dm()
+
+        msg_out = await channel.send('Escribe el titulo del trabajo/examen:')
         def confirm(msg_in):
             return ctx.message.author.id == msg_in.author.id
         try:
             msg_in = await self.bot.wait_for('message', timeout=30.0, check=confirm)
         except asyncio.TimeoutError:
-            await msg_out.delete()
+            await channel.send('Se acabo el tiempo')
+            return
         
 
         task.title = unicodedata.normalize('NFKD', msg_in.content)\
             .encode('ascii', 'ignore').decode('ascii').title()
 
-        msg_out = await ctx.send('Escribe la descripcion:')
+        msg_out = await channel.send('Escribe la descripcion:')
         try:
-            msg_in = await self.bot.wait_for('message', timeout=30.0, check=confirm)
+            msg_in = await self.bot.wait_for('message', timeout=120.0, check=confirm)
         except asyncio.TimeoutError:
-            await msg_out.delete()
-        task.description = unicodedata.normalize('NFKD', msg_in.content)\
-            .encode('ascii', 'ignore').decode('ascii').title()
+            await channel.send('Se acabo el tiempo')
+            return
 
-        msg_out = await ctx.send('Escribe la fecha limite/entrega/examen: ```<day/month>[/year]```')
+
+        task.description = unicodedata.normalize('NFKD', msg_in.content)\
+            .encode('ascii', 'ignore').decode('ascii')
+
+        msg_out = await channel.send('Escribe la fecha limite/entrega/examen: ```<day/month>[/year]```')
         try:
             msg_in = await self.bot.wait_for('message', timeout=30.0, check=confirm)
         except asyncio.TimeoutError:
-            await msg_out.delete()
+            await channel.send('Se acabo el tiempo')
+            return
+
         date = msg_in.content.split('/')
         self.day = int(date[0])
         self.month = date[1]
@@ -106,16 +117,16 @@ class task_commands(
             if not tasks_list:
                 return await ctx.send('**Lo siento**. No hay trabajos ni examenes en la base de datos')
 
-        else:
-            if subject.isdigit():
-                school_year = int(subject)
-                if 0 < school_year < 5:
-                    # TODO. Completar esto
-                    tasks_list = FisTask().database.get_all_school_year_subjects()
-                    pass
-                else:
-                    await ctx.send('Solo hay 4 cursos, y son enteros positivos distintos de 0') 
-                return 
+        #else:
+        #    if subject.isdigit():
+        #        school_year = int(subject)
+        #        if 0 < school_year < 5:
+        #            # TODO. Completar esto
+        #            tasks_list = FisTask().database.get_all_school_year_subjects()
+        #            pass
+        #        else:
+        #            await ctx.send('Solo hay 4 cursos, y son enteros positivos distintos de 0') 
+        #        return 
 
 
             subject = unicodedata.normalize('NFKD', subject)\
@@ -156,8 +167,8 @@ class task_commands(
         help='''Quieres ver toda la informacion disponible de un cierto trabajo con id=14? ```.task get 14```
         Quieres mencionar a todo el mundo para enseñar la tarea de id=9 y decirles hola? ```.task get 9 @everyone Hola```''',
         brief='''Muestra la informacion relativa a un trabajo''',
-        description='''Permite ver trabajos y exámenes pendientes, así como su fecha de entrega y una pequeña
-            descripción de lo que hay que hacer, si hay algo que consideres que haya que cambiar de esta base 
+        description='''Permite ver trabajos y examenes pendientes, asi como su fecha de entrega y una pequeña
+            descripcion de lo que hay que hacer, si hay algo que consideres que haya que cambiar de esta base 
             de datos, contacta con un moderador''',
         usage='.task get <task_id> [message]'
     )
@@ -176,7 +187,7 @@ class task_commands(
         else:
             await ctx.send('''**Lo siento**, pero la id de un elemento es un entero positivo. *{}* no es un entero positivo'''.format(task_id))
 
-        if message_text:
+        if message_text and ctx.guild:
             await ctx.message.delete()
 
 
@@ -213,7 +224,8 @@ class task_commands(
                     await msg_conf.delete()
                 else:
                     task.database.del_task(task)
-                    await ctx.message.delete()
+                    if ctx.guild:
+                        await ctx.message.delete()
                     await msg_conf.delete()
                 return
 
