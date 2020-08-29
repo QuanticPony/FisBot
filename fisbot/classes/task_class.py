@@ -59,8 +59,11 @@ class FisTask():
         things_list = {f"{chr(i)}": v for i, v in enumerate(atributes_dic, start=codepoint_start)}
 
         for atrib in things_list:
+            value = atributes_dic[things_list[atrib]]
+            if not value: 
+                value = 'None'
             embed.add_field(
-                name=f"{atrib} - {things_list[atrib]}:" ,
+                name=f"{atrib} - {things_list[atrib]}:",
                 value=atributes_dic[things_list[atrib]],
                 inline=False
                 )
