@@ -156,7 +156,7 @@ class task_commands(
         help='''Quieres ver toda la informacion disponible de un cierto trabajo con id=14? ```.task get 14```
         Quieres mencionar a todo el mundo para enseñar la tarea de id=9 y decirles hola? ```.task get 9 @everyone Hola```''',
         brief='''Muestra la informacion relativa a un trabajo''',
-        description='''Permite ver trabajos y exámenes pendientes, así como su fecha de entrega y una pequeña
+        description='''Permite ver trabajos y examenes pendientes, asi como su fecha de entrega y una pequeña
             descripción de lo que hay que hacer, si hay algo que consideres que haya que cambiar de esta base 
             de datos, contacta con un moderador''',
         usage='.task get <task_id> [message]'

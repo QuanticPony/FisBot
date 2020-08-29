@@ -43,7 +43,7 @@ class listeners(
     async def on_message(self, message):
         '''Cuando recibe un mensaje sube de nivel al autor si cumple ciertas condiciones'''
 
-        if message.author.bot:
+        if message.author.bot or not message.guild:
             return
         bd = UsersDB()
         if bd.last_message_cooldown(message.author.id):
