@@ -115,7 +115,8 @@ class task_commands(
                 color=discord.Color.purple()
             )
             if not tasks_list:
-                return await ctx.send('**Lo siento**. No hay trabajos ni examenes en la base de datos')
+                await ctx.send('**Lo siento**. No hay trabajos ni examenes en la base de datos')
+                return
 
         #else:
         #    if subject.isdigit():
@@ -128,7 +129,7 @@ class task_commands(
         #            await ctx.send('Solo hay 4 cursos, y son enteros positivos distintos de 0') 
         #        return 
 
-
+        else:
             subject = unicodedata.normalize('NFKD', subject)\
              .encode('ascii', 'ignore').decode('ascii').title()
             asignaturas = FisTask().database.subjects()
@@ -139,26 +140,30 @@ class task_commands(
                     break
 
             tasks_list = FisTask().database.get_all_subject_tasks(subject)
+
+            if not tasks_list:
+                await ctx.send('''**Lo siento**. No hay trabajos ni examenes en la base de datos de la asignatura **{}**'''.format(subject))
+                return
+
             embed = discord.Embed(
                 title=subject + ' (Tareas/Examenes):',
                 description='\t',
                 color=discord.Color.purple()
             )
 
-            if not tasks_list:
-                return await ctx.send('''**Lo siento**. No hay trabajos ni examenes en la base de datos de la asignatura **{}**'''.format(subject))
+            for task in tasks_list:
+                description = f"id: {task._id} | " + f"Fecha: {task.day}/{task.month}"
+                description += f"/{task.year}" if task.year else '' 
+                description += f" | [Fuente]({task.url})" if task.url else ''
 
-        for task in tasks_list:
-            description = f"id: {task._id} | " + f"Fecha: {task.day}/{task.month}" + f"/{task.year}" if task.year else '' 
-            description += f" | [Fuente]({task.url})" if task.url else ''
-
-            embed.add_field(
-                name=f"{task.school_year}º -> **{task.subject}**: {task.title}",
-                value=description,
-                inline=False
-            )
-        
-        return await ctx.send(ctx.author.mention,embed=embed) 
+                embed.add_field(
+                    name=f"{task.school_year}º -> **{task.subject}**: {task.title}",
+                    value=description,
+                    inline=False
+                )
+            
+            await ctx.send(ctx.author.mention,embed=embed) 
+            return
 
 
     @task.command(
