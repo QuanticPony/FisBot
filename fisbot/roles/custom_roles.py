@@ -1,7 +1,8 @@
 import discord
 from discord.ext import commands
-from ..classes.bot_class import context_is_admin
 from ..classes.rol_class import FisRol
+from ..classes.bot_class import context_is_admin
+
 
 class custom_roles(
     commands.Cog,
@@ -89,6 +90,34 @@ class custom_roles(
                 return
             await ctx.send('Estoy diseñado para añadir roles de uno en uno, lo siento')
         
+
+    @_roles.command(
+        pass_context=True,
+        aliases=['mod'],
+        help='''¿?
+        
+        ''',
+        brief='''Añade un rol a los roles personalizados''',
+        description='''Añade un rol existente a la base de datos y le asigna un nivel requerido para obtenerlo.
+        Tambien permite añadirle descripcion y privilegios''',
+        usage='.rol modify <rol_id/rol_mention>'
+    )
+    async def modify(self, ctx, *, args):
+
+        disc_rol_list = ctx.message.role_mentions
+        if len(disc_rol_list) == 1:
+            disc_rol = disc_rol_list.pop()
+            rol = FisRol().database.get_rol_id(disc_rol.id)
+            await rol.modify(ctx)
+
+        else:
+            disc_rol = ctx.guild.get_role(int(args))
+            if disc_rol:
+                rol = FisRol().database.get_rol_id(disc_rol.id)
+                await rol.modify(ctx)
+
+
+
         
 
 

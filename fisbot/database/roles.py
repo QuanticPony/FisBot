@@ -68,13 +68,27 @@ class RolesDB():
             return False
 
     def get_rol(self, level) -> FisRol:
-        '''Obtiene un rol de la base de datos si su id coincide con `rol_id`.
+        '''Obtiene un rol de la base de datos si su nivel coincide con `level`.
         Si el rol no se encuentra devuelve `None`.'''
 
         try:
             with self._connect() as conn:
                 c = conn.cursor()
                 result = c.execute('SELECT * FROM Roles WHERE lvl = ?', (level,)).fetchone()
+        except sqlite3.Error:
+            return None
+        if not result:
+            return None
+        return FisRol(*result)
+
+    def get_rol_id(self, rol_id) -> FisRol:
+        '''Obtiene un rol de la base de datos si su id coincide con `rol_id`.
+        Si el rol no se encuentra devuelve `None`.'''
+
+        try:
+            with self._connect() as conn:
+                c = conn.cursor()
+                result = c.execute('SELECT * FROM Roles WHERE rol_id = ?', (rol_id,)).fetchone()
         except sqlite3.Error:
             return None
         if not result:

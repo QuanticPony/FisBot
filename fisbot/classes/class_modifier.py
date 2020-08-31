@@ -27,8 +27,8 @@ async def modify(obj: object, ctx: commands.Context, *,
 
 
     embed = discord.Embed(
-        title=disc_obj._mod_title(),
-        description=disc_obj._mod_desc(),
+        title=obj._mod_title(),
+        description=obj._mod_desc(),
         color=discord.Color.dark_green()
     )
 
@@ -83,6 +83,7 @@ async def modify(obj: object, ctx: commands.Context, *,
           
         setattr(obj, things_list[reaction.emoji], response_msg.content)
         await response_msg.add_reaction("✅")
+        await ask_message.delete()
         return True
 
         

@@ -14,6 +14,12 @@ class FisRol():
         self.database = RolesDB()
 
 
+    def discord_rol(self, ctx) -> discord.Role:
+        '''Devuelve el rol de discord equivalente. Si no hay devuelve `None`'''
+
+        return ctx.guild.get_role(self.id)
+
+
     def new_rol(self, user: FisUser):
         '''Devuelve el rol `FisRol` que deberia tener el usuario especificado. Si no hay un rol para ese nivel devuelve `None`'''
 
@@ -70,6 +76,16 @@ class FisRol():
         else:
             return False
 
+
+    def _mod_title(self) -> str:
+
+        return f"Modificar **Role** id= {self.id}"
+
+    def _mod_desc(self) -> str:
+
+        return '''Abajo tienes la lista de todos los campos modificables. 
+    Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
+    *Cuando hayas acabado* presiona el boton de guardar'''
 
     async def modify(self, ctx) -> bool:
         return await modify(self, ctx, role=True)
