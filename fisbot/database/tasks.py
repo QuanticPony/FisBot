@@ -1,18 +1,18 @@
 from ..classes.task_class import FisTask
 import sqlite3
 from sqlite3 import Connection
-from .. import BOT_PATH
 
 class ProyectsDB():
 
     FILE_NAME = 'database.db'
+    BOT_PATH = '/home/pi/Bots/Fisbot/FisBot/'
 
     def _create_db(self) -> Connection:
         '''Crea una base de datos para trabajos y devuelve una conexión a esta.
         El nombre del archivo en disco se especifica con el atributo de clase `FILE_NAME`'''
 
         # TODO: mover creacion a otro archivo y unificar la creacion de las dos tablas
-        with sqlite3.connect(BOT_PATH + self.FILE_NAME) as conn:
+        with sqlite3.connect(self.BOT_PATH + self.FILE_NAME) as conn:
             c = conn.cursor()
             c.execute('''CREATE TABLE Tasks (
                             id INTEGER PRIMARY KEY,
