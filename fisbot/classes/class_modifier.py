@@ -8,8 +8,7 @@ async def modify(obj: object, ctx: commands.Context, *,
     user=False,
 
 ) -> bool:
-    ''''''
-
+    '''Permite modificar una clase generica de forma sencilla a traves de una interfaz visual a base de mensajes `discord.Embed` por mensajes individuales'''
 
     atributes_dic = obj.__dict__.copy()
 
@@ -20,7 +19,7 @@ async def modify(obj: object, ctx: commands.Context, *,
     if role:
         disc_obj = ctx.guild.get_role(obj.id)
     elif task:
-        disc_obj = None
+        disc_obj = obj
     elif user:
         disc_obj = ctx.guild.get_member(obj.id)
     else:
@@ -28,8 +27,8 @@ async def modify(obj: object, ctx: commands.Context, *,
 
 
     embed = discord.Embed(
-        title=f"Modificar: {disc_obj.mention}",
-        description='Selecciona el campo a modificar:',
+        title=disc_obj._mod_title(),
+        description=disc_obj._mod_desc(),
         color=discord.Color.dark_green()
     )
 
@@ -50,6 +49,7 @@ async def modify(obj: object, ctx: commands.Context, *,
     await message.add_reaction("💾")
 
     async def _re_embed():
+        embed.clear_fields()
         for atrib in things_list:
             embed.add_field(
                 name=f"{atrib} - {things_list[atrib]}:" ,
@@ -70,15 +70,15 @@ async def modify(obj: object, ctx: commands.Context, *,
                 return False
                 
         except asyncio.TimeoutError:
-            await ctx.send('Se acabo el tiempo...')
+            await channel.send('Se acabo el tiempo...')
             return False
 
-        ask_message = await ctx.send(f"Introduce un nuevo {things_list[reaction.emoji]}:")
+        ask_message = await channel.send(f"Introduce un nuevo {things_list[reaction.emoji]}:")
 
         try:
             response_msg = await ctx.bot.wait_for('message', timeout=120.0)
         except asyncio.TimeoutError:
-            await ctx.send('Se acabo el tiempo...')
+            await channel.send('Se acabo el tiempo...')
             return False
           
         setattr(obj, things_list[reaction.emoji], response_msg.content)

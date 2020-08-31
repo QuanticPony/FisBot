@@ -19,6 +19,19 @@ class FisUser():
         self.database = UsersDB()
 
 
+    def _mod_title(self) -> str:
+        '''Devuelve el titulo utilizado en la modificacion de esta clase'''
+
+        return f"Modificar usuario id={self.id}"
+    
+    def _mod_desc(self) -> str:
+        '''Devuelve la descripcion utilizada en la modificacion de esta clase'''
+
+        return '''Abajo tienes la lista de todos los campos modificables. 
+    Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
+    *Cuando hayas acabado* presiona el boton de guardar'''
+
+
     async def modify(self, ctx) -> bool:
         return await modify(self, ctx, user=True)
 

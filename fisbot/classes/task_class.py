@@ -3,6 +3,7 @@ import asyncio
 from .class_modifier import modify
 
 class FisTask():
+
     def __init__(self, task_id=None, subject='', title='', description='', day=None, month=None, year=None, school_year = None, url=None):
         self.id = task_id
         self.subject = subject
@@ -14,10 +15,21 @@ class FisTask():
         self.school_year = school_year
         self.url = url
 
-        self.mention = f"**{self.subject}**: *{self.title}*"
-
         from ..database.tasks import ProyectsDB
         self.database = ProyectsDB()
+
+    def _mod_title(self) -> str:
+        '''Devuelve el titulo utilizado en la modificacion de esta clase'''
+
+        return f"Modificar: **{self.subject}**: *{self.title}*"
+    
+    def _mod_desc(self) -> str:
+        '''Devuelve la descripcion utilizada en la modificacion de esta clase'''
+
+        return '''Abajo tienes la lista de todos los campos modificables. 
+    Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
+    *Cuando hayas acabado* presiona el boton de guardar'''
+
 
 
     def embed(self) -> discord.Embed:
