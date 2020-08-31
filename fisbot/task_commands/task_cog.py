@@ -141,29 +141,44 @@ class task_commands(
 
             tasks_list = FisTask().database.get_all_subject_tasks(subject)
 
-            if not tasks_list:
-                await ctx.send('''**Lo siento**. No hay trabajos ni examenes en la base de datos de la asignatura **{}**'''.format(subject))
-                return
-
             embed = discord.Embed(
                 title=subject + ' (Tareas/Examenes):',
                 description='\t',
                 color=discord.Color.purple()
             )
 
-            for task in tasks_list:
-                description = f"id: {task._id} | " + f"Fecha: {task.day}/{task.month}"
-                description += f"/{task.year}" if task.year else '' 
-                description += f" | [Fuente]({task.url})" if task.url else ''
-
-                embed.add_field(
-                    name=f"{task.school_year}º -> **{task.subject}**: {task.title}",
-                    value=description,
-                    inline=False
-                )
-            
-            await ctx.send(ctx.author.mention,embed=embed) 
+        if not tasks_list:
+            await ctx.send('''**Lo siento**. No hay trabajos ni examenes en la base de datos de la asignatura **{}**'''.format(subject))
             return
+            
+
+        for task in tasks_list:
+            description = f"id: {task._id} | " + f"Fecha: {task.day}/{task.month}"
+            description += f"/{task.year}" if task.year else '' 
+            description += f" | [Fuente]({task.url})" if task.url else ''
+
+            embed.add_field(
+                name=f"{task.school_year}º -> **{task.subject}**: {task.title}",
+                value=description,
+                inline=False
+            )
+        
+        await ctx.send(ctx.author.mention,embed=embed) 
+        return
+
+        for task in tasks_list:
+            description = f"id: {task._id} | " + f"Fecha: {task.day}/{task.month}"
+            description += f"/{task.year}" if task.year else '' 
+            description += f" | [Fuente]({task.url})" if task.url else ''
+
+            embed.add_field(
+                name=f"{task.school_year}º -> **{task.subject}**: {task.title}",
+                value=description,
+                inline=False
+            )
+        
+        await ctx.send(ctx.author.mention,embed=embed) 
+        return
 
 
     @task.command(
