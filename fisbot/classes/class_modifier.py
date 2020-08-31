@@ -53,7 +53,7 @@ async def modify(obj: object, ctx: commands.Context, *,
         for atrib in things_list:
             embed.add_field(
                 name=f"{atrib} - {things_list[atrib]}:" ,
-                value=self.__dict__[things_list[atrib]],
+                value=obj.__dict__[things_list[atrib]],
                 inline=False
                 )
         await message.edit(embed=embed)

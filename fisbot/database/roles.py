@@ -37,7 +37,7 @@ class RolesDB():
             with self._connect() as conn:
                 c = conn.cursor()
                 c.execute('INSERT INTO Roles VALUES (?,?,?,?)', 
-                    (rol.rol_id, rol.level, rol.description, rol.privileges))
+                    (rol.id, rol.level, rol.description, rol.privileges))
             return True
         except sqlite3.IntegrityError:
             return False
@@ -49,8 +49,8 @@ class RolesDB():
         try:
             with self._connect() as conn:
                 c = conn.cursor()
-                c.execute('UPDATE Roles SET lvl = ?, description = ?, privileges = ? WHERE id = ?', 
-                    (rol.level, rol.description, rol.privileges, rol.rol_id))
+                c.execute('UPDATE Roles SET lvl = ?, description = ?, privileges = ? WHERE rol_id = ?', 
+                    (rol.level, rol.description, rol.privileges, rol.id))
             return True
         except sqlite3.Error:
             return False
@@ -62,7 +62,7 @@ class RolesDB():
         try:
             with self._connect() as conn:
                 c = conn.cursor()
-                c.execute('DELETE FROM Roles WHERE id = ?', (rol.rol_id,))
+                c.execute('DELETE FROM Roles WHERE rol_id = ?', (rol.id,))
             return True
         except sqlite3.Error:
             return False
@@ -81,7 +81,7 @@ class RolesDB():
             return None
         return FisRol(*result)
 
-    def get_all_roles(self) ->list:
+    def get_all_roles(self) -> list:
         '''Devuelve una colección de todos los roles registrados en la base de datos
         ordenados por nivel necesario.'''
 

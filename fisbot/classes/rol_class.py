@@ -1,11 +1,12 @@
 import discord
 import asyncio
 from .user_class import FisUser
+from .class_modifier import modify
 
 class FisRol():
 
     def __init__(self, rol_id=0, level=0, description='None', privileges='None'):
-        self.rol_id = rol_id
+        self.id = rol_id
         self.level = level
         self.description = description
         self.privileges = privileges
@@ -14,25 +15,83 @@ class FisRol():
 
 
     def new_rol(self, user: FisUser):
+        '''Devuelve el rol `FisRol` que deberia tener el usuario especificado. Si no hay un rol para ese nivel devuelve `None`'''
+
         return self.database.get_rol(user.level)
 
-    async def modify(self, ctx):
+
+
+    def prev_rol(self, level):
+        '''Devuelve el ultimo rol `FisRol` que consiguio el usuario. Devuelve `None` si no ha conseguido nunca un rol'''
+
+
+        for i in reversed(range(0, level - 1)):
+            rol = self.database.get_rol()
+            if rol: 
+                return rol
+        else:
+            return None
+
+
+
+    async def remove_from(self, ctx, user: FisUser) -> bool:
+        '''Elimina del usuario `user` el rol. Devuelve `true`si lo consigue y `false` si no'''
+        
+        disc_user = ctx.guild.get_member(user.id)
+        disc_rol = ctx.guild.get_role(self.id)
+        if disc_user and disc_rol:
+            if disc_rol not in disc_user.roles: 
+                new_roles = disc_user.roles
+                new_roles.remove(disc_rol)
+                try:
+                    await disc_user.edit(roles=new_roles)
+                    return True
+                except:
+                    return False
+        else:
+            return False
+
+
+
+    async def next_rol(self, ctx, user: FisUser):
+        '''Da al usuario su siguiente rol si es necesario'''
+
+        disc_user = ctx.guild.get_member(user.id)
+        disc_rol = ctx.guild.get_role(self.new_rol(user))
+        if disc_user and disc_rol:
+            if disc_rol not in disc_user.roles:
+                new_roles = disc_user.roles
+                new_roles.apend(disc_rol)
+                try:
+                    await disc_user.edit(roles=new_roles)
+                    return True
+                except:
+                    return False
+        else:
+            return False
+
+
+    async def modify(self, ctx) -> bool:
+        return await modify(self, ctx, role=True)
+
+
+    async def modifyy(self, ctx):
         '''Esta funcion permite modificar un rol a traves de una sencilla interfaz en el propio discord'''
 
         atributes_dic = self.__dict__.copy()
-        disc_rol = ctx.guild.get_role(self.rol_id)
+        disc_rol = ctx.guild.get_role(self.id)
 
-        if not ctx.author.dm_channel:
+        channel = ctx.author.dm_channel
+        if not channel:
             channel = await ctx.author.create_dm()
-        else: 
-            channel = ctx.author.dm_channel
+
 
         embed = discord.Embed(
             title=f"Modificar: {disc_rol.mention}",
             description='Selecciona el campo a modificar:',
             color=discord.Color.dark_green()
         )
-        atributes_dic.pop('rol_id')
+        atributes_dic.pop('id')
         atributes_dic.pop('database')
 
         codepoint_start = 127462  # Letra A en unicode en emoji
@@ -41,7 +100,7 @@ class FisRol():
         for atrib in things_list:
             embed.add_field(
                 name=f"{atrib} - {things_list[atrib]}:" ,
-                value=atributes_dic[things_list[atrib]],
+                value=self.__dict__[things_list[atrib]],
                 inline=False
                 )
 
@@ -65,7 +124,7 @@ class FisRol():
                 await channel.send('Se acabo el tiempo...')
                 return False
             
-            ask_message = await channel.send(f"Introduce un nuevo {things_list[reaction.emoji]}:")
+            ask_message = await channel.send(f"Introduce un nuev@ {things_list[reaction.emoji]}:")
 
             try:
                 response_msg = await ctx.bot.wait_for('message', timeout=60.0, check=confirm_message)
@@ -74,7 +133,17 @@ class FisRol():
                 return False
               
             setattr(self, things_list[reaction.emoji], response_msg.content)
+            await ask_message.delete()
             await response_msg.add_reaction("✅")
+
+            embed.clear_fields()
+            for atrib in things_list:
+                embed.add_field(
+                    name=f"{atrib} - {things_list[atrib]}:" ,
+                    value=self.__dict__[things_list[atrib]],
+                    inline=False
+                    )
+            await message.edit(embed=embed)
             return True
 
 

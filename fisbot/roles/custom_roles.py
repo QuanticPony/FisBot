@@ -12,27 +12,25 @@ class custom_roles(
         self.bot = bot
 
 
-    def __help_embed(self, ctx) -> discord.Embed:
+    def _help_embed(self, *, ctx) -> discord.Embed:
+        '''Devuelve un `discord.Embed` con los roles disponibles por subida de nivel ordenados'''
 
-
-        ayuda=discord.Embed(
-            title='Roles:',
-            description='Estos son los roles disponibles por subida de nivel:',
-            color=discord.Color.purple()
-        )
-            
         rol_list = FisRol().database.get_all_roles()
 
+        frase = ''
         while rol_list:
             rol = rol_list.pop()
-            disc_rol = ctx.guild.get_rol(rol.rol_id)
+            disc_rol = ctx.guild.get_role(rol.rol_id)
             if disc_rol:
-                ayuda.add_field(
-                    name=f"{disc_rol.mention}",
-                    value=f"Desbloqueado al nivel {rol.level}",
-                    inline=False
-                )
-        return ayuda
+                frase += f"\n{disc_rol.mention} -> Desbloqueado al nivel {rol.level}"
+
+        roles=discord.Embed(
+            title='Roles:',
+            description='Estos son los roles disponibles por subida de nivel:' +  frase,
+            color=discord.Color.purple()
+        )
+        
+        return roles
         
 
 
@@ -40,7 +38,7 @@ class custom_roles(
         pass_context=True, 
         name='rol',
         aliases=['roles'],
-        help='''
+        help='''¿?
         
         ''',
         brief='''Opera conjuntos de comandos''',
@@ -49,7 +47,7 @@ class custom_roles(
     )
     async def _roles(self, context):
         if context.invoked_subcommand is None:
-            await context.send(embed=custom_roles._help_embed(context))
+            await context.send(embed=self._help_embed(ctx=context))
 
     @_roles.command(
         pass_context=True,
@@ -66,9 +64,16 @@ class custom_roles(
 
     @_roles.command(
         pass_context=True,
-        brief='Hola'
+        aliases=['roles'],
+        help='''¿?
+        
+        ''',
+        brief='''Añade un rol a los roles personalizados''',
+        description='''Añade un rol existente a la base de datos y le asigna un nivel requerido para obtenerlo.
+        Tambien permite añadirle descripcion y privilegios''',
+        usage='.rol add <rol_mentions>'
     )
-    async def add(self, ctx):
+    async def add(self, ctx, *args):
         
         disc_rol_list = ctx.message.role_mentions
         if len(disc_rol_list) == 1:
@@ -80,6 +85,8 @@ class custom_roles(
             await ctx.message.add_reaction('✅')
 
         else:
+            if not args:
+                return
             await ctx.send('Estoy diseñado para añadir roles de uno en uno, lo siento')
         
         
