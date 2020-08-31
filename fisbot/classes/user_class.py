@@ -1,5 +1,6 @@
 import random
 import discord
+from .class_modifier import modify
 
 class FisUser():
 
@@ -16,6 +17,10 @@ class FisUser():
         self.xp = xp
         from ..database.users import UsersDB
         self.database = UsersDB()
+
+
+    async def modify(self, ctx) -> bool:
+        return await modify(self, ctx, user=True)
 
     def xp_to_lvl_up(self) -> int:
         return self.BASE_XP + self.level * self.XP_MULTIPLAYER 

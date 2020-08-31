@@ -1,9 +1,10 @@
 import discord
 import asyncio
+from .class_modifier import modify
 
 class FisTask():
     def __init__(self, task_id=None, subject='', title='', description='', day=None, month=None, year=None, school_year = None, url=None):
-        self._id = task_id
+        self.id = task_id
         self.subject = subject
         self.title = title
         self.description = description
@@ -12,6 +13,8 @@ class FisTask():
         self.year = year
         self.school_year = school_year
         self.url = url
+
+        self.mention = f"**{self.subject}**: *{self.title}*"
 
         from ..database.tasks import ProyectsDB
         self.database = ProyectsDB()
@@ -32,7 +35,7 @@ class FisTask():
         )
         task_embed.add_field(
                 name='Id:',
-                value=f'**{self._id}**',
+                value=f'**{self.id}**',
                 inline=True
         )
         task_embed.add_field(
@@ -44,7 +47,11 @@ class FisTask():
 
         return task_embed
 
-    async def modify(self, ctx):
+
+    async def modify(self, ctx) -> bool:
+        return await modify(self, ctx, task=True)
+
+    async def modifyy(self, ctx):
         _atributes_dic = self.__dict__
         atributes_dic = _atributes_dic.copy()
         embed = discord.Embed(
@@ -102,13 +109,3 @@ class FisTask():
             pass
         self.database.update_task(self)
         return
-
-        
-
-        
-        
-        
-
-        
-            
-        

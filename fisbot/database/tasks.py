@@ -44,7 +44,7 @@ class ProyectsDB():
             with self._connect() as conn:
                 c = conn.cursor()
                 c.execute('INSERT INTO Tasks (subject, title, description, day, month, year, school_year, url) VALUES (?,?,?,?,?,?,?,?)', 
-                    ( task.subject, task.title, task.description, task.day, task.month, task.year, task.school_year, task.url))
+                    (task.subject, task.title, task.description, task.day, task.month, task.year, task.school_year, task.url))
             return True
         except sqlite3.IntegrityError:
             return False
@@ -57,7 +57,7 @@ class ProyectsDB():
             with self._connect() as conn:
                 c = conn.cursor()
                 c.execute('UPDATE Tasks SET subject = ?, title = ?, description = ?, day = ?, month=?, year = ?, school_year = ?, url = ? WHERE id = ?', 
-                    (task.subject, task.title, task.description, task.day, task.month, task.year, task.school_year, task.url, task._id))
+                    (task.subject, task.title, task.description, task.day, task.month, task.year, task.school_year, task.url, task.id))
             return True
         except sqlite3.Error:
             return False
@@ -70,7 +70,7 @@ class ProyectsDB():
         try:
             with self._connect() as conn:
                 c = conn.cursor()
-                c.execute('DELETE FROM Tasks WHERE id = ?', (task._id,))
+                c.execute('DELETE FROM Tasks WHERE id = ?', (task.id,))
             return True
         except sqlite3.Error:
             return False
