@@ -5,5 +5,7 @@ from fisbot import FisBot, FisUser, UsersDB
 
 bot = FisBot(command_prefix='.')
 
-with open("token.txt", "r") as token_file:
+BOT_PATH = '/home/pi/Bots/Fisbot/FisBot/'
+
+with open(BOT_PATH + "token.txt", "r") as token_file:
     bot.run(str(token_file.read()))
