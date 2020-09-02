@@ -48,6 +48,11 @@ async def modify(obj: object, ctx: commands.Context, *,
         await message.add_reaction(chr(i+codepoint_start)) 
     await message.add_reaction("💾")
 
+
+    async def _time_out() -> bool:
+        await channel.send('Se acabo el tiempo...')
+        return False
+
     async def _re_embed():
         embed.clear_fields()
         for atrib in things_list:
@@ -65,21 +70,19 @@ async def modify(obj: object, ctx: commands.Context, *,
         await _re_embed()
 
         try:
-            reaction, user = await ctx.bot.wait_for('reaction_add', timeout=15.0)
+            reaction, user = await ctx.bot.wait_for('reaction_add', timeout=30.0)
             if str(reaction.emoji) == '💾':
                 return False
                 
         except asyncio.TimeoutError:
-            await channel.send('Se acabo el tiempo...')
-            return False
+            return await _time_out()
 
         ask_message = await channel.send(f"Introduce un nuevo {things_list[reaction.emoji]}:")
 
         try:
-            response_msg = await ctx.bot.wait_for('message', timeout=120.0)
+            response_msg = await ctx.bot.wait_for('message', timeout=150.0)
         except asyncio.TimeoutError:
-            await channel.send('Se acabo el tiempo...')
-            return False
+            return await _time_out()
           
         setattr(obj, things_list[reaction.emoji], response_msg.content)
         await response_msg.add_reaction("✅")

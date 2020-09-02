@@ -39,7 +39,9 @@ class custom_roles(
         pass_context=True, 
         name='rol',
         aliases=['roles'],
-        help='''¿?
+        help='''¿Quieres ver los roles disponibles por subida de nivel? ```.rol```
+        ¿Quieres crear un rol nuevo? ```.rol create <rol_name>```
+        ¿Quieres añadir un rol existente a la base de datos?
         
         ''',
         brief='''Opera conjuntos de comandos''',
@@ -54,21 +56,20 @@ class custom_roles(
         pass_context=True,
         name='create',
         aliases=['c'],
-        brief='Crea un nuevo rol con permisos personalizados',
-        description='Crea un rol ',
+        brief='Crea un rol personalizado',
+        description='Crea un nuevo rol con permisos \"generales\" y lo incluye en la base de datos',
         help='''¿Quieres crear un rol? ```.rol create```''',
+        usage='.rol create <rol_name>',
         checks=[context_is_admin]
     )
     async def _create(self, ctx, *, rol_name):
-        pass
+        await FisRol().create_discord_role(ctx, rol_name)
 
 
     @_roles.command(
         pass_context=True,
         aliases=['roles'],
-        help='''¿?
-        
-        ''',
+        help='''¿Quieres añadir el rol @Palos a los roles personalizados? ```.rol add @Palos```''',
         brief='''Añade un rol a los roles personalizados''',
         description='''Añade un rol existente a la base de datos y le asigna un nivel requerido para obtenerlo.
         Tambien permite añadirle descripcion y privilegios''',
@@ -94,12 +95,12 @@ class custom_roles(
     @_roles.command(
         pass_context=True,
         aliases=['mod'],
-        help='''¿?
-        
+        help='''¿Quieres modificar el rol @Mods? ```.no puedes listillo```
+        ¿Quieres modificar el rol @Escuderos de Juan Pablo? ```.rol modify @Escuderos de Juan Pablo```
         ''',
-        brief='''Añade un rol a los roles personalizados''',
-        description='''Añade un rol existente a la base de datos y le asigna un nivel requerido para obtenerlo.
-        Tambien permite añadirle descripcion y privilegios''',
+        brief='''Modifica un rol personalizado''',
+        description='''Modifica un rol existente en la base de datos a traves de una sencilla interfaz. 
+        Permite modificar nivel requerido, descripcion y privilegios''',
         usage='.rol modify <rol_id/rol_mention>'
     )
     async def modify(self, ctx, *, args):
@@ -114,10 +115,7 @@ class custom_roles(
             disc_rol = ctx.guild.get_role(int(args))
             if disc_rol:
                 rol = FisRol().database.get_rol_id(disc_rol.id)
-                await rol.modify(ctx)
-
-
-
-        
-
-
+                if await rol.modify(ctx):
+                    await ctx.message.add_reaction('✅')
+                else:
+                    await ctx.message.add_reaction('❌')

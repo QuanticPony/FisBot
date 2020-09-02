@@ -1,5 +1,6 @@
 import discord
 import asyncio
+from random import randint
 from .user_class import FisUser
 from .class_modifier import modify
 
@@ -77,9 +78,21 @@ class FisRol():
             return False
 
 
+    async def create_discord_role(self, ctx, role_name) -> discord.Role:
+        '''Crea un rol de discord a partir de un nombre y devuelve el `discord.Role`'''
+
+        role = await ctx.guild.create_role(
+            hoist=True, mentionable=True, name=role_name, 
+            permissions=discord.Permissions.general(),
+            colour=discord.Color.from_rgb(randint(0,255),randint(0,255),randint(0,255))
+            )
+        return role
+
+
     def _mod_title(self) -> str:
 
         return f"Modificar **Role** id= {self.id}"
+
 
     def _mod_desc(self) -> str:
 
@@ -87,7 +100,10 @@ class FisRol():
     Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
     *Cuando hayas acabado* presiona el boton de guardar'''
 
+
     async def modify(self, ctx) -> bool:
+        '''Esta funcion permite modificar un rol a traves de una sencilla interfaz en el propio discord'''
+
         return await modify(self, ctx, role=True)
 
 
@@ -166,4 +182,3 @@ class FisRol():
         while await ask_field():
             pass
         self.database.update_rol(self)
-        return
