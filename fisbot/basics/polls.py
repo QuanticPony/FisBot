@@ -59,7 +59,7 @@ class poll_cog(
 
         async def ask_field() -> bool:
             try:
-                reaction, user = await ctx.bot.wait_for('reaction_add', timeout=15.0, check=confirm_reaction)
+                reaction, user = await ctx.bot.wait_for('reaction_add', timeout=30.0, check=confirm_reaction)
                 if str(reaction.emoji) == '💾':
                     return False
 
@@ -69,7 +69,7 @@ class poll_cog(
 
             ask_message = await channel.send('Introduce el nuevo valor:')
             try:
-                response_msg = await ctx.bot.wait_for('message', timeout=120.0, check=confirm_message)
+                response_msg = await ctx.bot.wait_for('message', timeout=150.0, check=confirm_message)
             except asyncio.TimeoutError:
                 await channel.send('Se acabo el tiempo...')
                 return False
