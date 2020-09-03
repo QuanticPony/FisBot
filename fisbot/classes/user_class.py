@@ -55,8 +55,3 @@ class FisUser():
         else:
             self.xp = newxp
             return None
-
-
-
-
-

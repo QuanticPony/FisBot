@@ -118,7 +118,7 @@ class poll_cog(
         return (final_poll, list(elements_dic.keys()))
 
 
-
+    #TODO: permitir poner mensajes custom con la encuesta. Como en .task get
     @commands.command(
         pass_context=True, 
         aliases=['encuesta','p'],

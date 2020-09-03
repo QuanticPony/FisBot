@@ -56,7 +56,7 @@ class listeners(
                     2: f"Felicidades {message.author.mention}!! Disfruta de tu nivel {level}!",
                     3: f"Ya falta poco! Dentro de tan solo {1000-level} te damos rango admin {message.author.mention}!"
                 }
-                await message.guild.system_channel.send(new_level_frases[randint(0,len(new_level_frases) + 1)])
+                await message.guild.system_channel.send(new_level_frases[randint(0,len(new_level_frases) - 1)])
             bd.update_user(user)
         return
 

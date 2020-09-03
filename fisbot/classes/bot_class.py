@@ -16,7 +16,7 @@ def context_is_admin(context):
 class FisBot(commands.Bot):    
 
     def __init__(self, command_prefix: str):
-        super().__init__(command_prefix=commands.when_mentioned_or("."))
+        super().__init__(command_prefix=commands.when_mentioned_or(command_prefix))
         self.extensions_list = [
             'fisbot.basics.loader',
             'fisbot.custom_help.loader',

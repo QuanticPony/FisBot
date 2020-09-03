@@ -89,12 +89,24 @@ class FisRol():
         return role
 
 
-    def _mod_title(self) -> str:
+    def _new_title(self, ctx) -> str:
+
+        return 'Creacion de rol personalizado:'
+
+    def _new_desc(self, ctx) -> str:
+
+        return '''Abajo tienes la lista de todos los campos modificables. 
+    Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
+    *Cuando hayas acabado* presiona el boton de guardar'''
+
+
+
+    def _mod_title(self, ctx) -> str:
 
         return f"Modificar **Role** id= {self.id}"
 
 
-    def _mod_desc(self) -> str:
+    def _mod_desc(self, ctx) -> str:
 
         return '''Abajo tienes la lista de todos los campos modificables. 
     Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
