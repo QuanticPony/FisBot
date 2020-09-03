@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from ..classes.rol_class import FisRol
 from ..classes.bot_class import context_is_admin
-
+#hola
 
 class custom_roles(
     commands.Cog,
