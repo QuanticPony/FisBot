@@ -10,7 +10,6 @@ class FisUser(Display):
     XP_MAX_MULT = 5
 
     def __init__(self, user_id=0, name='', karma=0, level=0, xp=0):
-        super().__init__()
         self.id = user_id
         self.name = name
         self.karma = karma

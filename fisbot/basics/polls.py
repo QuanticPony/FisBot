@@ -4,9 +4,10 @@ import random
 from discord.ext import commands
 from ..classes.poll_class import Poll
 from ..classes.bot_class import context_is_admin
-from ..classes.class_modifier import modify
+from ..classes.display_class import Display
 
 class poll_cog(
+    Display,
     commands.Cog, 
     name='Encuestas',
     ):

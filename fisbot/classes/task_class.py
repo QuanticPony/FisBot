@@ -1,8 +1,8 @@
 import discord
 import asyncio
-from .class_modifier import modify
+from .display_class import Display
 
-class FisTask():
+class FisTask(Display):
 
     def __init__(self, task_id=None, subject='', title='', description='', day=None, month=None, year=None, school_year = None, url=None):
         self.id = task_id

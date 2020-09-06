@@ -67,8 +67,8 @@ class custom_roles(
         
         disc_rol = await FisRol().create_discord_obj(ctx, 'None')
         rol = FisRol(rol_id=disc_rol.id)
-        display = Display(rol, ctx, role=True)
-        display.create()
+        rol._ctx = ctx
+        rol.create()
 
 
     @_roles.command(
