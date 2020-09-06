@@ -4,7 +4,6 @@ from discord.ext import commands
 
 
 async def custom_help_implementation_all(bot, ctx):
-    commands.Context()
     halp=discord.Embed(
             title='.help', 
             description='Estos son todos los comandos. Probablemente no tengas permisos para usar todos:'.format(ctx), 

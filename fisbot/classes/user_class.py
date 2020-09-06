@@ -1,6 +1,6 @@
 import random
 import discord
-from .class_modifier import modify
+from .display import modify
 
 class FisUser():
 

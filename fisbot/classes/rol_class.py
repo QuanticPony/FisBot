@@ -1,34 +1,41 @@
 import discord
+from discord.ext import commands
 import asyncio
 from random import randint
 from .user_class import FisUser
-from .class_modifier import modify
+from .display_class import Display
 
-class FisRol():
+class FisRol(Display):
+
+    from ..database.roles import RolesDB
+    database = RolesDB()
+
 
     def __init__(self, rol_id=0, level=0, description='None', privileges='None'):
+        super().__init__(role=True)
         self.id = rol_id
+        self.name = ''
         self.level = level
         self.description = description
         self.privileges = privileges
-        from ..database.roles import RolesDB
-        self.database = RolesDB()
+        
+        #self.database = RolesDB()
 
 
-    def discord_rol(self, ctx) -> discord.Role:
-        '''Devuelve el rol de discord equivalente. Si no hay devuelve `None`'''
-
-        return ctx.guild.get_role(self.id)
 
 
-    def new_rol(self, user: FisUser):
+# Funciones de la clase FisRol
+
+
+
+    def new_rol(self, user: FisUser) -> FisRol:
         '''Devuelve el rol `FisRol` que deberia tener el usuario especificado. Si no hay un rol para ese nivel devuelve `None`'''
 
         return self.database.get_rol(user.level)
 
 
 
-    def prev_rol(self, level):
+    def prev_rol(self, level) -> FisRol:
         '''Devuelve el ultimo rol `FisRol` que consiguio el usuario. Devuelve `None` si no ha conseguido nunca un rol'''
 
 
@@ -40,12 +47,12 @@ class FisRol():
             return None
 
 
-
-    async def remove_from(self, ctx, user: FisUser) -> bool:
+    @self.check_if_context()
+    async def remove_from(self, user: FisUser) -> bool:
         '''Elimina del usuario `user` el rol. Devuelve `true`si lo consigue y `false` si no'''
         
-        disc_user = ctx.guild.get_member(user.id)
-        disc_rol = ctx.guild.get_role(self.id)
+        disc_user = self._ctx.guild.get_member(user.id)
+        disc_rol = self._ctx.guild.get_role(self.id)
         if disc_user and disc_rol:
             if disc_rol not in disc_user.roles: 
                 new_roles = disc_user.roles
@@ -59,12 +66,12 @@ class FisRol():
             return False
 
 
-
-    async def next_rol(self, ctx, user: FisUser):
+    @self.check_if_context()
+    async def next_rol(self, user: FisUser):
         '''Da al usuario su siguiente rol si es necesario'''
 
-        disc_user = ctx.guild.get_member(user.id)
-        disc_rol = ctx.guild.get_role(self.new_rol(user))
+        disc_user = self._ctx.guild.get_member(user.id)
+        disc_rol = self._ctx.guild.get_role(self.new_rol(user))
         if disc_user and disc_rol:
             if disc_rol not in disc_user.roles:
                 new_roles = disc_user.roles
@@ -78,10 +85,11 @@ class FisRol():
             return False
 
 
-    async def create_discord_role(self, ctx, role_name) -> discord.Role:
+    @self.check_if_context()
+    async def create_discord_obj(self, role_name) -> discord.Role:
         '''Crea un rol de discord a partir de un nombre y devuelve el `discord.Role`'''
 
-        role = await ctx.guild.create_role(
+        role = await self._ctx.guild.create_role(
             hoist=True, mentionable=True, name=role_name, 
             permissions=discord.Permissions.general(),
             colour=discord.Color.from_rgb(randint(0,255),randint(0,255),randint(0,255))
@@ -89,108 +97,51 @@ class FisRol():
         return role
 
 
-    def _new_title(self, ctx) -> str:
+# Funciones sobreescritas de la clase Display
 
-        return 'Creacion de rol personalizado:'
+    @self.check_if_context()
+    def discord_obj(self) -> discord.Role:
 
-    def _new_desc(self, ctx) -> str:
+        self._disc_obj = self._ctx.guild.get_role(self.id)
 
-        return '''Abajo tienes la lista de todos los campos modificables. 
-    Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
-    *Cuando hayas acabado* presiona el boton de guardar'''
+        if not self._disc_obj:
+            self.create_discord_obj(self._ctx)
 
-
-
-    def _mod_title(self, ctx) -> str:
-
-        return f"Modificar **Role** id= {self.id}"
+        self.name = self._disc_obj.name
+        return self._disc_obj
 
 
-    def _mod_desc(self, ctx) -> str:
-
-        return '''Abajo tienes la lista de todos los campos modificables. 
-    Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
-    *Cuando hayas acabado* presiona el boton de guardar'''
+    def save_in_database(self, func) -> bool:
+        return self.database.update_rol(self)
 
 
-    async def modify(self, ctx) -> bool:
-        '''Esta funcion permite modificar un rol a traves de una sencilla interfaz en el propio discord'''
 
-        return await modify(self, ctx, role=True)
+    def title_for_new(self) -> str:
 
+        return 'Crear rol personalizado'
 
-    async def modifyy(self, ctx):
-        '''Esta funcion permite modificar un rol a traves de una sencilla interfaz en el propio discord'''
+    def title_for_mod(self) -> str:
 
-        atributes_dic = self.__dict__.copy()
-        disc_rol = ctx.guild.get_role(self.id)
+        return f"Modificar {self.name}"
 
-        channel = ctx.author.dm_channel
-        if not channel:
-            channel = await ctx.author.create_dm()
+    def title_for_del(self) -> str:
+        return f"Eliminar {self.name} id= {self.id}"
 
 
-        embed = discord.Embed(
-            title=f"Modificar: {disc_rol.mention}",
-            description='Selecciona el campo a modificar:',
-            color=discord.Color.dark_green()
-        )
-        atributes_dic.pop('id')
-        atributes_dic.pop('database')
+    def description_for_new(self) -> str:
 
-        codepoint_start = 127462  # Letra A en unicode en emoji
-        things_list = {f"{chr(i)}": v for i, v in enumerate(atributes_dic, start=codepoint_start)}
+            return '''Abajo tienes la lista de todos los campos modificables. 
+        Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
+        *Cuando hayas acabado* presiona el boton de guardar'''
+        
 
-        for atrib in things_list:
-            embed.add_field(
-                name=f"{atrib} - {things_list[atrib]}:" ,
-                value=self.__dict__[things_list[atrib]],
-                inline=False
-                )
+    def description_for_mod(self) -> str:
 
-        message = await channel.send(embed=embed)
-        for i in range(len(things_list)):
-            await message.add_reaction(chr(i+codepoint_start)) 
-        await message.add_reaction("💾")
+            return '''Abajo tienes la lista de todos los campos modificables. 
+        Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
+        *Cuando hayas acabado* presiona el boton de guardar'''
 
-        def confirm_reaction(reaction, user):
-            return user.id == ctx.message.author.id
-        def confirm_message(response_msg):
-            return response_msg.author.id == ctx.message.author.id
+    def description_for_del(self) -> str:
 
-        async def ask_field() -> bool:
-            try:
-                reaction, user = await ctx.bot.wait_for('reaction_add', timeout=15.0, check=confirm_reaction)
-                if str(reaction.emoji) == '💾':
-                    return False
-                
-            except asyncio.TimeoutError:
-                await channel.send('Se acabo el tiempo...')
-                return False
-            
-            ask_message = await channel.send(f"Introduce un nuev@ {things_list[reaction.emoji]}:")
-
-            try:
-                response_msg = await ctx.bot.wait_for('message', timeout=60.0, check=confirm_message)
-            except asyncio.TimeoutError:
-                await channel.send('Se acabo el tiempo...')
-                return False
-              
-            setattr(self, things_list[reaction.emoji], response_msg.content)
-            await ask_message.delete()
-            await response_msg.add_reaction("✅")
-
-            embed.clear_fields()
-            for atrib in things_list:
-                embed.add_field(
-                    name=f"{atrib} - {things_list[atrib]}:" ,
-                    value=self.__dict__[things_list[atrib]],
-                    inline=False
-                    )
-            await message.edit(embed=embed)
-            return True
-
-
-        while await ask_field():
-            pass
-        self.database.update_rol(self)
+        return  '''¿Seguro que quiere eliminar este elemento de la base de datos y de discord?
+        Si es así, reaccione ✅. De lo contrario, reaccione ❌:'''

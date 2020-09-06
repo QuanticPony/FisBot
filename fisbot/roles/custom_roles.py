@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from ..classes.rol_class import FisRol
+from ..classes.display_class import Display
 from ..classes.bot_class import context_is_admin
 
 
@@ -62,8 +63,12 @@ class custom_roles(
         usage='.rol create <rol_name>',
         checks=[context_is_admin]
     )
-    async def _create(self, ctx, *, rol_name):
-        await FisRol().create_discord_role(ctx, rol_name)
+    async def _create(self, ctx):
+        
+        disc_rol = await FisRol().create_discord_obj(ctx, 'None')
+        rol = FisRol(rol_id=disc_rol.id)
+        display = Display(rol, ctx, role=True)
+        display.create()
 
 
     @_roles.command(
