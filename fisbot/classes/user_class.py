@@ -1,8 +1,8 @@
 import random
 import discord
-from .display import modify
+from .display_class import Display
 
-class FisUser():
+class FisUser(Display):
 
     BASE_XP = 300
     XP_MULTIPLAYER = 10
@@ -10,6 +10,7 @@ class FisUser():
     XP_MAX_MULT = 5
 
     def __init__(self, user_id=0, name='', karma=0, level=0, xp=0):
+        super().__init__()
         self.id = user_id
         self.name = name
         self.karma = karma
