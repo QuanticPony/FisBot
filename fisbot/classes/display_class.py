@@ -68,9 +68,7 @@ class Display():
 
     CODEPOINT_START = 127462
 
-    def __init__(self, *, context=None,
-    title='Titulo',
-    description='Descripcion',
+    def __init__(self, *, context=None, title='Titulo', description='Descripcion',
     ):
         self._ctx = context
         self._title = title
@@ -85,6 +83,11 @@ class Display():
         if context:
             self._channel = context.author.dm_channel 
 
+    def init_display(self, ctx):
+        '''Inicia la clase `Display` con el contexto especificado'''
+
+        Display.__init__(self, context=ctx)
+
     # No modificar estas funciones en esta clase 
 # Sobreescribir las funciones en clases que hereden de esta
 
@@ -95,13 +98,13 @@ class Display():
     async def save_in_database(self):... # Debe guardar el objeto en la base de datos
     async def remove_from_database(self):... # Debe eliminar el objeto de la base de datos
 
-    async def title_for_new(self) -> str:... # Debe devolver el titulo del display en la opcion de crear
-    async def title_for_mod(self) -> str:... # Debe devolver el titulo del display en la opcion de modificar  
-    async def title_for_del(self) -> str:... # Debe devolver el titulo del display en la opcion de borrar
+    def title_for_new(self) -> str:... # Debe devolver el titulo del display en la opcion de crear
+    def title_for_mod(self) -> str:... # Debe devolver el titulo del display en la opcion de modificar  
+    def title_for_del(self) -> str:... # Debe devolver el titulo del display en la opcion de borrar
 
-    async def description_for_new(self) -> str:... # Debe devolver la descripcion del display en la opcion de crear
-    async def description_for_mod(self) -> str:... # Debe devolver la descripcion del display en la opcion de modificar
-    async def description_for_del(self) -> str:... # Debe devolver la descripcion del display en la opcion de borrar
+    def description_for_new(self) -> str:... # Debe devolver la descripcion del display en la opcion de crear
+    def description_for_mod(self) -> str:... # Debe devolver la descripcion del display en la opcion de modificar
+    def description_for_del(self) -> str:... # Debe devolver la descripcion del display en la opcion de borrar
 
     def prepare_atributes_dic(self):... # Prepara el diccionario _atributes_dic con los elementos que se permite modificar      
 

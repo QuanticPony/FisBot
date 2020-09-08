@@ -59,12 +59,6 @@ class FisRol(Display):
         instance._disc_obj = role
         return instance
 
-
-    def init_display(self, ctx):
-        '''Inicia la clase `Display` con el contexto especificado'''
-
-        Display.__init__(self, context=ctx)
-
 # Funciones de la clase FisRol
 
     def check_new_rol_needed(self, user: FisUser):
@@ -205,11 +199,11 @@ class FisRol(Display):
 
     def description_for_new(self) -> str:
 
-            return self._descr_for_new.format(self)
+        return self._descr_for_new.format(self)
 
     def description_for_mod(self) -> str:
 
-            return self._descr_for_mod.format(self)
+        return self._descr_for_mod.format(self)
 
     def description_for_del(self) -> str:
 
@@ -217,7 +211,6 @@ class FisRol(Display):
 
     def prepare_atributes_dic(self):
         '''Prepara los diccionarios internos para trabajar con ellos'''
-
 
         self._atributes_dic = self.__dict__.copy()
 

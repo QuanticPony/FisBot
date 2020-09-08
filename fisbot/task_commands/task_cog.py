@@ -45,7 +45,13 @@ class task_commands(
         check=[context_is_admin]
     )
     async def add(self, ctx, subject):
-        task=FisTask(subject=subject)
+
+        task=FisTask(subject=subject, context=ctx)
+
+        await task.create()
+        return
+
+
         msg_out = await ctx.send('Escribe el titulo del trabajo/examen:')
         def confirm(msg_in):
             return ctx.message.author.id == msg_in.author.id

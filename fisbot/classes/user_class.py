@@ -47,7 +47,7 @@ class FisUser(Display):
         '''Sube la experiencia del usuario. Devuelve el nivel si se sube de nivel'''
         
         if self.level != 0:
-            amount = random.randint(1, self.XP_MAX_MULT) * self.level
+            amount = self.XP_ADD_BASE + random.randint(1, self.level)
         else:
             amount = self.XP_ADD_BASE
 

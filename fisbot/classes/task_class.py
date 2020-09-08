@@ -4,7 +4,21 @@ from .display_class import Display
 
 class FisTask(Display):
 
-    def __init__(self, task_id=None, subject='', title='', description='', day=None, month=None, year=None, school_year = None, url=None):
+    _title_for_new = 'Crear tarea'
+    _title_for_mod = 'Modificar **{0.subject}**: *{0.title}*'
+    _title_for_del = 'Eliminar **{0.subject}**: *{0.title}* id= {0.id}'
+
+    _descr_for_new ='''Abajo tienes la lista de todos los campos modificables. 
+        Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
+        *Cuando hayas acabado* presiona el boton de guardar'''
+    _descr_for_mod ='''Abajo tienes la lista de todos los campos modificables. 
+        Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
+        *Cuando hayas acabado* presiona el boton de guardar'''
+    _descr_for_del ='''¿Seguro que quiere eliminar este elemento de la base de datos?
+        Si es así, reaccione ✅. De lo contrario, reaccione ❌:'''
+
+    def __init__(self, task_id=None, subject='None', title='None', description='None', day=0, month=0, year=0, school_year = 0, url='None', context=None):
+        super().__init__(context=context)
         self.id = task_id
         self.subject = subject
         self.title = title
@@ -18,21 +32,15 @@ class FisTask(Display):
         from ..database.tasks import ProyectsDB
         self.database = ProyectsDB()
 
-    def _mod_title(self) -> str:
-        '''Devuelve el titulo utilizado en la modificacion de esta clase'''
-
-        return f"Modificar: **{self.subject}**: *{self.title}*"
-    
-    def _mod_desc(self) -> str:
-        '''Devuelve la descripcion utilizada en la modificacion de esta clase'''
-
-        return '''Abajo tienes la lista de todos los campos modificables. 
-    Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
-    *Cuando hayas acabado* presiona el boton de guardar'''
+        if context:
+            self.init_display(context)
 
 
 
-    def embed(self) -> discord.Embed:
+
+# Funciones sobreescritas de la clase Display
+
+    def embed_show(self) -> discord.Embed:
         '''Devuelve un mensaje tipo `discord.Embed` que muestra la tarea'''
 
         task_embed = discord.Embed(
@@ -59,65 +67,58 @@ class FisTask(Display):
 
         return task_embed
 
+    async def discord_obj(self):
+        return await super().discord_obj()
 
-    async def modify(self, ctx) -> bool:
-        return await modify(self, ctx, task=True)
+    async def update_discord_obj(self):
+        return await super().update_discord_obj()
 
-    async def modifyy(self, ctx):
-        _atributes_dic = self.__dict__
-        atributes_dic = _atributes_dic.copy()
-        embed = discord.Embed(
-            title=f"Modificar: {self.subject} ({self.school_year}º): {self.title}*",
-            description='Selecciona el campo a modificar:',
-            color=discord.Color.dark_orange()
-        )
-        atributes_dic.pop('_id')
-        atributes_dic.pop('database')
+    async def save_in_database(self) -> bool:
+        '''Guarda la tarea en la base de datos'''
 
-        codepoint_start = 127462  # Letra A en unicode en emoji
-        things_list = {f"{chr(i)}": v for i, v in enumerate(atributes_dic, start=codepoint_start)}
+        self.database.add_task(self)
+        return self.database.update_task(self)
 
-        for atrib in things_list:
-            embed.add_field(
-                name=f"{atrib} - {things_list[atrib]}:" ,
-                value=atributes_dic[things_list[atrib]],
-                inline=False
-                )
+    async def remove_from_database(self) -> bool:
+        '''Borra la tarea de la base de datos'''
 
-        message = await ctx.send(embed=embed)
-        for i in range(len(things_list)):
-            await message.add_reaction(chr(i+codepoint_start)) 
-        await message.add_reaction("💾")
+        return self.database.del_task(self)
 
-        def confirm_reaction(reaction, user):
-            return user.id == ctx.message.author.id
-        def confirm_message(response_msg):
-            return response_msg.author.id == ctx.message.author.id
 
-        async def ask_field() -> bool:
+
+    def title_for_new(self) -> str:
+
+        return self._title_for_new.format(self)
+
+    def title_for_mod(self) -> str:
+
+        return self._title_for_mod.format(self)
+
+    def title_for_del(self) -> str:
+        return self._title_for_del.format(self)
+
+
+    def description_for_new(self) -> str:
+
+        return self._descr_for_new.format(self)
+
+    def description_for_mod(self) -> str:
+
+        return self._descr_for_mod.format(self)
+
+    def description_for_del(self) -> str:
+
+        return  self._descr_for_del.format(self)
+
+    def prepare_atributes_dic(self):
+        '''Prepara los diccionarios internos para trabajar con ellos'''
+
+        self._atributes_dic = self.__dict__.copy()
+
+        for key in ['id', 'database']:
             try:
-                reaction, user = await ctx.bot.wait_for('reaction_add', timeout=15.0, check=confirm_reaction)
-                if str(reaction.emoji) == '💾':
-                    return False
-                
-            except asyncio.TimeoutError:
-                await ctx.send('Se acabo el tiempo...')
-                return False
-            
-            ask_message = await ctx.send(f"Introduce un nuevo {things_list[reaction.emoji]}:")
+                self._atributes_dic.pop(key)
+            except KeyError:
+                continue
 
-            try:
-                response_msg = await ctx.bot.wait_for('message', timeout=60.0, check=confirm_message)
-            except asyncio.TimeoutError:
-                await ctx.send('Se acabo el tiempo...')
-                return False
-              
-            setattr(self, things_list[reaction.emoji], response_msg.content)
-            await response_msg.add_reaction("✅")
-            return True
-
-
-        while await ask_field():
-            pass
-        self.database.update_task(self)
-        return
+        
