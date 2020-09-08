@@ -3,83 +3,95 @@ import asyncio
 import functools
 from discord.ext import commands
 
+# DECORADORES: prepara los diccionarios internos
+
+def prepare_dicts():
+    '''Decorador que prepara los elementos de los diccionarios'''
+
+    def wrapper(func):
+        @functools.wraps(func)
+        def wrapped(obj, *args, **kargs):
+            obj.prepare_atributes_dic()
+            obj._prepare_elements()
+            return func(obj, *args, **kargs)
+        return wrapped
+    return wrapper
+
+
+# DECORADORES: checks
+
+def check_if_discord_obj():
+    '''Debe ser utilizado cuando se necesita el objeto de discord relacionado.
+    Llama a la funcion sobreescrita `discord_obj()`'''
+
+    def wrapper(func):
+        @functools.wraps(func)
+        async def wrapped(obj, *args, **kargs):
+            if not obj._disc_obj:
+                await obj.discord_obj()
+            try:
+                return await func(obj, *args, **kargs)
+            except:
+                return func(obj, *args, **kargs)
+        return wrapped
+    return wrapper
+
+def check_if_context():
+    '''Debe ser utilizada siempre que se quiera acceder a algo del servidor.
+    Comprueba que el atributo `_ctx` es un objeto de tipo `commands.Context`'''
+
+    def wrapper(func):
+        @functools.wraps(func)
+        async def wrapped(obj, *args, **kargs):
+            if isinstance(obj._ctx, commands.Context):
+                return await func(obj, *args, **kargs)
+        return wrapped
+    return wrapper
+
+def check_if_channel():
+    '''Debe ser utilizada siempre que se quiera enviar un mensaje al usuario por privado.
+    Comprueba que el atributo `_channel` es un objeto de tipo `discord.DMChannel`'''
+
+    def wrapper(func):
+        @functools.wraps(func)
+        async def wrapped(obj, *args, **kargs):         
+            if isinstance(obj._ctx, commands.Context):
+                obj._channel = obj._ctx.author.dm_channel
+                if not obj._channel:
+                    obj._channel = await obj._ctx.author.create_dm()
+            return await func(obj, *args, **kargs)
+        return wrapped
+    return wrapper
+
+
 class Display():
 
     CODEPOINT_START = 127462
 
-    async def __init__(self, ctx: commands.Context, *,
+    def __init__(self, *, context=None,
     title='Titulo',
     description='Descripcion',
     ):
-        self._ctx = ctx
+        self._ctx = context
         self._title = title
         self._description = description
 
-        self._disc_obj = self.discord_obj()
+        self._disc_obj: object = None
         
         self._atributes_dic = self.__dict__.copy()
-        self._things_list: dict
-        self._embed: discord.Embed
+        self._things_list: dict = {}
+        self._embed: discord.Embed = None
 
-        self._channel = ctx.author.dm_channel 
-        if not self._channel:
-            self._channel = self._ctx.author.create_dm()
-
-
-# DECORADORES: prepara los diccionarios internos
-
-    def prepare_dicts(funcion):
-        '''Decorador que prepara los elementos de los diccionarios'''
-
-        @functools.wraps(funcion)
-        def decorator(self, *args, **kargs):
-            self.prepare_atributes_dic()
-            self._prepare_elements()
-            funcion(*args, **kargs)
-        return decorator
-
-# DECORADORES: checks
-
-    def check_if_discord_obj(funcion):
-        '''Debe ser utilizado cuando se necesita el objeto de discord relacionado.
-        Llama a la funcion sobreescrita `discord_obj()`'''
-
-        @functools.wraps(funcion)
-        def decorator(self, *args, **kargs):
-            if not self._disc_obj:
-                self.discord_obj()
-            funcion(*args, **kargs)
-        return decorator
-
-
-    def check_if_context(funcion):
-        '''Debe ser utilizada siempre que se quiera acceder a algo del servidor.
-        Comprueba que el atributo `_ctx` es un objeto de tipo `commands.Context`'''
-
-        @functools.wraps(funcion)
-        def decorator(self, *args, **kargs):
-            if isinstance(self._ctx, commands.Context):
-                funcion(*args, **kargs)
-        return decorator
-
-    def check_if_channel(funcion):
-        '''Debe ser utilizada siempre que se quiera enviar un mensaje al usuario por privado.
-        Comprueba que el atributo `_channel` es un objeto de tipo `discord.DMChannel`'''
-
-        @functools.wraps(funcion)
-        def decorator(self, *args, **kargs):
-            if isinstance(self._channel, discord.DMChannel):
-                function(*args, **kargs)
-        return decorator
-
-
+        if context:
+            self._channel = context.author.dm_channel 
 
     # No modificar estas funciones en esta clase 
 # Sobreescribir las funciones en clases que hereden de esta
 
     async def embed_show(self) -> discord.Embed: ... # Debe devolver un mensaje tipo discord.Embed que muestre el objeto
 
-    async def discord_obj(self) -> object:... # Debe devolver el objeto similar de discord
+    async def discord_obj(self) -> object:... # Debe devolver el objeto asociado de discord
+    async def update_discord_obj(self) -> bool:... # Debe actualizar el objeto asociado de discord en discord
     async def save_in_database(self):... # Debe guardar el objeto en la base de datos
     async def remove_from_database(self):... # Debe eliminar el objeto de la base de datos
 
@@ -112,27 +124,27 @@ class Display():
 
 # Titulo y descripcion
 
-    @prepare_dicts
-    async def _values_for_new_class(self):
+    @prepare_dicts()
+    def _values_for_new_class(self):
         '''Actualiza `title` y `description` para el mensaje `discord.Embed` en el modo `"create"`'''
 
-        self._title = await self.title_for_new()
-        self._description = await self.description_for_new()
+        self._title = self.title_for_new()
+        self._description = self.description_for_new()
         
-    @prepare_dicts
-    async def _values_for_mod_class(self):
+    @prepare_dicts()
+    def _values_for_mod_class(self):
         '''Actualiza `title` y `description` para el mensaje `discord.Embed` en el modo `"modify"`'''
 
-        self._title = await self.title_for_mod()
-        self._description = await self.description_for_mod()
+        self._title = self.title_for_mod()
+        self._description = self.description_for_mod()
     
-    async def _values_for_del_class(self):
+    def _values_for_del_class(self):
         '''Actualiza `title` y `description` para el mensaje `discord.Embed` en el modo `"delete"`'''
 
-        self._title = await self.title_for_del()
-        self._description = await self.description_for_del()
+        self._title = self.title_for_del()
+        self._description = self.description_for_del()
         self.embed()
-        self._embed += f"\n ✅ - **Eliminar** \n ❌ - **Cancelar**"
+        self._embed.description += f"\n ✅ - **Eliminar** \n ❌ - **Cancelar**"
         self._things_list = ['✅','❌']
 
 # Elementos
@@ -141,13 +153,12 @@ class Display():
         '''Quitamos todos los atributos que no este permitido modificar: los que empiezan por `_`.
         Y crea el diccionario `_things_list`'''
 
-        for key in self._atributes_dic:
+        for key in self._atributes_dic.copy():
             if key.startswith('_'):
                 self._atributes_dic.pop(key) 
 
         self._things_list = {f"{chr(i)}": v \
             for i, v in enumerate(self._atributes_dic, start=self.CODEPOINT_START)}
-
 
 # Embeds
 
@@ -161,7 +172,6 @@ class Display():
         )
         return self._embed
 
-
     def _re_embed(self) -> discord.Embed:
         '''Actualiza el `discord.Embed` de la clase y lo devuelve para escritura dinamica'''
 
@@ -174,7 +184,6 @@ class Display():
                 )
         return self._embed
 
-
     def embed(self) -> discord.Embed:
         '''Devuelve el mensaje tipo `discord.Embed`. Si no esta creado lo crea, y si lo esta lo actualiza'''
 
@@ -183,7 +192,6 @@ class Display():
         else: 
             self._re_embed()
         return self._embed
-
 
     async def _add_reactions(self, message):
         '''Añade las reacciones necesarias al `discord.Message`'''
@@ -198,30 +206,31 @@ class Display():
     
 # Mensajes
 
-    @check_if_channel
-    async def dm_send(self, *, text='') -> discord.Message:
+    @check_if_channel()
+    async def dm_send(self, *, text='', only_text=False) -> discord.Message:
         '''Envia un `discord.Message` al usuario a traves del `discord.DMChannel`. 
         Por defecto envia un `discord.Embed`. Si se especifica `text` se envia eso'''
 
-        if text:
+        if only_text:
             return await self._channel.send(text)
         else:
-            return await self._channel.send(embed=self.embed())
-
+            self.embed()
+            return await self._channel.send(embed=self._embed)
 
     async def resend(self, message):
         '''Edita el `discord.Message` dado con el `discord.Embed` actualizado'''
 
-        return await message.edit(embed=self.embed())
+        self.embed()
+        return await message.edit(embed=self._embed)
 
-
-    @check_if_context
+    @check_if_context()
     async def ctx_send(self) -> discord.Message:
         '''Envia un mensaje al contexto que inicio el comando con el `discord.Embed` actual'''
 
-        return await self._ctx.send(embed=self.embed())
+        self.embed
+        return await self._ctx.send(embed=self._embed)
 
-    @check_if_channel
+    @check_if_channel()
     async def _time_out(self) -> bool:
         '''Envia un mensaje por el canal `dicord.DMChannel` informando de la llegada al limite de tiempo'''
 
@@ -230,30 +239,34 @@ class Display():
 
 # Conversacion
 
-    @check_if_channel
-    @check_if_context
+    @check_if_context()
+    @check_if_channel()
     async def _conversate(self, *, mode='create'):
         '''Conversacion que permite modificar a tiempo real los valores del objeto con un `discord.Embed`'''
 
-        actualice_values = {
-            'create': await self._values_for_new_class(),
-            'modify': await self._values_for_mod_class(),
-            'delete': await self._values_for_del_class()
-        }
-        actualice_values[mode]
-        
-        message = await self.dm_send()
+        self.embed()
+
+        if mode == 'create':
+            self._values_for_new_class()
+        if mode == 'modify':
+            self._values_for_mod_class()
+        if mode == 'delete':
+            self._values_for_del_class()
+
+        self.embed()
+        message = await self.dm_send(text='Hola! Vamos a hacer estas cosas por privado para mantener los servidores limpios', only_text=True)
         await self._add_reactions(message)
 
         async def _ask_field() -> bool:
             '''Esta funcion se encarga de preguntar una y otra vez si se quiere cambiar algun campo y cual'''
 
-            await self.dm_resend(message)
+            await self.resend(message)
 
             try:
-                reaction, user = await self._ctx.bot.wait_for('reaction_add', timeout=30.0)
+                reaction, user = await self._ctx.bot.wait_for('reaction_add', timeout=30.0, check=lambda reaction, user: not user.bot)
                 if str(reaction.emoji) == '💾':
-                    self.save_in_database()
+                    await self.save_in_database()
+                    await self.update_discord_obj()
                     return False
 
                 elif str(reaction.emoji) == '✅':
@@ -266,7 +279,7 @@ class Display():
             except asyncio.TimeoutError:
                 return await self._time_out()
 
-            ask_message = await self.dm_send(f"Introduce un nuevo {self._things_list[reaction.emoji]}:")
+            ask_message = await self.dm_send(text=f"Introduce un nuevo {self._things_list[reaction.emoji]}:", only_text=True)
 
             try:
                 response_msg = await self._ctx.bot.wait_for('message', timeout=150.0)
@@ -278,5 +291,5 @@ class Display():
             await ask_message.delete()
             return True
 
-        while await self._conversate._ask_field():
+        while await _ask_field():
             pass
