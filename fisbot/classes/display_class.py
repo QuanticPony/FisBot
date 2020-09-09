@@ -178,6 +178,8 @@ class Display():
     def _re_embed(self) -> discord.Embed:
         '''Actualiza el `discord.Embed` de la clase y lo devuelve para escritura dinamica'''
 
+        self._embed.title = self._title
+        self._embed.description = self._description
         self._embed.clear_fields()
         for atrib in self._things_list:
             self._embed.add_field(

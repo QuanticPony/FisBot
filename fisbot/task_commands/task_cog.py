@@ -16,6 +16,7 @@ class task_commands(
     def __init__(self, bot):
         self.bot = bot 
     
+    # TODO  actualizar todo este cog
 
     @commands.group(
         pass_context=True,
@@ -144,7 +145,7 @@ class task_commands(
                 return await ctx.send('''**Lo siento**. No hay trabajos ni examenes en la base de datos de la asignatura **{}**'''.format(subject))
 
         for task in tasks_list:
-            description = f"id: {task._id} | " + f"Fecha: {task.day}/{task.month}" + f"/{task.year}" if task.year else '' 
+            description = f"id: {task.id} | " + f"Fecha: {task.day}/{task.month}" + f"/{task.year}" if task.year else '' 
             description += f" | [Fuente]({task.url})" if task.url else ''
 
             embed.add_field(

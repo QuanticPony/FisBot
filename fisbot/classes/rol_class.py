@@ -70,7 +70,7 @@ class FisRol(Display):
         '''Devuelve el ultimo rol `FisRol` que consiguio el usuario. Devuelve `None` si no ha conseguido nunca un rol'''
 
 
-        for i in reversed(range(0, level - 1)):
+        for i in reversed(range(1, level - 1)):
             rol = self.database.get_rol()
             if rol: 
                 return rol

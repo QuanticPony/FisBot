@@ -10,6 +10,7 @@ class custom_roles(
     commands.Cog,
     name='Roles'
     ):
+    ''''''
 
     def __init__(self, bot):
         self.bot = bot
@@ -24,7 +25,7 @@ class custom_roles(
         while rol_list:
             rol = rol_list.pop()
             disc_rol = ctx.guild.get_role(rol.id)
-            if disc_rol:
+            if disc_rol and rol.level > 0:
                 frase += f"\n{disc_rol.mention} -> Desbloqueado al nivel {rol.level}"
 
         roles=discord.Embed(
@@ -41,13 +42,22 @@ class custom_roles(
         pass_context=True, 
         name='role',
         aliases=['roles', 'rol'],
-        help='''¿Quieres ver los roles disponibles por subida de nivel? ```.rol```
-        ¿Quieres crear un rol nuevo? ```.rol create <rol_name>```
-        ¿Quieres añadir un rol existente a la base de datos?
-        
+        help='''¿Quieres ver los roles disponibles por subida de nivel? ```.roles```
+        ¿Quieres crear un rol nuevo? ```.role create```
+        ¿Quieres añadir un rol existente a la base de datos? ```.role add <role_mention>```
+        ¿Quieres modificar un rol existente? ```.role modify <role_mention>```
+        ¿Quieres eliminar un rol de la base de datos? ```.role delete <role_mention>```
         ''',
-        brief='''Opera conjuntos de comandos''',
-        description='''Permite modificar los roles existentes: crear, borrar, renombrar y actualizarlos''',
+        brief='''.help role para mas informacion''',
+        description='''Permite acceder al resto de comandos relacionados con los roles:
+        ```
+        subscribe:      Subscribirse a una asignatura
+        unsubscribe:    Desubscribirse a una asignatura
+        info:           Muestra informacion del rol
+        create:         Crea un rol personalizado
+        add:            Añade un rol a los roles personalizados
+        delete:         Modifica un rol personalizado
+        ```''',
         usage='.role <subcommand>'
     )
     async def _roles(self, context):
@@ -61,7 +71,7 @@ class custom_roles(
         brief='Crea un rol personalizado',
         description='Crea un nuevo rol con permisos \"generales\" y lo incluye en la base de datos',
         help='''¿Quieres crear un rol? ```.rol create```''',
-        usage='.role create <rol_name>',
+        usage='.role create',
         checks=[context_is_admin]
     )
     async def _create(self, ctx):
@@ -71,7 +81,7 @@ class custom_roles(
 
     @_roles.command(
         pass_context=True,
-        aliases=['roles'],
+        aliases=['añadir'],
         help='''¿Quieres añadir el rol @Palos a los roles personalizados? ```.rol add @Palos```''',
         brief='''Añade un rol a los roles personalizados''',
         description='''Añade un rol existente a la base de datos y le asigna un nivel requerido para obtenerlo.
@@ -111,19 +121,22 @@ class custom_roles(
     
     @_roles.command(
         pass_context=True,
-        aliases=['dar'],
-        help='''¿Quieres modificar el rol @Mods? ```.no puedes listillo```
-        ¿Quieres modificar el rol @Escuderos de Juan Pablo? ```.rol modify @Escuderos de Juan Pablo```
-        ''',
-        brief='''Modifica un rol personalizado''',
-        description='''Modifica un rol existente en la base de datos a traves de una sencilla interfaz. 
-        Permite modificar nivel requerido, descripcion y privilegios''',
-        usage='.role give <rol_mention>'
+        aliases=['dar', 'give'],
+        help='''¿Quieres recibir notificaciones sobre Termodinamica? ```.role subscribe <@&753362848851165185>```''',
+        brief='''Subscribirse a una asignatura''',
+        description='''Permite subscribirse a las notificaciones sobre esa asignatura: 
+        cada vez que se publique una noticia sobre ella te llegara una notificacion''',
+        usage='.role subscribe <rol_mention> [-u [member_mention]]'
     )
-    async def give(self, ctx):
+    async def subscribe(self, ctx, **kargs):
+
+        
 
         disc_rol = ctx.message.role_mentions[0]
-        user = FisUser.init_with_member(ctx.author)
+        if '-u' in kargs and context_is_admin(ctx):
+            user = FisUser.init_with_member(ctx.message.mentions[0])
+        else:
+            user = FisUser.init_with_member(ctx.author)
         await ctx.message.delete()
 
         if disc_rol:
@@ -135,21 +148,22 @@ class custom_roles(
             if rol.level < user.level:
                 await rol.give_to(user)
 
+
     @_roles.command(
         pass_context=True,
-        aliases=['quitar'],
-        help='''¿Quieres modificar el rol @Mods? ```.no puedes listillo```
-        ¿Quieres modificar el rol @Escuderos de Juan Pablo? ```.rol modify @Escuderos de Juan Pablo```
-        ''',
-        brief='''Modifica un rol personalizado''',
-        description='''Modifica un rol existente en la base de datos a traves de una sencilla interfaz. 
-        Permite modificar nivel requerido, descripcion y privilegios''',
-        usage='.role drop <rol_mention>'
+        aliases=['quitar', 'drop'],
+        help='''¿Quieres dejar de recibir notificaciones de la asignatura Termodinamica? ```.role unsubscribe <@&753362848851165185>```''',
+        brief='''Desubscribirse de una asignatura''',
+        description='''Te desubscribe de una asignatura: no recibiras mas notificaciones cuando haya noticias sobre ella''',
+        usage='.role unsubscribe <rol_mention> [-u [member_mention]]'
     )
-    async def drop(self, ctx):
+    async def unsubscribe(self, ctx, **kargs):
 
         disc_rol = ctx.message.role_mentions[0]
-        user = FisUser.init_with_member(ctx.author)
+        if '-u' in kargs and context_is_admin(ctx):
+            user = FisUser.init_with_member(ctx.message.mentions[0])
+        else:
+            user = FisUser.init_with_member(ctx.author)
         await ctx.message.delete()
 
         if disc_rol:
@@ -161,22 +175,26 @@ class custom_roles(
             if rol.level < user.level:
                 await rol.remove_from(user)
 
-
     
     @_roles.command(
         pass_context=True,
         aliases=['help', 'h'],
-        help='''¿Quieres modificar el rol @Mods? ```.no puedes listillo```
-        ¿Quieres modificar el rol @Escuderos de Juan Pablo? ```.rol modify @Escuderos de Juan Pablo```
-        ''',
-        brief='''Modifica un rol personalizado''',
-        description='''Modifica un rol existente en la base de datos a traves de una sencilla interfaz. 
-        Permite modificar nivel requerido, descripcion y privilegios''',
-        usage='.role info <rol_mention>'
+        help='''¿Quieres informacion sobre el rol @Termodinamica? ```.role info <@&753362848851165185>```''',
+        brief='''Muestra la informacion de un rol''',
+        description='''Muestra la informacion sobre el rol especificado: 
+        el nivel requerido para obtenerlo, privilegios y descripcion''',
+        usage='.role info <rol_mention> [-dm [member_mention]]'
     )
-    async def info(self, ctx):
+    async def info(self, ctx, **kargs):
 
         disc_rol = ctx.message.role_mentions[0]
+        if '-dm' in kargs and context_is_admin(ctx):
+            with ctx.message.mentions[0] as user:
+                channel = user.dm_channel
+                if not channel:
+                    channel = await user.create_dm()
+        else:
+            channel = ctx.channel
         if disc_rol:
 
             from ..database.roles import RolesDB
@@ -184,8 +202,7 @@ class custom_roles(
             rol.init_display(ctx)
             embed = await rol.embed_show()
 
-            await ctx.send(embed=embed)
-
+            await channel.send(embed=embed)
 
 
     @_roles.command(
@@ -213,6 +230,13 @@ class custom_roles(
                 rol = RolesDB().get_rol_id(disc_rol.id)
                 rol.database.del_rol(rol)
         await ctx.message.delete()
-            
-                
-                
+
+
+    @commands.command(
+        pass_context=True,
+        hidden=True
+    )
+    async def no(self, ctx, puedes, listillo):
+
+        if puedes == 'puedes' and listillo == 'listillo':
+            await ctx.send(f"Ssssh, me estas retando {ctx.author.mention}? Que soy admin colega... que te baneo")

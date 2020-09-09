@@ -17,7 +17,7 @@ class FisTask(Display):
     _descr_for_del ='''¿Seguro que quiere eliminar este elemento de la base de datos?
         Si es así, reaccione ✅. De lo contrario, reaccione ❌:'''
 
-    def __init__(self, task_id=None, subject='None', title='None', description='None', day=0, month=0, year=0, school_year = 0, url='None', context=None):
+    def __init__(self, task_id=None, subject='', title='', description='', day=0, month=0, year=0, school_year = 0, url='', context=None):
         super().__init__(context=context)
         self.id = task_id
         self.subject = subject
@@ -42,6 +42,8 @@ class FisTask(Display):
 
     def embed_show(self) -> discord.Embed:
         '''Devuelve un mensaje tipo `discord.Embed` que muestra la tarea'''
+
+        # TODO arreglar esto y embed()
 
         task_embed = discord.Embed(
             title=f"**{self.school_year}º -> {self.subject}**",
