@@ -16,6 +16,7 @@ class task_commands(
     def __init__(self, bot):
         self.bot = bot 
     
+    # TODO  actualizar todo este cog
 
     @commands.group(
         pass_context=True,
@@ -45,54 +46,11 @@ class task_commands(
         check=[context_is_admin]
     )
     async def add(self, ctx, subject):
-        task=FisTask(subject=subject)
 
-        channel = ctx.author.dm_channel
-        if not channel:
-            channel = await ctx.author.create_dm()
+        task=FisTask(subject=subject, context=ctx)
 
-        msg_out = await channel.send('Escribe el titulo del trabajo/examen:')
-        def confirm(msg_in):
-            return ctx.message.author.id == msg_in.author.id
-        try:
-            msg_in = await self.bot.wait_for('message', timeout=30.0, check=confirm)
-        except asyncio.TimeoutError:
-            await channel.send('Se acabo el tiempo')
-            return
-        
-
-        task.title = unicodedata.normalize('NFKD', msg_in.content)\
-            .encode('ascii', 'ignore').decode('ascii').title()
-
-        msg_out = await channel.send('Escribe la descripcion:')
-        try:
-            msg_in = await self.bot.wait_for('message', timeout=120.0, check=confirm)
-        except asyncio.TimeoutError:
-            await channel.send('Se acabo el tiempo')
-            return
-
-
-        task.description = unicodedata.normalize('NFKD', msg_in.content)\
-            .encode('ascii', 'ignore').decode('ascii')
-
-        msg_out = await channel.send('Escribe la fecha limite/entrega/examen: ```<day/month>[/year]```')
-        try:
-            msg_in = await self.bot.wait_for('message', timeout=30.0, check=confirm)
-        except asyncio.TimeoutError:
-            await channel.send('Se acabo el tiempo')
-            return
-
-        date = msg_in.content.split('/')
-        self.day = int(date[0])
-        self.month = date[1]
-        try:
-            self.year = int(date[2])  
-
-        except:
-            self.year = 2020 
-
-        task.database.add_task(task)
-
+        await task.create()
+        return
         
     @task.command(
         pass_context=True,
@@ -167,8 +125,7 @@ class task_commands(
         return
 
         for task in tasks_list:
-            description = f"id: {task._id} | " + f"Fecha: {task.day}/{task.month}"
-            description += f"/{task.year}" if task.year else '' 
+            description = f"id: {task.id} | " + f"Fecha: {task.day}/{task.month}" + f"/{task.year}" if task.year else '' 
             description += f" | [Fuente]({task.url})" if task.url else ''
 
             embed.add_field(
@@ -188,7 +145,7 @@ class task_commands(
         Quieres mencionar a todo el mundo para enseñar la tarea de id=9 y decirles hola? ```.task get 9 @everyone Hola```''',
         brief='''Muestra la informacion relativa a un trabajo''',
         description='''Permite ver trabajos y examenes pendientes, asi como su fecha de entrega y una pequeña
-            descripcion de lo que hay que hacer, si hay algo que consideres que haya que cambiar de esta base 
+            descripción de lo que hay que hacer, si hay algo que consideres que haya que cambiar de esta base 
             de datos, contacta con un moderador''',
         usage='.task get <task_id> [message]'
     )
