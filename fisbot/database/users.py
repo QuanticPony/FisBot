@@ -108,13 +108,13 @@ class UsersDB():
             return False
 
         if not last_time:
-            c.execute('INSERT INTO Messages VALUES (?,?)', 
+            c.execute('INSERT INTO Messages (id,last_message) VALUES (?,?)', 
                 (user_id, now_time))
             return True
         else:
             c.execute('UPDATE Messages SET last_message = ? WHERE id = ?', 
                 (now_time, user_id))
-            if now_time - last_time >= 5:
+            if now_time - last_time >= 30:
                 return True
             else:
                 return False

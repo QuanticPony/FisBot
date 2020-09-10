@@ -12,7 +12,8 @@ async def custom_help_implementation_all(bot, ctx):
     for cog in bot.cogs.values():
         commands_desc = ''
         for x in cog.get_commands():
-            commands_desc += ('{0: <15} {1}'.format(x.name,x.brief) + '\n')
+            if not x.hidden:
+                commands_desc += ('{0: <15} {1}'.format(x.name,x.brief) + '\n')
 
         if commands_desc:
             halp.add_field(
@@ -32,7 +33,7 @@ async def custom_help_implementation_general(bot, ctx):
     for cog in bot.cogs.values():
         commands_desc = ''
         for x in cog.get_commands():
-            if await x.can_run(ctx):
+            if await x.can_run(ctx) and not x.hidden:
                 commands_desc += ('{0: <15} {1}'.format(x.name,x.brief) + '\n')
 
         if commands_desc:
@@ -49,7 +50,7 @@ async def custom_help_implementation_command(bot, ctx, nombre):
     if cog:
         commands_desc = ''
         for x in cog.get_commands():
-            if await x.can_run(ctx):
+            if await x.can_run(ctx) and not x.hidden:
                 commands_desc += ('{0: <15} {1}'.format(x.name,x.brief) + '\n')
 
         if not commands_desc:
