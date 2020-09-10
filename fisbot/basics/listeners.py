@@ -2,6 +2,7 @@ import discord
 from random import randint
 from discord.ext import commands
 from ..database.users import UsersDB
+from ..classes.rol_class import FisRol
 from ..classes.user_class import FisUser 
 
 class listeners(
@@ -45,9 +46,9 @@ class listeners(
 
         if message.author.bot or not message.guild:
             return
-        bd = UsersDB()
-        if bd.last_message_cooldown(message.author.id):
-            user = bd.get_user(message.author.id)
+        db = UsersDB()
+        if db.last_message_cooldown(message.author.id):
+            user = db.get_user(message.author.id)
             level = user.addxp()
             if level:
                 new_level_frases = {
@@ -57,7 +58,14 @@ class listeners(
                     3: f"Ya falta poco! Dentro de tan solo {1000-level} te damos rango admin {message.author.mention}!"
                 }
                 await message.guild.system_channel.send(new_level_frases[randint(0,len(new_level_frases) - 1)])
-            bd.update_user(user)
+
+                rol = FisRol().check_new_rol_needed(user)
+                if rol:
+                    await rol.give_to(user, guild=message.guild)
+                    rol = rol.prev_role_of_level(user.level)
+                    if rol:
+                        await rol.remove_from(user, guild=message.guild)
+            db.update_user(user)
         return
 
     @commands.Cog.listener()
@@ -66,14 +74,14 @@ class listeners(
 
         from ..database.users import UsersDB
         from ..classes.user_class import FisUser
-        bd = UsersDB()
+        db = UsersDB()
 
         if member.nick:
             user = FisUser(member.id, member.nick)
         else:
             user = FisUser(member.id, member.name)
 
-        bd.add_user(user)
+        db.add_user(user)
 
         
         if not member.dm_channel:

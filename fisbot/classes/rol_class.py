@@ -70,31 +70,45 @@ class FisRol(Display):
         '''Devuelve el ultimo rol `FisRol` que consiguio el usuario. Devuelve `None` si no ha conseguido nunca un rol'''
 
 
-        for i in reversed(range(1, level - 1)):
-            rol = self.database.get_rol()
+        for i in reversed(range(1, level)):
+            rol = self.database.get_rol(i)
             if rol: 
-                return rol
+                if self._ctx:
+                    return rol.init_display(self._ctx)
+                else:
+                    return rol
         else:
             return None
 
-    @check_if_context()
-    async def give_to(self, user: FisUser) -> bool:
-        '''Da al usuario especificado este rol'''
+    async def give_to(self, user: FisUser, *, guild=None) -> bool:
+        '''Da al usuario especificado este rol. Se puede especificar el servidor con la palabra clave `guild`'''
 
-        disc_user = self._ctx.guild.get_member(user.id)
-        disc_rol = self._ctx.guild.get_role(self.id)
+        if not guild:
+            try:
+                guild = self._ctx.guild
+            except:
+                return False
+
+        disc_user = guild.get_member(user.id)
+        disc_rol = guild.get_role(self.id)
         if disc_user and disc_rol:
             await disc_user.add_roles(disc_rol)
             return True
         else:
             return False
 
-    @check_if_context()
-    async def remove_from(self, user: FisUser) -> bool:
-        '''Elimina del usuario `user` el rol. Devuelve `true`si lo consigue y `false` si no'''
+    async def remove_from(self, user: FisUser, *, guild=None) -> bool:
+        '''Elimina del usuario `user` el rol. Devuelve `true`si lo consigue y `false` si no.
+        Se puede especificar el servidor con la palabra clave `guild`'''
+
+        if not guild:
+            try:
+                guild = self._ctx.guild
+            except:
+                return False
         
-        disc_user = self._ctx.guild.get_member(user.id)
-        disc_rol = self._ctx.guild.get_role(self.id)
+        disc_user = guild.get_member(user.id)
+        disc_rol = guild.get_role(self.id)
         if disc_user and disc_rol:
             await disc_user.remove_roles(disc_rol)
             return True
@@ -125,7 +139,7 @@ class FisRol(Display):
 
         role = await self._ctx.guild.create_role(
             hoist=False, mentionable=True, name=role_name, 
-            permissions=discord.Permissions.general(),
+            permissions=discord.Permissions.none(),
             colour=discord.Color.from_rgb(randint(0,255),randint(0,255),randint(0,255))
             )
         return role
