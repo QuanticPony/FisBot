@@ -1,4 +1,5 @@
 import random
+import math
 import discord
 from .display_class import Display
 
@@ -41,7 +42,7 @@ class FisUser(Display):
         return await modify(self, ctx, user=True)
 
     def xp_to_lvl_up(self) -> int:
-        return self.BASE_XP + self.level * self.XP_MULTIPLAYER 
+        return self.BASE_XP + math.sqrt(self.level) * self.XP_MULTIPLAYER 
     
     def addxp(self) -> int:
         '''Sube la experiencia del usuario. Devuelve el nivel si se sube de nivel'''
