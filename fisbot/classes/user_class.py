@@ -5,10 +5,7 @@ from .display_class import Display
 
 class FisUser(Display):
 
-    BASE_XP = 300
-    XP_MULTIPLAYER = 10
     XP_ADD_BASE = 10
-    XP_MAX_MULT = 5
 
     def __init__(self, user_id=0, name='', karma=0, level=0, xp=0):
         self.id = int(user_id)
@@ -39,18 +36,20 @@ class FisUser(Display):
 
 
     async def modify(self, ctx) -> bool:
+
         return await modify(self, ctx, user=True)
 
+
     def xp_to_lvl_up(self) -> int:
-        return self.BASE_XP + math.sqrt(self.level) * self.XP_MULTIPLAYER 
+        '''Devuelve la cantidad de experiencia necesaria para subir al siguiente nivel'''
+
+        return ((self.level ** 2) + self.level + 2) * 50 - self.level * 100
+
     
     def addxp(self) -> int:
         '''Sube la experiencia del usuario. Devuelve el nivel si se sube de nivel'''
         
-        if self.level != 0:
-            amount = self.XP_ADD_BASE + random.randint(1, self.level)
-        else:
-            amount = self.XP_ADD_BASE
+        amount = random.randint(0, self.XP_ADD_BASE) * random.randint(0, self.level)
 
         newxp = self.xp + amount
         xp_required = self.xp_to_lvl_up()
