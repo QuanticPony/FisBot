@@ -1,11 +1,17 @@
 import random
 import math
 import discord
-from .display_class import Display
+from .display_class import *
 
 class FisUser(Display):
 
     XP_ADD_BASE = 10
+
+    _title_for_mod = 'Modificar **{0.subject}**: *{0.title}*'
+
+    _descr_for_mod ='''Abajo tienes la lista de todos los campos modificables. 
+        Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
+        *Cuando hayas acabado* presiona el boton de guardar'''
 
     def __init__(self, user_id=0, name='', karma=0, level=0, xp=0):
         self.id = int(user_id)
@@ -13,6 +19,7 @@ class FisUser(Display):
         self.karma = int(karma)
         self.level = int(level)
         self.xp = int(xp)
+
         from ..database.users import UsersDB
         self.database = UsersDB()
 
@@ -60,3 +67,46 @@ class FisUser(Display):
         else:
             self.xp = newxp
             return None
+
+
+    @check_if_context()
+    async def discord_obj(self) -> discord.Member:
+        '''Devuelve el objeto de discord asociado: `discord.Member` si lo encuentra en el 
+        servidor del contexto. Si no lo encuentra devuelve `None`'''
+
+        try:
+            self._disc_obj = self._ctx.guild.get_member(self.id)
+        except:
+            self._disc_obj = None
+        return self._disc_obj
+
+    @check_if_context()
+    async def update_discord_obj(self):
+        '''Modifica el nombre del usuario en discord y devuelve `True`. Si hay algún problema devuelve `False`'''
+        
+        try:
+            await self._disc_obj.edit(nick=self.name)
+            return True
+        except:
+            return False
+
+    async def save_in_database(self) -> bool:
+        '''Guarda al usuario en la base de datos. Devuelve `True` si lo ha conseguido y `False` si no '''
+        
+        return self.database.update_user(self)
+
+    async def remove_from_database(self):
+        '''Elimina al usuario en la base de datos. Devuelve `True` si lo ha conseguido y `False` si no '''
+
+        return self.database.del_user(self)
+
+    def prepare_atributes_dic(self):
+        '''Prepara los diccionarios internos para trabajar con ellos'''
+
+        self._atributes_dic = self.__dict__.copy()
+
+        for key in ['id', 'database']:
+            try:
+                self._atributes_dic.pop(key)
+            except KeyError:
+                continue
