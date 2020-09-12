@@ -43,8 +43,8 @@ class custom_roles(
         name='role',
         aliases=['roles', 'rol'],
         help='''¿Quieres ver los roles disponibles por subida de nivel? ```.roles```
-        ¿Quieres recibir notificaciones sobre Termodinamica? ```.role subscribe <@&753362848851165185>``````
-        ¿Quieres dejar de recibir notificaciones sobre Termodinamica? ```.role unsubscribe <@&753362848851165185>``````
+        ¿Quieres recibir notificaciones sobre Termodinamica? ```.role subscribe <@&753362848851165185>```
+        ¿Quieres dejar de recibir notificaciones sobre Termodinamica? ```.role unsubscribe <@&753362848851165185>```
         ¿Quieres informacion sobre el rol @Termodinamica? ```.role info <@&753362848851165185>```
         ''',
         brief='''Prefijo para acceder a comandos de roles''',
