@@ -106,29 +106,28 @@ class FisUser(Display):
                 self._atributes_dic.pop(key)
             except KeyError:
                 continue
-    
+
     def embed_show(self) -> discord.Embed:
         '''Devuelve un mensaje tipo `discord.Embed` que muestra la info del usuario'''
 
-        task_embed = discord.Embed(
-            title="información del usuario:"+self.name +'\n',
+        embed= discord.Embed(
+            title='información del usuario:' + self.name +'\n',
      
             color=discord.Color.green()
         )
-        task_embed.add_field(
-            name='karma:',
-            value='Tiene '+self.karma+' Kp',
-            inline=False
+        embed.add_field(
+            name='Nivel:',
+            value=self.level,
+            inline=True
         )
-        task_embed.add_field(
-            name='Nivel',
-            value='Es nivel '+self.level,
-            inline=False
+        embed.add_field(
+            name='Experiencia:',
+            value=f"{self.xp}/{self.xp_to_lvl_up}",
+            inline=True
         )
-        task_embed.add_field(
-            name='XP',
-            value='Tiene '+self.xp+' xp',
-            inline=False
+        embed.add_field(
+            name='Karma:',
+            value=self.karma,
+            inline=True
         )
-        
-        return task_embed
+        return embed
