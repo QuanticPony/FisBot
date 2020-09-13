@@ -21,7 +21,7 @@ class FisUser(Display):
         self.xp = int(xp)
 
         from ..database.users import UsersDB
-        self.database = UsersDB()
+        self.database = UsersDB
 
     @classmethod
     def init_with_member(cls, member: discord.Member):
@@ -41,10 +41,6 @@ class FisUser(Display):
     Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
     *Cuando hayas acabado* presiona el boton de guardar'''
 
-
-    async def modify(self, ctx) -> bool:
-
-        return await modify(self, ctx, user=True)
 
 
     def xp_to_lvl_up(self) -> int:

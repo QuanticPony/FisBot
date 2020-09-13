@@ -3,9 +3,9 @@ import asyncio
 import fisbot
 from fisbot import FisBot, FisUser, UsersDB
 
-bot = FisBot(command_prefix='.')
+BOT_PATH = '' #'/home/pi/Bots/Fisbot/FisBot/'
 
-BOT_PATH = '/home/pi/Bots/Fisbot/FisBot/'
+bot = FisBot(command_prefix='-', path=BOT_PATH)
 
-with open(BOT_PATH + "token.txt", "r") as token_file:
+with open("token.txt", "r") as token_file:
     bot.run(str(token_file.read()))

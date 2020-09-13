@@ -29,7 +29,7 @@ class FisRol(Display):
         self.privileges = privileges
 
         from ..database.roles import RolesDB
-        self.database = RolesDB()
+        self.database = RolesDB
 
         if context:
             self.init_display(context)

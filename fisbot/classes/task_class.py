@@ -30,7 +30,7 @@ class FisTask(Display):
         self.url = url
 
         from ..database.tasks import ProyectsDB
-        self.database = ProyectsDB()
+        self.database = ProyectsDB
 
         if context:
             self.init_display(context)
@@ -56,9 +56,9 @@ class FisTask(Display):
             inline=True
         )
         task_embed.add_field(
-                name='Id:',
-                value=f'**{self.id}**',
-                inline=True
+            name='Id:',
+            value=f'**{self.id}**',
+            inline=True
         )
         task_embed.add_field(
             name='**Descripcion:**',
