@@ -143,6 +143,8 @@ class users_cog(
 
                 if not user:
                     UsersDB.add_user(user)
+
+        user.karma+=1
                 
     @_karma.group(
         pass_context=True,
@@ -154,4 +156,22 @@ class users_cog(
         description='''''',
         usage=''
     )
-    async def _down(self, ctx):...
+    async def _down(self, ctx):
+        if not ctx.message.mentions:
+
+            user = UsersDB.get_user(ctx.author.id)
+
+            if not user:
+                UsersDB.add_user(user)
+
+            
+
+        else:
+            for user in ctx.message.mentions:
+
+                user = UsersDB.get_user(user.id)
+
+                if not user:
+                    UsersDB.add_user(user)
+
+        user.karma-=1
