@@ -11,36 +11,6 @@ class users_cog(
 
     def __init__(self, bot):
         self.bot = bot
-    
-    def show(self, ctx, *, user_id=None, user=None) -> discord.Embed:
-        '''Crea un objeto `discord.Embed` que muestra la informacion relativa al usuario requerido'''
-
-        if ctx.guild and user_id:
-            dis_user = ctx.guild.get_member(int(user_id))
-        if user:
-            dis_user = user
-        
-        fis_user = FisUser().database.get_user(dis_user.id)
-        fis_user.name = dis_user.nick
-        fis_user.database.update_user(fis_user)
-        embed = discord.Embed(
-            title = fis_user.name,
-            description = f'Nombre en discord: {dis_user.name}',
-            color = discord.Color.from_rgb(0,179,255)
-        )
-        embed.add_field(
-            name='Nivel',
-            value=fis_user.level,
-            inline=True
-            )
-        embed.add_field(
-            name='Experiencia',
-            value=f"{fis_user.xp}/{fis_user.xp_to_lvl_up()}",
-            inline=True
-        )
-        embed.set_thumbnail(url=str(dis_user.avatar_url_as(size=128)))
-        embed.set_footer(text='Si cree que el nivel no se corresponde con lo que se merece, participe mas')
-        return embed
 
     @commands.command(
         pass_context=True, 
@@ -53,6 +23,7 @@ class users_cog(
         usage='.level [member|s]'
     )
     async def level(self, ctx):
+
         embeds_list = []
         if not ctx.message.mentions:
 
@@ -87,6 +58,7 @@ class users_cog(
 
     )
     async def _users(self, ctx):
+
          if not ctx.invoked_subcommand:
             await self.level(ctx)
 
@@ -132,74 +104,64 @@ class users_cog(
     @commands.group(
         pass_context=True,
         name='',
-        aliases=['c'],
+        aliases=['k'],
         help='''¿? ```.```
         ¿? ```.```''',
-        brief='''permite ver el karma de un usuario''',
+        brief='''karma de un usuario''',
         description='''''',
         usage=''
     )
     async def _karma(self, ctx):
+
         if not ctx.invoked_subcommand:
             await self.level(ctx)
         
-  
     @_karma.group(
         pass_context=True,
         name='',
-        aliases=['b'],
+        aliases=['u'],
         help='''¿? ```.```
         ¿? ```.```''',
-        brief='''''',
+        brief='''Dar karma a alguien''',
         description='''''',
         usage=''
     )
-    async def up(self, ctx):
-        if not ctx.message.mentions:
+    async def _up(self, ctx):
 
-            user = UsersDB.get_user(ctx.author.id)
-
-            if not user:
-                UsersDB.add_user(user)
-
-            
-
-        else:
+        if  ctx.message.mentions:
             for user in ctx.message.mentions:
 
                 user = UsersDB.get_user(user.id)
 
                 if not user:
                     UsersDB.add_user(user)
-
-        user.karma+=1
+                
+                if user.id != ctx.author.id:
+                    user.karma += 1
+                    UsersDB.update_user(user)
+        await ctx.message.delete()
                 
     @_karma.group(
         pass_context=True,
-        name='',
-        aliases=['a'],
-        help='''¿? ```.```
+        name='down',
+        aliases=['d'],
+        help='''¿Quieres quitar karma a @Marcos porque es malo? ```.karma down @Marcos```
         ¿? ```.```''',
-        brief='''''',
+        brief='''Quitar karma a alguien''',
         description='''''',
-        usage=''
+        usage='.karma down <user/s_mention/s>'
     )
     async def _down(self, ctx):
-        if not ctx.message.mentions:
-
-            user = UsersDB.get_user(ctx.author.id)
-
-            if not user:
-                UsersDB.add_user(user)
-
-            
-
-        else:
+        
+        if  ctx.message.mentions:
             for user in ctx.message.mentions:
 
                 user = UsersDB.get_user(user.id)
 
                 if not user:
                     UsersDB.add_user(user)
-
-        user.karma-=1
+                
+                if user.id != ctx.author.id:
+                    user.karma -= 1
+                    UsersDB.update_user(user)
+        await ctx.message.delete()
