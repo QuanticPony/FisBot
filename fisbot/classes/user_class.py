@@ -32,7 +32,7 @@ class FisUser(Display):
 
     @classmethod
     async def init_with_member(cls, member: discord.Member, *, context=None):
-        '''Devuelve un usuario `FisUser` a partir de un miembro'''
+        '''ASYNC Devuelve un usuario `FisUser` a partir de un miembro'''
 
         user = cls().database.get_user(member.id)
         if not context:
@@ -61,7 +61,7 @@ class FisUser(Display):
         return ((self.level ** 2) + self.level + 2) * 50 - self.level * 100
 
     async def level_up(self, guild):
-        '''Te sube de nivel'''
+        '''ASYNC Te sube de nivel'''
 
         mention = lambda: f"<@{self.id}>"
         new_level_frases = {
@@ -81,7 +81,7 @@ class FisUser(Display):
                 await rol.remove_from(self, guild=guild)
 
     async def addxp(self, guild, amount=None) :
-        '''Sube la experiencia del usuario. Si el usuario necesita subir de nivel, lo hace'''
+        '''ASYNC Sube la experiencia del usuario. Si el usuario necesita subir de nivel, lo hace'''
         
         if not amount:
             amount = random.randint(1, self.XP_ADD_BASE) * (random.randint(1, self.level+1) if self.level > 0 else 1)
@@ -99,7 +99,7 @@ class FisUser(Display):
 
     @check_if_context()
     async def discord_obj(self) -> discord.Member:
-        '''Devuelve el objeto de discord asociado: `discord.Member` si lo encuentra en el 
+        '''ASYNC Devuelve el objeto de discord asociado: `discord.Member` si lo encuentra en el 
         servidor del contexto. Si no lo encuentra devuelve `None`'''
 
         try:
@@ -110,21 +110,23 @@ class FisUser(Display):
 
     @check_if_context()
     async def update_discord_obj(self):
-        '''Modifica el nombre del usuario en discord y devuelve `True`. Si hay algún problema devuelve `False`'''
+        '''ASYNC Modifica el nombre del usuario en discord y devuelve `True`. Si hay algún problema devuelve `False`'''
         
         try:
+            if isinstance(self._disc_obj, (discord.User, discord.Member)):
+                return
             await self._disc_obj.edit(nick=self.name)
             return True
         except:
             return False
 
     async def save_in_database(self) -> bool:
-        '''Guarda al usuario en la base de datos. Devuelve `True` si lo ha conseguido y `False` si no '''
+        '''ASYNC Guarda al usuario en la base de datos. Devuelve `True` si lo ha conseguido y `False` si no '''
         
         return self.database.update_user(self)
 
     async def remove_from_database(self):
-        '''Elimina al usuario en la base de datos. Devuelve `True` si lo ha conseguido y `False` si no '''
+        '''ASYNC Elimina al usuario en la base de datos. Devuelve `True` si lo ha conseguido y `False` si no '''
 
         return self.database.del_user(self)
 
@@ -133,14 +135,14 @@ class FisUser(Display):
 
         self._atributes_dic = self.__dict__.copy()
 
-        for key in ['id', 'database', 'XP_ADD_BASE', 'last_message', 'last_join']:
+        for key in ['id', 'name', 'database', 'last_message', 'last_join']:
             try:
                 self._atributes_dic.pop(key)
             except KeyError:
                 continue
 
     async def embed_show(self) -> discord.Embed:
-        '''Devuelve un mensaje tipo `discord.Embed` que muestra la info del usuario'''
+        '''ASYNC Devuelve un mensaje tipo `discord.Embed` que muestra la info del usuario'''
 
         await self.discord_obj()
 

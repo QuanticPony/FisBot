@@ -196,7 +196,7 @@ class Display():
     def embed(self) -> discord.Embed:
         '''Devuelve el mensaje tipo `discord.Embed`. Si no esta creado lo crea, y si lo esta lo actualiza'''
 
-        if not self._embed:
+        if not isinstance(self._embed, discord.Embed):
             self._embed = self._create_embed()
         else: 
             self._re_embed()

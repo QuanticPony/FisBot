@@ -97,3 +97,42 @@ class listeners(
         hello_message = self.bot.create_embed_hello(self, member)
         await member.dm_channel.send(embed=hello_message)
         await member.guild.system_channel.send('Bienvenido al servidor {0.guild.name}, {0.mention}'.format(member))
+
+
+    async def _karma(self, mult, reaction, user):
+        '''Aplica lo correspondiente para aumentar o disminuir el karma'''
+
+        fis_user = await FisUser.init_with_member(reaction.message.author)
+
+        if not fis_user:
+            fis_user = FisUser(reaction.message.author.id)
+            fis_user.database.add_user(fis_user)
+        
+        if reaction.emoji == '⬆️':
+            fis_user.karma += 1 * mult
+        elif reaction.emoji == '⬇️':
+            fis_user.karma -= 1 * mult
+        
+        fis_user.database.update_user(fis_user)
+
+
+    def check_if_different(self, reaction, user):
+        '''Comprueba que son usuarios diferentes. Para no poder ponerte karma a ti mismo'''
+
+        return reaction.message.author.id != user.id
+
+
+    @commands.Cog.listener()
+    async def on_reaction_add(self, reaction, user):
+        '''Si es un ⬆️ aumenta el karma del usuario. Si es un ⬇️ lo baja'''
+
+        if self.check_if_different(reaction, user):
+            await self._karma(1, reaction, user)
+
+
+    @commands.Cog.listener()
+    async def on_reaction_remove(self, reaction, user):
+        '''Si es un ⬆️ disminuye el karma del usuario. Si es un ⬇️ lo aumenta'''
+
+        if self.check_if_different(reaction, user):
+            await self._karma(-1, reaction, user)

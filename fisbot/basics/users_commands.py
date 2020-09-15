@@ -12,9 +12,10 @@ class users_cog(
     def __init__(self, bot):
         self.bot = bot
 
+
     @commands.command(
         pass_context=True, 
-        aliases=['nivel','lvl','karma'],
+        aliases=['nivel','lvl'],
         help='''¿Quiere ver tu nivel? ```.level```
         ¿Quieres ver el nivel de <@730713148977578024>? ```.level @FisBot```''',
         brief='''Muestra nivel y experiencia''',
@@ -47,7 +48,8 @@ class users_cog(
             await ctx.message.delete()
 
         for embed in embeds_list:
-            await ctx.send(f"{ctx.author.mention}", embed=embed)
+            await ctx.send(embed=embed)
+
 
     @commands.group(
         pass_context=True,
@@ -55,21 +57,27 @@ class users_cog(
         name='user',
         aliases=['usuario'],
         brief='Permite modificar la base de datos de los usuarios',
-
+        description='''Permite acceder a los comandos de modificacion y eliminacion de usuarios en la base de datos.
+        Los subcomandos disponibles son:
+        ```
+        modify: <ADMIN> Modifica un usuario
+        delete: <ADMIN> Elimina un usuario
+        ```''',
+        usage='.user <subcommand> <user_mention>',
+        checks=[context_is_admin]
     )
-    async def _users(self, ctx):
+    async def _user(self, ctx):
+        pass
 
-         if not ctx.invoked_subcommand:
-            await self.level(ctx)
 
-    @_users.command(
+    @_user.command(
         pass_context=True,
         name='modify',
         aliases=['mod'],
-        help='''''',
-        description='''''',
+        help='''¿Quieres modificar los atributos de @Jose?```.user modify @Jose```''',
+        description='''Permite modificar nivel, experiencia, karma, y nombre de un usuario. Evidentemente si eres administrador''',
         brief='''Modifica un usuario en la base de datos''',
-        usage='.user modify',
+        usage='.user modify <user_mention>',
         checks=[context_is_admin]
     )
     async def _modify(self, ctx):
@@ -81,11 +89,12 @@ class users_cog(
         user = await FisUser.init_with_member(disc_user, context=ctx)
         await user.modify()
 
-    @_users.command(
+
+    @_user.command(
         pass_context=True,
         name='delete',
         aliases=['del'],
-        help='''''',
+        help='''¿Quiers borrar a @Pablo porque se ha ido del servidor? ```.user delete @Pablo```''',
         description='''**No usar este comando sin permiso previo** \nElimina al usuario mencionado de la base de datos''',
         brief='''Elimina un usuario de la base de datos''',
         usage='.user delete <user_mention>',
@@ -101,67 +110,19 @@ class users_cog(
         await ctx.message.delete()
         await user.delete()
 
+
     @commands.group(
         pass_context=True,
-        name='',
+        name='karma',
         aliases=['k'],
-        help='''¿? ```.```
-        ¿? ```.```''',
+        help='''¿Quieres ver tu karma? ```.karma```
+        ¿Quieres ver el karma de @Victor? ```.karma @Victor```''',
         brief='''karma de un usuario''',
-        description='''''',
-        usage=''
+        description='''Te muestra la informacion del usuario, igual que el comando ```.level```''',
+        usage='.karma [user/s_mention/s]'
     )
     async def _karma(self, ctx):
 
+        await ctx.send('**Uso:** Para dar karma a alguien solo tienes que reaccionar con ⬆️ en un mensaje suyo. Para quitar ⬇️')
         if not ctx.invoked_subcommand:
             await self.level(ctx)
-        
-    @_karma.group(
-        pass_context=True,
-        name='',
-        aliases=['u'],
-        help='''¿? ```.```
-        ¿? ```.```''',
-        brief='''Dar karma a alguien''',
-        description='''''',
-        usage=''
-    )
-    async def _up(self, ctx):
-
-        if  ctx.message.mentions:
-            for user in ctx.message.mentions:
-
-                user = UsersDB.get_user(user.id)
-
-                if not user:
-                    UsersDB.add_user(user)
-                
-                if user.id != ctx.author.id:
-                    user.karma += 1
-                    UsersDB.update_user(user)
-        await ctx.message.delete()
-                
-    @_karma.group(
-        pass_context=True,
-        name='down',
-        aliases=['d'],
-        help='''¿Quieres quitar karma a @Marcos porque es malo? ```.karma down @Marcos```
-        ¿? ```.```''',
-        brief='''Quitar karma a alguien''',
-        description='''''',
-        usage='.karma down <user/s_mention/s>'
-    )
-    async def _down(self, ctx):
-        
-        if  ctx.message.mentions:
-            for user in ctx.message.mentions:
-
-                user = UsersDB.get_user(user.id)
-
-                if not user:
-                    UsersDB.add_user(user)
-                
-                if user.id != ctx.author.id:
-                    user.karma -= 1
-                    UsersDB.update_user(user)
-        await ctx.message.delete()
