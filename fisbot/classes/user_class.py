@@ -31,15 +31,14 @@ class FisUser(Display):
         self.database = UsersDB
 
     @classmethod
-    def init_with_member(cls, member: discord.Member, *, context=None):
+    async def init_with_member(cls, member: discord.Member, *, context=None):
         '''Devuelve un usuario `FisUser` a partir de un miembro'''
 
         user = cls().database.get_user(member.id)
         if not context:
             return user
         else:
-            user.init_display(context)
-            user._disc_obj = member
+            await user.init_display(context)
             return user
 
     def _mod_title(self) -> str:

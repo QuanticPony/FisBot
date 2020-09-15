@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from ..classes.bot_class import context_is_admin
 from ..classes.user_class import FisUser
 from ..database.users import UsersDB
 
@@ -72,6 +73,8 @@ class users_cog(
                 await user.init_display(ctx)
                 embeds_list.append(await user.embed_show())
 
+            await ctx.message.delete()
+
         for embed in embeds_list:
             await ctx.send(f"{ctx.author.mention}", embed=embed)
 
@@ -93,16 +96,43 @@ class users_cog(
         aliases=['mod'],
         help='''''',
         description='''''',
-        brief='''''',
-        usage='.user modify'
+        brief='''Modifica un usuario en la base de datos''',
+        usage='.user modify',
+        checks=[context_is_admin]
     )
-    async def _modify(self, ctx):...
+    async def _modify(self, ctx):
 
+        disc_user = ctx.message.mentions
+        if disc_user:
+            disc_user = disc_user[0]
+        
+        user = await FisUser.init_with_member(disc_user, context=ctx)
+        await user.modify()
+
+    @_users.command(
+        pass_context=True,
+        name='delete',
+        aliases=['del'],
+        help='''''',
+        description='''**No usar este comando sin permiso previo** \nElimina al usuario mencionado de la base de datos''',
+        brief='''Elimina un usuario de la base de datos''',
+        usage='.user delete <user_mention>',
+        checks=[context_is_admin]
+    )
+    async def _delete(self, ctx):
+
+        disc_user = ctx.message.mentions
+        if disc_user:
+            disc_user = disc_user[0]
+        
+        user = await FisUser.init_with_member(disc_user, context=ctx)
+        await ctx.message.delete()
+        await user.delete()
 
     @commands.group(
         pass_context=True,
         name='',
-        aliases=[''],
+        aliases=['c'],
         help='''¿? ```.```
         ¿? ```.```''',
         brief='''''',
@@ -114,7 +144,7 @@ class users_cog(
     @_karma.group(
         pass_context=True,
         name='',
-        aliases=[''],
+        aliases=['b'],
         help='''¿? ```.```
         ¿? ```.```''',
         brief='''''',
@@ -126,7 +156,7 @@ class users_cog(
     @_karma.group(
         pass_context=True,
         name='',
-        aliases=[''],
+        aliases=['a'],
         help='''¿? ```.```
         ¿? ```.```''',
         brief='''''',
