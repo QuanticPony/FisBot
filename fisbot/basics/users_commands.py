@@ -97,6 +97,8 @@ class users_cog(
         usage='.user modify'
     )
     async def _modify(self, ctx):...
+        
+
 
 
     @commands.group(
@@ -105,12 +107,15 @@ class users_cog(
         aliases=[''],
         help='''¿? ```.```
         ¿? ```.```''',
-        brief='''''',
+        brief='''permite ver el karma de un usuario''',
         description='''''',
         usage=''
     )
-    async def _karma(self, ctx):...
-
+    async def _karma(self, ctx):
+        if not ctx.invoked_subcommand:
+            await self.level(ctx)
+        
+  
     @_karma.group(
         pass_context=True,
         name='',
@@ -121,8 +126,24 @@ class users_cog(
         description='''''',
         usage=''
     )
-    async def up(self, ctx):...
+    async def up(self, ctx):
+        if not ctx.message.mentions:
 
+            user = UsersDB.get_user(ctx.author.id)
+
+            if not user:
+                UsersDB.add_user(user)
+
+            
+
+        else:
+            for user in ctx.message.mentions:
+
+                user = UsersDB.get_user(user.id)
+
+                if not user:
+                    UsersDB.add_user(user)
+                
     @_karma.group(
         pass_context=True,
         name='',
