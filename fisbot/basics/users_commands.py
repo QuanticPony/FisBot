@@ -117,7 +117,7 @@ class users_cog(
         aliases=['k'],
         help='''¿Quieres ver tu karma? ```.karma```
         ¿Quieres ver el karma de @Victor? ```.karma @Victor```''',
-        brief='''karma de un usuario''',
+        brief='''Karma de un usuario''',
         description='''Te muestra la informacion del usuario, igual que el comando ```.level```''',
         usage='.karma [user/s_mention/s]'
     )

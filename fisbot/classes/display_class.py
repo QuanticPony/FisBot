@@ -270,9 +270,11 @@ class Display():
             '''Esta funcion se encarga de preguntar una y otra vez si se quiere cambiar algun campo y cual'''
 
             await self.resend(message)
+            check_reaction = lambda reaction, user: not user.bot and reaction.message.channel.recipient.id == user.id
+            check_user = lambda message: not message.author.bot
 
             try:
-                reaction, user = await self._ctx.bot.wait_for('reaction_add', timeout=30.0, check=lambda reaction, user: not user.bot)
+                reaction, user = await self._ctx.bot.wait_for('reaction_add', timeout=30.0, check=check_reaction)
                 if str(reaction.emoji) == '💾':
                     await self.save_in_database()
                     await self.update_discord_obj()
@@ -291,7 +293,7 @@ class Display():
             ask_message = await self.dm_send(text=f"Introduce un nuevo {self._things_list[reaction.emoji]}:", only_text=True)
 
             try:
-                response_msg = await self._ctx.bot.wait_for('message', timeout=150.0)
+                response_msg = await self._ctx.bot.wait_for('message', timeout=150.0, check=check_user)
             except asyncio.TimeoutError:
                 return await self._time_out()
             
