@@ -103,13 +103,17 @@ class users_cog(
 
     @commands.group(
         pass_context=True,
-        name='',
+        name='karma',
         aliases=['k'],
-        help='''¿? ```.```
-        ¿? ```.```''',
+        help='''¿quieres ver tus stats? ```.karma```
+        ¿quieres ver las de tu amigo @fulanito? ```.karma @fulanito```''',
         brief='''karma de un usuario''',
-        description='''''',
-        usage=''
+        description='''.karma devuelve la info del usuario en mensaje embed (igual que .level y .users)
+        tiene 2 subcomandos:
+        .karma up <@fulanito>:          da un upvote a fulanito 
+        .karma down <@fulanito>:        quita un karma poin a fulanito 
+        ''',
+        usage='.karma'
     )
     async def _karma(self, ctx):
 
@@ -118,13 +122,13 @@ class users_cog(
         
     @_karma.group(
         pass_context=True,
-        name='',
+        name='up',
         aliases=['u'],
-        help='''¿? ```.```
-        ¿? ```.```''',
+        help='''¿te gusta tanto el mensaje de @fulanito que le quieres regalar un :arrow_up: ? ```.karma up @fulanito```
+        ¿has visto una discusión entre dos o más personas que quieres felicitarlos a todos? ```.karma up @fulanito @menganito [...]```''',
         brief='''Dar karma a alguien''',
-        description='''''',
-        usage=''
+        description='''Le da un upvote a las personas citadas, no puede ser usado contigo mismo''',
+        usage='.karma up <user/s_mention/s>'
     )
     async def _up(self, ctx):
 
