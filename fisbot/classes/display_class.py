@@ -83,10 +83,11 @@ class Display():
         if context:
             self._channel = context.author.dm_channel 
 
-    def init_display(self, ctx):
+    async def init_display(self, ctx):
         '''Inicia la clase `Display` con el contexto especificado'''
 
         Display.__init__(self, context=ctx)
+        await self.discord_obj()
 
     # No modificar estas funciones en esta clase 
 # Sobreescribir las funciones en clases que hereden de esta
@@ -182,9 +183,12 @@ class Display():
         self._embed.description = self._description
         self._embed.clear_fields()
         for atrib in self._things_list:
+            value = self.__dict__[self._things_list[atrib]]
+            if not value:
+                value='None'
             self._embed.add_field(
                 name=f"{atrib} - {self._things_list[atrib]}:",
-                value=self.__dict__[self._things_list[atrib]],
+                value=value,
                 inline=False
                 )
         return self._embed

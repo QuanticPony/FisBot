@@ -1,11 +1,14 @@
 import random
 import math
 import discord
+import time
+from random import randint
+from .rol_class import FisRol
 from .display_class import *
 
 class FisUser(Display):
 
-    XP_ADD_BASE = 10
+    XP_ADD_BASE = 6
 
     _title_for_mod = 'Modificar **{0.subject}**: *{0.title}*'
 
@@ -13,21 +16,31 @@ class FisUser(Display):
         Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
         *Cuando hayas acabado* presiona el boton de guardar'''
 
-    def __init__(self, user_id=0, name='', karma=0, level=0, xp=0):
+    def __init__(self, user_id=0, name='', karma=0, level=0, xp=0, last_message=0, last_join=None):
         self.id = int(user_id)
         self.name = name
         self.karma = int(karma)
         self.level = int(level)
         self.xp = int(xp)
+        self.last_message = int(last_message)
+        if not last_join:
+            last_join = time.time()
+        self.last_join = last_join
 
         from ..database.users import UsersDB
         self.database = UsersDB
 
     @classmethod
-    def init_with_member(cls, member: discord.Member):
+    def init_with_member(cls, member: discord.Member, *, context=None):
         '''Devuelve un usuario `FisUser` a partir de un miembro'''
 
-        return cls().database.get_user(member.id)
+        user = cls().database.get_user(member.id)
+        if not context:
+            return user
+        else:
+            user.init_display(context)
+            user._disc_obj = member
+            return user
 
     def _mod_title(self) -> str:
         '''Devuelve el titulo utilizado en la modificacion de esta clase'''
@@ -45,25 +58,45 @@ class FisUser(Display):
 
     def xp_to_lvl_up(self) -> int:
         '''Devuelve la cantidad de experiencia necesaria para subir al siguiente nivel'''
-
+        
         return ((self.level ** 2) + self.level + 2) * 50 - self.level * 100
 
-    
-    def addxp(self) -> int:
-        '''Sube la experiencia del usuario. Devuelve el nivel si se sube de nivel'''
+    async def level_up(self, guild):
+        '''Te sube de nivel'''
+
+        mention = lambda: f"<@{self.id}>"
+        new_level_frases = {
+                    0: f"Buena {mention()}!! Alguien ha subido al nivel {self.level}...",
+                    1: f"{mention()} ha ascendido al nivel {self.level}!! Esperemos que no se le suba a la cabeza...",
+                    2: f"Felicidades {mention()}!! Disfruta de tu nivel {self.level}!",
+                    3: f"Ya falta poco! Dentro de tan solo {1000-self.level} te damos rango admin {mention()}!",
+                    4: f"**Dato curioso**: Los koalas bebes lamen el ano de sus madres. Y {mention()} es tan solo nivel {self.level}"
+                }
+        await guild.system_channel.send(new_level_frases[randint(0,len(new_level_frases) - 1)])
+
+        rol = FisRol().check_new_rol_needed(self)
+        if rol:
+            await rol.give_to(self, guild=guild)
+            rol = rol.prev_role_of_level(self.level)
+            if rol:
+                await rol.remove_from(self, guild=guild)
+
+    async def addxp(self, guild, amount=None) :
+        '''Sube la experiencia del usuario. Si el usuario necesita subir de nivel, lo hace'''
         
-        amount = random.randint(0, self.XP_ADD_BASE) * random.randint(0, self.level)
+        if not amount:
+            amount = random.randint(1, self.XP_ADD_BASE) * (random.randint(1, self.level+1) if self.level > 0 else 1)
 
         newxp = self.xp + amount
         xp_required = self.xp_to_lvl_up()
         if newxp >= xp_required:
             self.xp = newxp - xp_required
             self.level += 1
-            return self.level
+            await self.level_up(guild)
+            self.database.update_user(self)
         else:
             self.xp = newxp
-            return None
-
+            self.database.update_user(self)
 
     @check_if_context()
     async def discord_obj(self) -> discord.Member:
@@ -101,18 +134,20 @@ class FisUser(Display):
 
         self._atributes_dic = self.__dict__.copy()
 
-        for key in ['id', 'database']:
+        for key in ['id', 'database', 'XP_ADD_BASE', 'last_message', 'last_join']:
             try:
                 self._atributes_dic.pop(key)
             except KeyError:
                 continue
 
-    def embed_show(self) -> discord.Embed:
+    async def embed_show(self) -> discord.Embed:
         '''Devuelve un mensaje tipo `discord.Embed` que muestra la info del usuario'''
 
+        await self.discord_obj()
+
         embed= discord.Embed(
-            title='información del usuario:' + self.name +'\n',
-     
+            title=self.name if self.name else self._disc_obj.name,
+            description='Nombre en discord: ' + self._disc_obj.name,
             color=discord.Color.green()
         )
         embed.add_field(
@@ -122,7 +157,7 @@ class FisUser(Display):
         )
         embed.add_field(
             name='Experiencia:',
-            value=f"{self.xp}/{self.xp_to_lvl_up}",
+            value=f"{self.xp}/{self.xp_to_lvl_up()}",
             inline=True
         )
         embed.add_field(
@@ -130,4 +165,5 @@ class FisUser(Display):
             value=self.karma,
             inline=True
         )
+        embed.set_thumbnail(url=str(self._disc_obj.avatar_url_as(size=128)))
         return embed

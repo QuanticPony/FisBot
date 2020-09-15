@@ -46,27 +46,34 @@ class listeners(
 
         if message.author.bot or not message.guild:
             return
-        db = UsersDB()
-        if db.last_message_cooldown(message.author.id):
-            user = db.get_user(message.author.id)
-            level = user.addxp()
-            if level:
-                new_level_frases = {
-                    0: f"Buena {message.author.mention}!! Alguien ha subido al nivel {level}...",
-                    1: f"{message.author.mention} ha ascendido al nivel {level}!! Esperemos que no se le suba a la cabeza...",
-                    2: f"Felicidades {message.author.mention}!! Disfruta de tu nivel {level}!",
-                    3: f"Ya falta poco! Dentro de tan solo {1000-level} te damos rango admin {message.author.mention}!"
-                }
-                await message.guild.system_channel.send(new_level_frases[randint(0,len(new_level_frases) - 1)])
+        db = UsersDB
+        confirm, user = db.last_message_cooldown(message.author.id)
+        if confirm:
+            if not user:
+                user = FisUser(
+                    user_id=message.author.id,
+                    name=message.author.name
+                    )
+                db.add_user(user)
+            await user.addxp(message.guild)
+    
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        '''Cuando se actualiza el estado de voz de un miembro. 
+        Sube la experiencia del usuario en funcion del tiempo en canal de voz'''
+        
+        if after.channel and not before.channel:
+            UsersDB.new_voice_join(member.id)
 
-                rol = FisRol().check_new_rol_needed(user)
-                if rol:
-                    await rol.give_to(user, guild=message.guild)
-                    rol = rol.prev_role_of_level(user.level)
-                    if rol:
-                        await rol.remove_from(user, guild=message.guild)
-            db.update_user(user)
-        return
+        if not after.channel and before.channel:
+            amount, user = UsersDB.last_voice_join(member.id)
+            if not user:
+                user = FisUser.init_with_member(member)
+            try:
+                await user.addxp(member.guild, amount=(amount % (60)))
+            except:
+                pass
+
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -90,5 +97,3 @@ class listeners(
         hello_message = self.bot.create_embed_hello(self, member)
         await member.dm_channel.send(embed=hello_message)
         await member.guild.system_channel.send('Bienvenido al servidor {0.guild.name}, {0.mention}'.format(member))
-
-    

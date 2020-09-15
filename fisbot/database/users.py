@@ -6,12 +6,16 @@ import time
 
 class UsersDB(database):
 
+    COOLDOWN = 15
+
     SQL_TABLE ='''CREATE TABLE IF NOT EXISTS Users (
         id text NOT NULL PRIMARY KEY,
         name text,
         karma integer,
         level integer,
-        xp integer
+        xp integer,
+        last_message,
+        last_join
         )'''
     
     @classmethod
@@ -22,8 +26,8 @@ class UsersDB(database):
         try:
             with cls._connect() as conn:
                 c = conn.cursor()
-                c.execute('INSERT INTO Users VALUES (?,?,?,?,?)', 
-                    (user.id, user.name, user.karma, user.level, user.xp))
+                c.execute('INSERT INTO Users VALUES (?,?,?,?,?,?,?)', 
+                    (user.id, user.name, user.karma, user.level, user.xp, user.last_message, user.last_join))
             return True
         except sqlite3.IntegrityError:
             return False
@@ -60,14 +64,15 @@ class UsersDB(database):
         '''Obtiene un usuario de la base de datos si su id coincide con `user_id`.
         Si el usuario no se encuentra devuelve `None`.'''
 
-        try:
-            with cls._connect() as conn:
-                c = conn.cursor()
+        with cls._connect() as conn:
+            c = conn.cursor()
+            try:
                 result = c.execute('SELECT * FROM Users WHERE id = ?', (user_id,)).fetchone()
-        except sqlite3.Error:
-            return None
-        if not result:
-            return None
+            except sqlite3.Error:
+                return None
+            if not result:
+                cls.add_user(FisUser(user_id))
+                return None
         return FisUser(*result)
     
     @classmethod
@@ -83,27 +88,58 @@ class UsersDB(database):
             return None
         return tuple([FisUser(*user) for user in result])
 
-    
     @classmethod
-    def last_message_cooldown(cls, user_id)-> bool:
-        '''Comprueba si la llamada a esta funcion y con la ultima llamada a la misma del mismo `user_id` es mayor que el cooldown'''
+    def last_message_cooldown(cls, user_id)-> (bool, FisUser):
+        '''Comprueba si la llamada a esta funcion y con la ultima llamada a la misma del mismo `user_id` es mayor que el cooldown.
+        Devuelve un booleano si cumple el cooldown y el usuario de la base de datos con mismo id'''
 
         now_time = time.time()
         try:
             with cls._connect() as conn:
                 c = conn.cursor()
-                last_time = c.execute('SELECT last_message FROM Messages WHERE id = ?', (user_id,)).fetchone()
+                last_time , = c.execute('SELECT last_message FROM Users WHERE id = ?', (user_id,)).fetchone()
+                user = cls.get_user(user_id)
+                if user:
+                    c.execute('UPDATE Users SET last_message = ? WHERE id = ?', (now_time, user_id))
+        except sqlite3.Error:
+            return (False, None)
+
+        if not last_time:
+            return (True, user)
+        if now_time - last_time >= cls.COOLDOWN:
+            return (True, user)
+        return (False, None)
+
+    @classmethod
+    def new_voice_join(cls, user_id):
+        '''Permite ingresar el momento en el que el usuario de id especificada se conecto a un canal de voz por ultima vez.
+        Devuelve `True` si lo ha conseguido actualizar en la base de datos'''
+
+        now_time = time.time()
+
+        try:
+            with cls._connect() as conn:
+                c = conn.cursor()
+                c.execute('UPDATE Users SET last_join = ? WHERE id = ?', (now_time, user_id))
+                return True
         except sqlite3.Error:
             return False
 
-        if not last_time:
-            c.execute('INSERT INTO Messages (id,last_message) VALUES (?,?)', 
-                (user_id, now_time))
-            return True
-        else:
-            c.execute('UPDATE Messages SET last_message = ? WHERE id = ?', 
-                (now_time, user_id))
-            if now_time - last_time >= 30:
-                return True
-            else:
-                return False
+    @classmethod
+    def last_voice_join(cls, user_id)-> (bool, FisUser):
+        '''Devuelve la hora en la que se conecto el usuario por ultima vez.
+        Devuelve el usuario de la base de datos con mismo id'''
+
+        now_time = time.time()
+        try:
+            with cls._connect() as conn:
+                c = conn.cursor()
+                last_time , = c.execute('SELECT last_join FROM Users WHERE id = ?', (user_id,)).fetchone()
+                user = cls.get_user(user_id)
+                if user:
+                    c.execute('UPDATE Users SET last_join = ? WHERE id = ?', (now_time, user_id))
+        except sqlite3.Error:
+            return (False, None)
+
+        return (now_time - last_time, user)
+

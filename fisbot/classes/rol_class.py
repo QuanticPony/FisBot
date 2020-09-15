@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 import asyncio
 from random import randint
-from .user_class import FisUser
 from .display_class import *
 
 class FisRol(Display):
@@ -61,7 +60,7 @@ class FisRol(Display):
 
 # Funciones de la clase FisRol
 
-    def check_new_rol_needed(self, user: FisUser):
+    def check_new_rol_needed(self, user):
         '''Devuelve el rol `FisRol` que deberia tener el usuario especificado. Si no hay un rol para ese nivel devuelve `None`'''
 
         return self.database.get_rol(user.level)
@@ -80,7 +79,7 @@ class FisRol(Display):
         else:
             return None
 
-    async def give_to(self, user: FisUser, *, guild=None) -> bool:
+    async def give_to(self, user, *, guild=None) -> bool:
         '''Da al usuario especificado este rol. Se puede especificar el servidor con la palabra clave `guild`'''
 
         if not guild:
@@ -97,7 +96,7 @@ class FisRol(Display):
         else:
             return False
 
-    async def remove_from(self, user: FisUser, *, guild=None) -> bool:
+    async def remove_from(self, user, *, guild=None) -> bool:
         '''Elimina del usuario `user` el rol. Devuelve `true`si lo consigue y `false` si no.
         Se puede especificar el servidor con la palabra clave `guild`'''
 
@@ -116,7 +115,7 @@ class FisRol(Display):
             return False
 
     @check_if_context()
-    async def next_rol(self, user: FisUser):
+    async def next_rol(self, user):
         '''Da al usuario su siguiente rol si es necesario'''
 
         disc_user = self._ctx.guild.get_member(user.id)

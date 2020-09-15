@@ -239,3 +239,16 @@ class custom_roles(
 
         if puedes == 'puedes' and listillo == 'listillo':
             await ctx.send(f"Ssssh, me estas retando {ctx.author.mention}? Que soy admin colega... que te baneo")
+
+
+    
+    @commands.command(
+        pass_context=True,
+        hidden=True
+    )
+    async def embed(self, ctx):
+
+        user = FisUser.init_with_member(ctx.author, context=ctx)
+
+        embed = user.embed_show()
+        await ctx.send(embed=embed)

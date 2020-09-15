@@ -111,7 +111,7 @@ class task_commands(
             
 
         for task in tasks_list:
-            description = f"id: {task._id} | " + f"Fecha: {task.day}/{task.month}"
+            description = f"id: {task.id} | " + f"Fecha: {task.day}/{task.month}"
             description += f"/{task.year}" if task.year else '' 
             description += f" | [Fuente]({task.url})" if task.url else ''
 
