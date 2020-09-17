@@ -4,7 +4,7 @@ from .cog import cog_managment
 from .channels import channels_managment
 from .polls import poll_cog
 from .listeners import listeners
-from .levels import levels
+from .users_commands import users_cog
 
 def setup(bot):
     bot.add_cog(extensions_managment(bot))
@@ -13,7 +13,7 @@ def setup(bot):
     bot.add_cog(channels_managment(bot))
     bot.add_cog(poll_cog(bot))
     bot.add_cog(listeners(bot))
-    bot.add_cog(levels(bot))
+    bot.add_cog(users_cog(bot))
 
     
 
@@ -23,5 +23,5 @@ def teardown(bot):
     bot.remove_cog('Canales')
     bot.remove_cog('Encuestas')
     bot.remove_cog('Eventos')
-    bot.remove_cog('Niveles')
+    bot.remove_cog('Usuarios')
     bot.remove_cog('Control de extensiones')

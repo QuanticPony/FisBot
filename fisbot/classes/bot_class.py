@@ -12,18 +12,23 @@ def context_is_admin(context):
     else:
         return False
 
+BOT_PATH = ' '
 
 class FisBot(commands.Bot):    
 
-    def __init__(self, command_prefix: str):
-        super().__init__(command_prefix=commands.when_mentioned_or("."))
+    def __init__(self, *, command_prefix: str, path: str):
+        super().__init__(command_prefix=commands.when_mentioned_or(command_prefix))
         self.extensions_list = [
             'fisbot.basics.loader',
             'fisbot.custom_help.loader',
             'fisbot.music_commands.loader',
             'fisbot.task_commands.loader',
+            'fisbot.roles.loader'
             ]
         self.add_extensions(self.extensions_list)
+        
+        if path:
+            BOT_PATH = path
         
 
     def add_extension(self, extension_name):

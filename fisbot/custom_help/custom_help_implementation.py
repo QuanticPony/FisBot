@@ -1,19 +1,20 @@
 import discord
 from discord.ext import commands
-
+from ..classes.bot_class import context_is_admin
 
 
 async def custom_help_implementation_all(bot, ctx):
-    commands.Context()
     halp=discord.Embed(
             title='.help', 
             description='Estos son todos los comandos. Probablemente no tengas permisos para usar todos:'.format(ctx), 
             color=discord.Color.green()
         )
+    admin = context_is_admin(ctx)
     for cog in bot.cogs.values():
         commands_desc = ''
         for x in cog.get_commands():
-            commands_desc += ('{0: <15} {1}'.format(x.name,x.brief) + '\n')
+            if not x.hidden or admin:
+                commands_desc += ('{0: <15} {1}'.format(x.name,x.brief) + '\n')
 
         if commands_desc:
             halp.add_field(
@@ -30,10 +31,12 @@ async def custom_help_implementation_general(bot, ctx):
             description='Estos son los comandos disponibles para {0.author.mention}:'.format(ctx), 
             color=discord.Color.green()
         )
+
+    admin = context_is_admin(ctx)
     for cog in bot.cogs.values():
         commands_desc = ''
         for x in cog.get_commands():
-            if await x.can_run(ctx):
+            if await x.can_run(ctx) and (not x.hidden or admin):
                 commands_desc += ('{0: <15} {1}'.format(x.name,x.brief) + '\n')
 
         if commands_desc:
@@ -47,10 +50,11 @@ async def custom_help_implementation_general(bot, ctx):
 async def custom_help_implementation_command(bot, ctx, nombre):
     cog = bot.get_cog(nombre)
     # Se da categoria
+    admin = context_is_admin(ctx)
     if cog:
         commands_desc = ''
         for x in cog.get_commands():
-            if await x.can_run(ctx):
+            if await x.can_run(ctx) and (not x.hidden or admin):
                 commands_desc += ('{0: <15} {1}'.format(x.name,x.brief) + '\n')
 
         if not commands_desc:
@@ -83,10 +87,17 @@ async def custom_help_implementation_command(bot, ctx, nombre):
                 description=command.brief,
                 color=discord.Color.blue()
             )
-        if len(command.aliases) > 1:
+        if len(command.aliases) >= 1:
+            
+            if len(command.aliases) ==1:
+                value = command.aliases[0]
+                
+            else:
+                value =' / '.join(command.aliases)
+            
             halp.add_field(
                 name='**Tambien llamado:**',
-                value=' / '.join(command.aliases),
+                value=value,
                 inline=False
             )
         if command.usage:
@@ -95,13 +106,13 @@ async def custom_help_implementation_command(bot, ctx, nombre):
                 value='```' + command.usage + '```',
                 inline=False
             )
-        if command.help:
+        if command.description:
             halp.add_field(
                 name='**Que hace?**',
                 value=command.description,
                 inline=False
             )
-        if command.description:
+        if command.help:
             halp.add_field(
                 name='**Ejemplo(s):**',
                 value=command.help,
