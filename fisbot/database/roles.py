@@ -1,40 +1,24 @@
 from ..classes.rol_class import FisRol
+from .base import database
 import sqlite3
 from sqlite3 import Connection
 
-class RolesDB():
+class RolesDB(database):
 
-    FILE_NAME = 'database.db'
+    SQL_TABLE = '''CREATE TABLE IF NOT EXISTS Roles (
+        rol_id integer NOT NULL PRIMARY KEY,
+        lvl integer,
+        description text,
+        privileges text
+        )'''
 
-    def _create_db(self) -> Connection:
-        '''Crea una base de datos para roles FisRol y devuelve una conexión a esta.
-        El nombre del archivo en disco se especifica con el atributo de clase `FILE_NAME`'''
-
-        with sqlite3.connect(self.FILE_NAME) as conn:
-            c = conn.cursor()
-            c.execute('''CREATE TABLE Roles (
-                            rol_id integer NOT NULL PRIMARY KEY,
-                            lvl integer,
-                            description text,
-                            privileges text
-                        )''')
-            return conn
-
-    def _connect(self) -> Connection:
-        '''Intenta conectarse a la base de datos de nombre `FILE_NAME` y si esta no existe
-        la crea. Devuelve una conexión a la base de datos.'''
-
-        try:
-            return sqlite3.connect('file:{}?mode=rw'.format(self.FILE_NAME), uri=True)
-        except sqlite3.OperationalError:
-            return self._create_db()
-
-    def add_rol(self, rol: FisRol) -> bool:
+    @classmethod
+    def add_rol(cls, rol: FisRol) -> bool:
         '''Añade un rol a la base de datos. Si el rol se ha añadido devuelve True,
         en caso contrario (si ya existe uno con el mismo id) devuelve `False`.'''
 
         try:
-            with self._connect() as conn:
+            with cls._connect() as conn:
                 c = conn.cursor()
                 c.execute('INSERT INTO Roles VALUES (?,?,?,?)', 
                     (rol.id, rol.level, rol.description, rol.privileges))
@@ -42,12 +26,13 @@ class RolesDB():
         except sqlite3.IntegrityError:
             return False
 
-    def update_rol(self, rol: FisRol) -> bool:
+    @classmethod
+    def update_rol(cls, rol: FisRol) -> bool:
         '''Actualiza los datos de un rol si existe en la base de datos. Si el rol
         existe y se ha podido modificar devuelve `True`, en caso contrario devuelve `False`.'''
 
         try:
-            with self._connect() as conn:
+            with cls._connect() as conn:
                 c = conn.cursor()
                 c.execute('UPDATE Roles SET lvl = ?, description = ?, privileges = ? WHERE rol_id = ?', 
                     (rol.level, rol.description, rol.privileges, rol.id))
@@ -55,24 +40,26 @@ class RolesDB():
         except sqlite3.Error:
             return False
 
-    def del_rol(self, rol: FisRol) -> bool:
+    @classmethod
+    def del_rol(cls, rol: FisRol) -> bool:
         '''Elimina un rol de la base de datos si su id coincide con el de `rol`. 
         Si el rol se ha eliminado devuelve `True`, en caso contrario devuelve `False`.'''
 
         try:
-            with self._connect() as conn:
+            with cls._connect() as conn:
                 c = conn.cursor()
                 c.execute('DELETE FROM Roles WHERE rol_id = ?', (rol.id,))
             return True
         except sqlite3.Error:
             return False
 
-    def get_rol(self, level) -> FisRol:
+    @classmethod
+    def get_rol(cls, level) -> FisRol:
         '''Obtiene un rol de la base de datos si su nivel coincide con `level`.
         Si el rol no se encuentra devuelve `None`.'''
 
         try:
-            with self._connect() as conn:
+            with cls._connect() as conn:
                 c = conn.cursor()
                 result = c.execute('SELECT * FROM Roles WHERE lvl = ?', (level,)).fetchone()
         except sqlite3.Error:
@@ -81,12 +68,13 @@ class RolesDB():
             return None
         return FisRol(*result)
 
-    def get_rol_id(self, rol_id) -> FisRol:
+    @classmethod
+    def get_rol_id(cls, rol_id) -> FisRol:
         '''Obtiene un rol de la base de datos si su id coincide con `rol_id`.
         Si el rol no se encuentra devuelve `None`.'''
 
         try:
-            with self._connect() as conn:
+            with cls._connect() as conn:
                 c = conn.cursor()
                 result = c.execute('SELECT * FROM Roles WHERE rol_id = ?', (rol_id,)).fetchone()
         except sqlite3.Error:
@@ -95,12 +83,13 @@ class RolesDB():
             return None
         return FisRol(*result)
 
-    def get_all_roles(self) -> list:
+    @classmethod
+    def get_all_roles(cls) -> list:
         '''Devuelve una colección de todos los roles registrados en la base de datos
         ordenados por nivel necesario.'''
 
         try:
-            with self._connect() as conn:
+            with cls._connect() as conn:
                 c = conn.cursor()
                 result = c.execute('SELECT * FROM Roles ORDER BY lvl').fetchall()
         except sqlite3.Error:

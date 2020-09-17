@@ -27,7 +27,16 @@ class task_commands(
         ¿Eres moderador y quieres cambiar una tarea con id 14?```.task modify 14```
         ¿Eres moderador y quieres borrar una tarea con id 1205?```.task delete 1205```''',
         brief='''Conjunto de comandos para administrar las tareas''',
-        description='''Engloba el conjunto de comandos para modificar, añadir, y borrar tareas y examenes de la base de datos''',
+        description='''Engloba el conjunto de comandos para modificar, añadir, y borrar tareas y examenes de la base de datos. 
+        Comandos disponibles:
+        ```
+        list        Muestra una lista de trabajos y examenes
+        get         Muestra la informacion relativa a un trabajo
+        subjects    Muestra las asignaturas de la base de datos
+        modify      <ADMIN> Permite modificar una tarea o examen
+        delete      <ADMIN> Elimina una tarea o examen
+        ```
+        ''',
         usage='.task <order> [args]'
     )
     async def task(self, context):
@@ -76,17 +85,6 @@ class task_commands(
                 await ctx.send('**Lo siento**. No hay trabajos ni examenes en la base de datos')
                 return
 
-        #else:
-        #    if subject.isdigit():
-        #        school_year = int(subject)
-        #        if 0 < school_year < 5:
-        #            # TODO. Completar esto
-        #            tasks_list = FisTask().database.get_all_school_year_subjects()
-        #            pass
-        #        else:
-        #            await ctx.send('Solo hay 4 cursos, y son enteros positivos distintos de 0') 
-        #        return 
-
         else:
             subject = unicodedata.normalize('NFKD', subject)\
              .encode('ascii', 'ignore').decode('ascii').title()
@@ -111,7 +109,7 @@ class task_commands(
             
 
         for task in tasks_list:
-            description = f"id: {task._id} | " + f"Fecha: {task.day}/{task.month}"
+            description = f"id: {task.id} | " + f"Fecha: {task.day}/{task.month}"
             description += f"/{task.year}" if task.year else '' 
             description += f" | [Fuente]({task.url})" if task.url else ''
 
@@ -158,7 +156,7 @@ class task_commands(
         if task_id.isnumeric() and int(task_id) >= 0:
             task = FisTask().database.get_task(int(task_id))
             if task:
-                await ctx.send(message_text, embed=task.embed())
+                await ctx.send(message_text, embed=task.embed_show())
             else:
                 await ctx.send('No se ha encontrado nada en la base de datos con id={}'.format(task_id))
         else:

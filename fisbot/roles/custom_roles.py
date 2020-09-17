@@ -43,8 +43,8 @@ class custom_roles(
         name='role',
         aliases=['roles', 'rol'],
         help='''¿Quieres ver los roles disponibles por subida de nivel? ```.roles```
-        ¿Quieres recibir notificaciones sobre Termodinamica? ```.role subscribe <@&753362848851165185>``````
-        ¿Quieres dejar de recibir notificaciones sobre Termodinamica? ```.role unsubscribe <@&753362848851165185>``````
+        ¿Quieres recibir notificaciones sobre Termodinamica? ```.role subscribe <@&753362848851165185>```
+        ¿Quieres dejar de recibir notificaciones sobre Termodinamica? ```.role unsubscribe <@&753362848851165185>```
         ¿Quieres informacion sobre el rol @Termodinamica? ```.role info <@&753362848851165185>```
         ''',
         brief='''Prefijo para acceder a comandos de roles''',
@@ -92,8 +92,12 @@ class custom_roles(
     )
     async def add(self, ctx):
         
-        disc_rol = ctx.message.role_mentions[0]
-        rol = FisRol.init_from_discord(ctx, disc_rol)
+        disc_rol = ctx.message.role_mentions
+        if disc_rol:
+            disc_rol = disc_rol[0]
+        else:
+            return
+        rol = await FisRol.init_from_discord(ctx, disc_rol)
         await ctx.message.delete()
         if rol:
             await rol.modify()
@@ -113,8 +117,12 @@ class custom_roles(
     )
     async def modify(self, ctx):
 
-        disc_rol = ctx.message.role_mentions[0]
-        rol = FisRol.init_from_discord(ctx, disc_rol)
+        disc_rol = ctx.message.role_mentions
+        if disc_rol:
+            disc_rol = disc_rol[0]
+        else:
+            return
+        rol = await FisRol.init_from_discord(ctx, disc_rol)
         await ctx.message.delete()
         if rol:
             await rol.modify()
@@ -131,7 +139,11 @@ class custom_roles(
     )
     async def subscribe(self, ctx, *args):
 
-        disc_rol = ctx.message.role_mentions[0]
+        disc_rol = ctx.message.role_mentions
+        if disc_rol:
+            disc_rol = disc_rol[0]
+        else:
+            return
         if '-u' in args and context_is_admin(ctx):
             user = FisUser.init_with_member(ctx.message.mentions[0])
         else:
@@ -142,7 +154,7 @@ class custom_roles(
 
             from ..database.roles import RolesDB
             rol = RolesDB().get_rol_id(disc_rol.id)
-            rol.init_display(ctx)
+            await rol.init_display(ctx)
 
             if rol.level < user.level:
                 await rol.give_to(user)
@@ -158,7 +170,11 @@ class custom_roles(
     )
     async def unsubscribe(self, ctx, *args):
 
-        disc_rol = ctx.message.role_mentions[0]
+        disc_rol = ctx.message.role_mentions
+        if disc_rol:
+            disc_rol = disc_rol[0]
+        else:
+            return
         if '-u' in args and context_is_admin(ctx):
             user = FisUser.init_with_member(ctx.message.mentions[0])
         else:
@@ -169,7 +185,7 @@ class custom_roles(
 
             from ..database.roles import RolesDB
             rol = RolesDB().get_rol_id(disc_rol.id)
-            rol.init_display(ctx)
+            await rol.init_display(ctx)
 
             if rol.level < user.level:
                 await rol.remove_from(user)
@@ -186,7 +202,12 @@ class custom_roles(
     )
     async def info(self, ctx, *args):
 
-        disc_rol = ctx.message.role_mentions[0]
+        disc_rol = ctx.message.role_mentions
+        if disc_rol:
+            disc_rol = disc_rol[0]
+        else:
+            return
+
         if '-dm' in args and context_is_admin(ctx):
             member = ctx.message.mentions[0]
             channel = member.dm_channel
@@ -198,10 +219,11 @@ class custom_roles(
 
             from ..database.roles import RolesDB
             rol = RolesDB().get_rol_id(disc_rol.id)
-            rol.init_display(ctx)
+            await rol.init_display(ctx)
             embed = await rol.embed_show()
 
             await channel.send(embed=embed)
+            await ctx.message.delete()
 
 
     @_roles.command(

@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 import asyncio
 from random import randint
-from .user_class import FisUser
 from .display_class import *
 
 class FisRol(Display):
@@ -29,10 +28,10 @@ class FisRol(Display):
         self.privileges = privileges
 
         from ..database.roles import RolesDB
-        self.database = RolesDB()
+        self.database = RolesDB
 
         if context:
-            self.init_display(context)
+            self._ctx = context
 
 
     @classmethod
@@ -50,18 +49,18 @@ class FisRol(Display):
         return instance
 
     @classmethod
-    def init_from_discord(cls, ctx: commands.Context, role: discord.Role):
+    async def init_from_discord(cls, ctx: commands.Context, role: discord.Role):
         '''Inicia la clase `FisRol` a partir de un `discord.Role`. Mira en la base de datos a ver si encuentra un rol
         con la misma id. Si no lo encuentra devuelve `None`'''
 
         instance = cls().database.get_rol_id(role.id)
-        instance.init_display(ctx)
+        await instance.init_display(ctx)
         instance._disc_obj = role
         return instance
 
 # Funciones de la clase FisRol
 
-    def check_new_rol_needed(self, user: FisUser):
+    def check_new_rol_needed(self, user):
         '''Devuelve el rol `FisRol` que deberia tener el usuario especificado. Si no hay un rol para ese nivel devuelve `None`'''
 
         return self.database.get_rol(user.level)
@@ -74,13 +73,13 @@ class FisRol(Display):
             rol = self.database.get_rol(i)
             if rol: 
                 if self._ctx:
-                    return rol.init_display(self._ctx)
-                else:
-                    return rol
+                    rol._ctx = self._ctx
+                return rol
+                    
         else:
             return None
 
-    async def give_to(self, user: FisUser, *, guild=None) -> bool:
+    async def give_to(self, user, *, guild=None) -> bool:
         '''Da al usuario especificado este rol. Se puede especificar el servidor con la palabra clave `guild`'''
 
         if not guild:
@@ -97,7 +96,7 @@ class FisRol(Display):
         else:
             return False
 
-    async def remove_from(self, user: FisUser, *, guild=None) -> bool:
+    async def remove_from(self, user, *, guild=None) -> bool:
         '''Elimina del usuario `user` el rol. Devuelve `true`si lo consigue y `false` si no.
         Se puede especificar el servidor con la palabra clave `guild`'''
 
@@ -116,7 +115,7 @@ class FisRol(Display):
             return False
 
     @check_if_context()
-    async def next_rol(self, user: FisUser):
+    async def next_rol(self, user):
         '''Da al usuario su siguiente rol si es necesario'''
 
         disc_user = self._ctx.guild.get_member(user.id)

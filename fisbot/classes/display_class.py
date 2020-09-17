@@ -83,10 +83,11 @@ class Display():
         if context:
             self._channel = context.author.dm_channel 
 
-    def init_display(self, ctx):
+    async def init_display(self, ctx):
         '''Inicia la clase `Display` con el contexto especificado'''
 
         Display.__init__(self, context=ctx)
+        await self.discord_obj()
 
     # No modificar estas funciones en esta clase 
 # Sobreescribir las funciones en clases que hereden de esta
@@ -181,18 +182,22 @@ class Display():
         self._embed.title = self._title
         self._embed.description = self._description
         self._embed.clear_fields()
-        for atrib in self._things_list:
-            self._embed.add_field(
-                name=f"{atrib} - {self._things_list[atrib]}:",
-                value=self.__dict__[self._things_list[atrib]],
-                inline=False
-                )
+        if isinstance(self._things_list, dict):
+            for atrib in self._things_list:
+                value = self.__dict__[self._things_list[atrib]]
+                if not value and value != 0:
+                    value='None'
+                self._embed.add_field(
+                    name=f"{atrib} - {self._things_list[atrib]}:",
+                    value=value,
+                    inline=False
+                    )
         return self._embed
 
     def embed(self) -> discord.Embed:
         '''Devuelve el mensaje tipo `discord.Embed`. Si no esta creado lo crea, y si lo esta lo actualiza'''
 
-        if not self._embed:
+        if not isinstance(self._embed, discord.Embed):
             self._embed = self._create_embed()
         else: 
             self._re_embed()
@@ -266,9 +271,11 @@ class Display():
             '''Esta funcion se encarga de preguntar una y otra vez si se quiere cambiar algun campo y cual'''
 
             await self.resend(message)
+            check_reaction = lambda reaction, user: not user.bot and reaction.message.channel.recipient.id == user.id
+            check_user = lambda message: not message.author.bot
 
             try:
-                reaction, user = await self._ctx.bot.wait_for('reaction_add', timeout=30.0, check=lambda reaction, user: not user.bot)
+                reaction, user = await self._ctx.bot.wait_for('reaction_add', timeout=30.0, check=check_reaction)
                 if str(reaction.emoji) == '💾':
                     await self.save_in_database()
                     await self.update_discord_obj()
@@ -287,7 +294,7 @@ class Display():
             ask_message = await self.dm_send(text=f"Introduce un nuevo {self._things_list[reaction.emoji]}:", only_text=True)
 
             try:
-                response_msg = await self._ctx.bot.wait_for('message', timeout=150.0)
+                response_msg = await self._ctx.bot.wait_for('message', timeout=150.0, check=check_user)
             except asyncio.TimeoutError:
                 return await self._time_out()
             
