@@ -97,7 +97,7 @@ class custom_roles(
             disc_rol = disc_rol[0]
         else:
             return
-        rol = FisRol.init_from_discord(ctx, disc_rol)
+        rol = await FisRol.init_from_discord(ctx, disc_rol)
         await ctx.message.delete()
         if rol:
             await rol.modify()
@@ -122,7 +122,7 @@ class custom_roles(
             disc_rol = disc_rol[0]
         else:
             return
-        rol = FisRol.init_from_discord(ctx, disc_rol)
+        rol = await FisRol.init_from_discord(ctx, disc_rol)
         await ctx.message.delete()
         if rol:
             await rol.modify()

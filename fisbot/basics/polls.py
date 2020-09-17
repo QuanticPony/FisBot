@@ -128,13 +128,17 @@ class poll_cog(
         description='''Hace una encuesta preguntandote por privado los campos que quieres que tenga''',
         usage='.poll'
     )
-    async def poll(self, ctx):
+    async def poll(self, ctx, *content):
         embed, emojis= await self.create_poll(ctx)
+        if content:
+            text = ' '.join(content)
+        else:
+            text = ''
         try:
             await ctx.message.delete()
-            msg = await ctx.send(embed=embed)
+            msg = await ctx.send(text, embed=embed)
         except discord.Forbidden:
-            msg = await ctx.author.dm_channel.send(embed=embed)
+            msg = await ctx.author.dm_channel.send(text, embed=embed)
 
         for emoji in emojis:
             await msg.add_reaction(emoji)  

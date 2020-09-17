@@ -27,7 +27,7 @@ class channels_managment(
         ¿Quieres borrar un canal de voz, donde estas en el momento? ```.voice delete```
         ¿Quieres cambiar el nombre de la categoria donde esta el canal de texto donde enviaste el mensaje? ```.category rename <name>```
         ''',
-        brief='''**ESTE COMANDO VA A CAMBIAR EN ALGUN MOMENTO 101%**''',
+        brief='''Disponible previsiblemente en 1.1.1''',
         description='''Permite modificar, crear y eliminar los canales y categorias del servidor:
 
         .text <create|delete|rename> [nombre]

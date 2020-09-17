@@ -182,15 +182,16 @@ class Display():
         self._embed.title = self._title
         self._embed.description = self._description
         self._embed.clear_fields()
-        for atrib in self._things_list:
-            value = self.__dict__[self._things_list[atrib]]
-            if not value:
-                value='None'
-            self._embed.add_field(
-                name=f"{atrib} - {self._things_list[atrib]}:",
-                value=value,
-                inline=False
-                )
+        if isinstance(self._things_list, dict):
+            for atrib in self._things_list:
+                value = self.__dict__[self._things_list[atrib]]
+                if not value and value != 0:
+                    value='None'
+                self._embed.add_field(
+                    name=f"{atrib} - {self._things_list[atrib]}:",
+                    value=value,
+                    inline=False
+                    )
         return self._embed
 
     def embed(self) -> discord.Embed:

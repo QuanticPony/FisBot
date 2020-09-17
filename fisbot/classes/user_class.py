@@ -10,11 +10,14 @@ class FisUser(Display):
 
     XP_ADD_BASE = 6
 
-    _title_for_mod = 'Modificar **{0.subject}**: *{0.title}*'
+    _title_for_mod = 'Modificar **{0.name}**'
+    _title_for_del = 'Eliminar **{0.name}** de la base de datos'
 
     _descr_for_mod ='''Abajo tienes la lista de todos los campos modificables. 
         Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
         *Cuando hayas acabado* presiona el boton de guardar'''
+    _descr_for_del ='''¿Seguro que quiere eliminar este elemento de la base de datos?
+        Si es así, reaccione ✅. De lo contrario, reaccione ❌:'''
 
     def __init__(self, user_id=0, name='', karma=0, level=0, xp=0, last_message=0, last_join=None):
         self.id = int(user_id)
@@ -41,17 +44,21 @@ class FisUser(Display):
             await user.init_display(context)
             return user
 
-    def _mod_title(self) -> str:
-        '''Devuelve el titulo utilizado en la modificacion de esta clase'''
+    def title_for_mod(self) -> str:
 
-        return f"Modificar usuario id={self.id}"
-    
-    def _mod_desc(self) -> str:
-        '''Devuelve la descripcion utilizada en la modificacion de esta clase'''
+        return self._title_for_mod.format(self)
 
-        return '''Abajo tienes la lista de todos los campos modificables. 
-    Si quieres modificar uno mas de una vez desseleccionalo y vuelvelo a seleccionar.
-    *Cuando hayas acabado* presiona el boton de guardar'''
+    def title_for_del(self) -> str:
+        return self._title_for_del.format(self)
+
+
+    def description_for_mod(self) -> str:
+
+        return self._descr_for_mod.format(self)
+
+    def description_for_del(self) -> str:
+
+        return  self._descr_for_del.format(self)
 
 
 

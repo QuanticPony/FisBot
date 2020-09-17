@@ -33,7 +33,7 @@ class FisTask(Display):
         self.database = ProyectsDB
 
         if context:
-            self.init_display(context)
+            self._ctx = context
 
 
 
@@ -43,11 +43,9 @@ class FisTask(Display):
     def embed_show(self) -> discord.Embed:
         '''Devuelve un mensaje tipo `discord.Embed` que muestra la tarea'''
 
-        # TODO arreglar esto y embed()
-
         task_embed = discord.Embed(
             title=f"**{self.school_year}º -> {self.subject}**",
-            description=f"[**{self.title}**]({self.url})" if self.url else f"**{self.title}**",
+            description=f"**{self.title}**" + (f"[URL]({self.url})" if self.url else ''),
             color=discord.Color.purple()
         )
         task_embed.add_field(

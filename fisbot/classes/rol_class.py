@@ -31,7 +31,7 @@ class FisRol(Display):
         self.database = RolesDB
 
         if context:
-            self.init_display(context)
+            self._ctx = context
 
 
     @classmethod
@@ -49,12 +49,12 @@ class FisRol(Display):
         return instance
 
     @classmethod
-    def init_from_discord(cls, ctx: commands.Context, role: discord.Role):
+    async def init_from_discord(cls, ctx: commands.Context, role: discord.Role):
         '''Inicia la clase `FisRol` a partir de un `discord.Role`. Mira en la base de datos a ver si encuentra un rol
         con la misma id. Si no lo encuentra devuelve `None`'''
 
         instance = cls().database.get_rol_id(role.id)
-        instance.init_display(ctx)
+        await instance.init_display(ctx)
         instance._disc_obj = role
         return instance
 
@@ -73,9 +73,9 @@ class FisRol(Display):
             rol = self.database.get_rol(i)
             if rol: 
                 if self._ctx:
-                    return rol.init_display(self._ctx)
-                else:
-                    return rol
+                    rol._ctx = self._ctx
+                return rol
+                    
         else:
             return None
 

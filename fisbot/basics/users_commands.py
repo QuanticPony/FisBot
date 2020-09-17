@@ -87,6 +87,7 @@ class users_cog(
             disc_user = disc_user[0]
         
         user = await FisUser.init_with_member(disc_user, context=ctx)
+        await ctx.message.delete()
         await user.modify()
 
 
