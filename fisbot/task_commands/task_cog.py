@@ -33,6 +33,7 @@ class task_commands(
         list        Muestra una lista de trabajos y examenes
         get         Muestra la informacion relativa a un trabajo
         subjects    Muestra las asignaturas de la base de datos
+        add         <ADMIN> Añade un trabajo/examen
         modify      <ADMIN> Permite modificar una tarea o examen
         delete      <ADMIN> Elimina una tarea o examen
         ```
@@ -56,10 +57,12 @@ class task_commands(
     )
     async def add(self, ctx, subject):
 
+        subject = unicodedata.normalize('NFKD', subject)\
+            .encode('ascii', 'ignore').decode('ascii')
+
         task=FisTask(subject=subject, context=ctx)
 
         await task.create()
-        return
         
     @task.command(
         pass_context=True,
@@ -181,34 +184,15 @@ class task_commands(
             .encode('ascii', 'ignore').decode('ascii')
 
         if task_id.isnumeric() and int(task_id) >= 0:
-            
-            task = FisTask().database.get_task(int(task_id))
+            task_requested = FisTask().database.get_task(int(task_id))
 
-            if task:
-
-                msg_conf = await ctx.send('¿Seguro que quiere borrar esto de la base de datos {.author.mention}?'.format(ctx),embed=task.embed())
-                await msg_conf.add_reaction("✅")
-                await msg_conf.add_reaction("❌")
-
-                def confirm(reaction, user):
-                    return str(reaction.emoji) == '✅' and ctx.message.author == user
-
-                try:
-                    reaction, user = await self.bot.wait_for('reaction_add', timeout=10.0, check=confirm)
-                except asyncio.TimeoutError:
-                    await msg_conf.delete()
-                else:
-                    task.database.del_task(task)
-                    if ctx.guild:
-                        await ctx.message.delete()
-                    await msg_conf.delete()
-                return
-
-
-            else:
-                await ctx.send('No se ha encontrado nada en la base de datos con id={}'.format(task_id))
+        if task_requested:
+            await task_requested.delete()
             return
 
+        else:
+            await ctx.send('No se ha encontrado nada en la base de datos con id={}'.format(task_id))
+            return
 
         await ctx.send('''**Lo siento**, pero la id de un elemento es un entero positivo. *{}* no es un entero positivo'''.format(task_id))
 
@@ -252,5 +236,6 @@ class task_commands(
             check=[context_is_admin]
         )
     async def modify(self, ctx, task_id):
+
         requested_task = FisTask().database.get_task(task_id)
         await requested_task.modify(ctx)
