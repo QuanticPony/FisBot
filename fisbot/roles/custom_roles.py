@@ -145,16 +145,13 @@ class custom_roles(
         else:
             return
         if '-u' in args and context_is_admin(ctx):
-            user = FisUser.init_with_member(ctx.message.mentions[0])
+            user = await FisUser.init_with_member(ctx.message.mentions[0])
         else:
-            user = FisUser.init_with_member(ctx.author)
+            user = await FisUser.init_with_member(ctx.author)
         await ctx.message.delete()
 
         if disc_rol:
-
-            from ..database.roles import RolesDB
-            rol = RolesDB().get_rol_id(disc_rol.id)
-            await rol.init_display(ctx)
+            rol = await FisRol.init_from_discord(ctx, disc_rol)
 
             if rol.level < user.level:
                 await rol.give_to(user)
@@ -176,16 +173,13 @@ class custom_roles(
         else:
             return
         if '-u' in args and context_is_admin(ctx):
-            user = FisUser.init_with_member(ctx.message.mentions[0])
+            user = await FisUser.init_with_member(ctx.message.mentions[0])
         else:
-            user = FisUser.init_with_member(ctx.author)
+            user = await FisUser.init_with_member(ctx.author)
         await ctx.message.delete()
 
         if disc_rol:
-
-            from ..database.roles import RolesDB
-            rol = RolesDB().get_rol_id(disc_rol.id)
-            await rol.init_display(ctx)
+            rol = await FisRol.init_from_discord(ctx, disc_rol)
 
             if rol.level < user.level:
                 await rol.remove_from(user)
@@ -215,11 +209,9 @@ class custom_roles(
                 channel = await member.create_dm()
         else:
             channel = ctx.channel
+            
         if disc_rol:
-
-            from ..database.roles import RolesDB
-            rol = RolesDB().get_rol_id(disc_rol.id)
-            await rol.init_display(ctx)
+            rol = await FisRol.init_from_discord(ctx, disc_rol)
             embed = await rol.embed_show()
 
             await channel.send(embed=embed)
@@ -247,8 +239,7 @@ class custom_roles(
             except:
                 pass
             else:
-                from ..database.roles import RolesDB
-                rol = RolesDB().get_rol_id(disc_rol.id)
+                rol = await FisRol.init_from_discord(ctx, disc_rol)
                 rol.database.del_rol(rol)
         await ctx.message.delete()
 

@@ -48,13 +48,11 @@ class listeners(
             return
         db = UsersDB
         confirm, user = db.last_message_cooldown(message.author.id)
+        if not user:
+            user = await FisUser.init_with_member(message.author)
+            db.add_user(user)
         if confirm:
-            if not user:
-                user = FisUser(
-                    user_id=message.author.id,
-                    name=message.author.name
-                    )
-                db.add_user(user)
+            user.name = message.author.display_name
             await user.addxp(message.guild)
     
     @commands.Cog.listener()
@@ -68,7 +66,8 @@ class listeners(
         if not after.channel and before.channel:
             amount, user = UsersDB.last_voice_join(member.id)
             if not user:
-                user = FisUser.init_with_member(member)
+                user = await FisUser.init_with_member(member)
+                UsersDB.add_user(user)
             try:
                 await user.addxp(member.guild, amount=(amount % (60)))
             except:
@@ -83,18 +82,12 @@ class listeners(
         from ..classes.user_class import FisUser
         db = UsersDB()
 
-        if member.nick:
-            user = FisUser(member.id, member.nick)
-        else:
-            user = FisUser(member.id, member.name)
-
-        db.add_user(user)
-
+        user = await FisUser.init_with_member(member)
         
         if not member.dm_channel:
             await member.create_dm()
             
-        hello_message = self.bot.create_embed_hello(self, member)
+        hello_message = self.create_embed_hello(member)
         await member.dm_channel.send(embed=hello_message)
         await member.guild.system_channel.send('Bienvenido al servidor {0.guild.name}, {0.mention}'.format(member))
 

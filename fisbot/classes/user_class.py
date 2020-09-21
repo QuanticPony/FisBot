@@ -38,6 +38,12 @@ class FisUser(Display):
         '''ASYNC Devuelve un usuario `FisUser` a partir de un miembro'''
 
         user = cls().database.get_user(member.id)
+        if not user:
+            user = cls(
+                user_id=member.id,
+                name=member.display_name
+            )
+            user.database.add_user(user)
         if not context:
             return user
         else:

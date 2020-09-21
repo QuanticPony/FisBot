@@ -23,6 +23,8 @@ class UsersDB(database):
         '''Añade un usuario a la base de datos. Si el usuario se ha añadido devuelve True,
         en caso contrario (si ya existe uno con el mismo id) devuelve `False`.'''
 
+        if not isinstance(user, FisUser):
+            return False
         try:
             with cls._connect() as conn:
                 c = conn.cursor()
@@ -37,6 +39,8 @@ class UsersDB(database):
         '''Actualiza los datos de un usuario si existe en la base de datos. Si el usuario
         existe y se ha podido modificar devuelve `True`, en caso contrario devuelve `False`.'''
 
+        if not isinstance(user, FisUser):
+            return False
         try:
             with cls._connect() as conn:
                 c = conn.cursor()
@@ -51,6 +55,8 @@ class UsersDB(database):
         '''Elimina un usuario de la base de datos si su id coincide con el de `user`. 
         Si el usuario se ha eliminado devuelve `True`, en caso contrario devuelve `False`.'''
 
+        if not isinstance(user, FisUser):
+            return False
         try:
             with cls._connect() as conn:
                 c = conn.cursor()
@@ -64,6 +70,8 @@ class UsersDB(database):
         '''Obtiene un usuario de la base de datos si su id coincide con `user_id`.
         Si el usuario no se encuentra devuelve `None`.'''
 
+        if not user_id:
+            return False
         with cls._connect() as conn:
             c = conn.cursor()
             try:
@@ -94,20 +102,21 @@ class UsersDB(database):
         Devuelve un booleano si cumple el cooldown y el usuario de la base de datos con mismo id'''
 
         now_time = time.time()
-        try:
-            with cls._connect() as conn:
-                c = conn.cursor()
-                last_time , = c.execute('SELECT last_message FROM Users WHERE id = ?', (user_id,)).fetchone()
-                user = cls.get_user(user_id)
-                if user:
-                    c.execute('UPDATE Users SET last_message = ? WHERE id = ?', (now_time, user_id))
-        except sqlite3.Error:
-            return (False, None)
+        if user_id:
+            try:
+                with cls._connect() as conn:
+                    c = conn.cursor()
+                    last_time , = c.execute('SELECT last_message FROM Users WHERE id = ?', (user_id,)).fetchone()
+                    user = cls.get_user(user_id)
+                    if user:
+                        c.execute('UPDATE Users SET last_message = ? WHERE id = ?', (now_time, user_id))
+            except sqlite3.Error:
+                return (False, None)
 
-        if not last_time:
-            return (True, user)
-        if now_time - last_time >= cls.COOLDOWN:
-            return (True, user)
+            if not last_time:
+                return (True, user)
+            if now_time - last_time >= cls.COOLDOWN:
+                return (True, user)
         return (False, None)
 
     @classmethod
@@ -116,7 +125,8 @@ class UsersDB(database):
         Devuelve `True` si lo ha conseguido actualizar en la base de datos'''
 
         now_time = time.time()
-
+        if not user_id:
+            return False
         try:
             with cls._connect() as conn:
                 c = conn.cursor()
@@ -131,15 +141,17 @@ class UsersDB(database):
         Devuelve el usuario de la base de datos con mismo id'''
 
         now_time = time.time()
-        try:
-            with cls._connect() as conn:
-                c = conn.cursor()
-                last_time , = c.execute('SELECT last_join FROM Users WHERE id = ?', (user_id,)).fetchone()
-                user = cls.get_user(user_id)
-                if user:
-                    c.execute('UPDATE Users SET last_join = ? WHERE id = ?', (now_time, user_id))
-        except sqlite3.Error:
-            return (False, None)
+        if user_id:
+            try:
+                with cls._connect() as conn:
+                    c = conn.cursor()
+                    last_time , = c.execute('SELECT last_join FROM Users WHERE id = ?', (user_id,)).fetchone()
+                    user = cls.get_user(user_id)
+                    if user:
+                        c.execute('UPDATE Users SET last_join = ? WHERE id = ?', (now_time, user_id))
+            except sqlite3.Error:
+                return (False, None)
 
-        return (now_time - last_time, user)
+            return (now_time - last_time, user)
+        return (False, None)
 

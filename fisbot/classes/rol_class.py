@@ -54,6 +54,8 @@ class FisRol(Display):
         con la misma id. Si no lo encuentra devuelve `None`'''
 
         instance = cls().database.get_rol_id(role.id)
+        if not instance:
+            instance = cls(rol_id=role.id, context=ctx, name=role.name)
         await instance.init_display(ctx)
         instance._disc_obj = role
         return instance

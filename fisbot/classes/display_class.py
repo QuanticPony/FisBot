@@ -272,7 +272,8 @@ class Display():
 
             await self.resend(message)
             check_reaction = lambda reaction, user: not user.bot and reaction.message.channel.recipient.id == user.id
-            check_user = lambda message: not message.author.bot
+            # TODO: debugguear esto
+            check_user = lambda message: not message.author.bot and message.author.id == self._channel.recipient.id
 
             try:
                 reaction, user = await self._ctx.bot.wait_for('reaction_add', timeout=30.0, check=check_reaction)
