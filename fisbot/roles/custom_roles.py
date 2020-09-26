@@ -17,25 +17,45 @@ class custom_roles(
         self.bot = bot
 
 
-    def _help_embed(self, *, ctx) -> discord.Embed:
-        '''Devuelve un `discord.Embed` con los roles disponibles por subida de nivel ordenados'''
-
-        rol_list = FisRol().database.get_all_roles()
-
-        frase = ''
-        while rol_list:
-            rol = rol_list.pop()
-            disc_rol = ctx.guild.get_role(rol.id)
-            if disc_rol and rol.level > 0:
-                frase += f"\n{disc_rol.mention} -> Desbloqueado al nivel {rol.level}"
-
-        roles=discord.Embed(
-            title='Roles:',
-            description='Estos son los roles disponibles por subida de nivel:' +  frase,
-            color=discord.Color.purple()
-        )
+    def _help_embed(self, *, ctx, mode) -> discord.Embed:
         
-        return roles  
+        if mode == 0
+            '''Devuelve un `discord.Embed` con los roles disponibles por subida de nivel ordenados'''
+
+            rol_list = FisRol().database.get_all_roles()
+
+            frase = ''
+            while rol_list:
+                rol = rol_list.pop()
+                disc_rol = ctx.guild.get_role(rol.id)
+                if disc_rol and rol.level > 0:
+                    frase += f"\n{disc_rol.mention} -> Desbloqueado al nivel {rol.level}"
+
+            roles=discord.Embed(
+                title='Roles:',
+                description='Estos son los roles disponibles por subida de nivel:' +  frase,
+                color=discord.Color.purple()
+            )
+
+            return roles  
+
+        if mode == 1
+            '''Devuelve un `discord.Embed` con los roles sobre asignaturas (lvl == 0)'''
+            rol_list = FisRol().database.get_all_roles()
+            frase = ''
+            while rol_list:
+                rol = rol_list.pop()
+                disc_rol = ctx.guild.get_role(rol.id)
+                if disc_rol > 0 and rol.level == 0:
+                    frase += f"\n{disc_rol.mention}"
+
+            roles=discord.Embed(
+                title='Roles:',
+                description='Estos son los roles disponibles sobre asignaturas:' +  frase,
+                color=discord.Color.purple()
+            )
+
+            return roles  
 
 
     @commands.group(
@@ -43,6 +63,7 @@ class custom_roles(
         name='role',
         aliases=['roles', 'rol'],
         help='''¿Quieres ver los roles disponibles por subida de nivel? ```.roles```
+        ¿Quieres ver las asignaturas existentes? ```.roles subjects```
         ¿Quieres recibir notificaciones sobre Termodinamica? ```.role subscribe <@&753362848851165185>```
         ¿Quieres dejar de recibir notificaciones sobre Termodinamica? ```.role unsubscribe <@&753362848851165185>```
         ¿Quieres informacion sobre el rol @Termodinamica? ```.role info <@&753362848851165185>```
@@ -53,6 +74,7 @@ class custom_roles(
         subscribe:      Subscribirse a una asignatura
         unsubscribe:    Desubscribirse a una asignatura
         info:           Muestra informacion del rol
+        subjects:       Muestra las asignaturas disponibles
         create:         <Admin> Crea un rol personalizado
         add:            <Admin> Añade un rol existente
         modify:         <Admin> Modifica un rol personalizado
@@ -62,7 +84,7 @@ class custom_roles(
     )
     async def _roles(self, context):
         if context.invoked_subcommand is None:
-            await context.send(embed=self._help_embed(ctx=context))
+            await context.send(embed=self._help_embed(ctx=context,0))
 
 
     @_roles.command(
@@ -242,6 +264,20 @@ class custom_roles(
                 rol = await FisRol.init_from_discord(ctx, disc_rol)
                 rol.database.del_rol(rol)
         await ctx.message.delete()
+
+
+@_roles.command(
+        pass_context=True,
+        aliases=['sub', 'asignaturas'],
+        help='''¿Quieres ver los roles sobre asignaturas? ```.roles subjects```
+        ''',
+        brief='''Muestra los roles de asignaturas creados''',
+        description='''Muestra los roles de asignaturas creados, disponibles para cualquier usuario con el comando .roles subscribe @Geología''',
+        usage='.roles subjects',
+        
+    )
+    async def subjects(self, ctx):
+        await context.send(embed=self._help_embed(ctx=context,1))
 
 
     @commands.command(
