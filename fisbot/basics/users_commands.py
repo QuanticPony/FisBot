@@ -119,7 +119,11 @@ class users_cog(
         help='''¿Quieres ver tu karma? ```.karma```
         ¿Quieres ver el karma de @Victor? ```.karma @Victor```''',
         brief='''Karma de un usuario''',
-        description='''Te muestra la informacion del usuario, igual que el comando ```.level```''',
+        description='''Te muestra la informacion del usuario, igual que el comando ```.level```
+        Los subcomandos disponibles son:
+        ```
+        rank muestra el top karma
+        ```''',
         usage='.karma [user/s_mention/s]'
     )
     async def _karma(self, ctx):
@@ -127,3 +131,47 @@ class users_cog(
         await ctx.send('**Uso:** Para dar karma a alguien solo tienes que reaccionar con ⬆️ en un mensaje suyo. Para quitar ⬇️')
         if not ctx.invoked_subcommand:
             await self.level(ctx)
+
+
+    @_karma.command(
+        pass_context=True,
+        name='rank',
+        aliases=['top','list','t'],
+        help='''¿Quieres ver quién tiene más karma? ```.karma rank ```''',
+        description='''Muestra una lista de los usuarios ordenados según su karma''',
+        brief='''ranking del karma''',
+        usage='.karma rank',
+    )
+    async def rank(self, ctx):
+        
+        lista=[]
+        for memb in contex.guild.members:
+            usuario = memb
+            lista.extend([usuario])
+
+        lista.sort(key = lambda memb : memb.karma)
+
+        lista_tam=len(lista)
+
+        if lista_tam > 10:
+            lista_tam = 10
+
+        embed= discord.Embed(
+            title='Ranking karma points',
+            description='Estos son l@s Físic@s que tienen más karma (fijo que son buena gente)',
+            color=discord.Color.orange()
+        )
+
+        for i in range(1, lista_tam):
+            embed.add_field(
+                name = i + 'º⇒ ' + lista[i-1].name + ':',
+                value = lista[i].Karma,
+                inline = True,
+            )
+
+        await ctx.send(embed=embed) 
+    
+
+
+
+        
