@@ -110,7 +110,7 @@ class UsersDB(database):
                     user = cls.get_user(user_id)
                     if user:
                         c.execute('UPDATE Users SET last_message = ? WHERE id = ?', (now_time, user_id))
-            except sqlite3.Error:
+            except:
                 return (False, None)
 
             if not last_time:

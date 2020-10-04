@@ -64,6 +64,24 @@ class poll_cog(
                 if str(reaction.emoji) == '💾':
                     return False
 
+                elif reaction.emoji == '❌':
+                    try:
+                        ask_message = await channel.send('Selecciona el campo a eliminar')
+                        try:
+                            reaction, user = await ctx.bot.wait_for('reaction_add', timeout=30.0, check=confirm_reaction)
+                        except asyncio.TimeoutError:
+                            await channel.send('Se acabo el tiempo...')
+                            return False
+                        if str(reaction.emoji) == '💾' or str(reaction.emoji) == '❌' or  str(reaction.emoji) == '❎':
+                            await channel.send('No puedes eliminar ese campo...')
+                            return False
+                    except asyncio.TimeoutError:
+                        await channel.send('Se acabo el tiempo...')
+                        return False
+                    if reaction.emoji in poll.options.keys():
+                        poll.del_element(reaction.emoji)
+                    return True
+
             except asyncio.TimeoutError:
                 await channel.send('Se acabo el tiempo...')
                 return False
@@ -77,11 +95,6 @@ class poll_cog(
 
             if reaction.emoji == '❎':
                 poll.add_element(response_msg.content)
-            elif reaction.emoji == '❌':
-                if response_msg.content in poll.keys():
-                    poll.del_element(response_msg.content)
-                else:
-                    channel.send('No existe ese campo')
             else:
                 poll.mod_element(reaction.emoji, response_msg.content)
             
@@ -119,21 +132,16 @@ class poll_cog(
         return (final_poll, list(elements_dic.keys()))
 
 
-    #TODO: permitir poner mensajes custom con la encuesta. Como en .task get
     @commands.command(
         pass_context=True, 
         aliases=['encuesta','p'],
         help='''¿Quieres hacer una encuesta? Escribe ```.poll``` Y sigue los pasos''',
         brief='''Hace una encuesta''',
         description='''Hace una encuesta preguntandote por privado los campos que quieres que tenga''',
-        usage='.poll'
+        usage='.poll [custom_message]'
     )
-    async def poll(self, ctx, *content):
+    async def poll(self, ctx, *, text=''):
         embed, emojis= await self.create_poll(ctx)
-        if content:
-            text = ' '.join(content)
-        else:
-            text = ''
         try:
             await ctx.message.delete()
             msg = await ctx.send(text, embed=embed)

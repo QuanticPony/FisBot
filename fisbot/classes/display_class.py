@@ -84,7 +84,7 @@ class Display():
             self._channel = context.author.dm_channel 
 
     async def init_display(self, ctx):
-        '''Inicia la clase `Display` con el contexto especificado'''
+        '''ASYNC Inicia la clase `Display` con el contexto especificado'''
 
         Display.__init__(self, context=ctx)
         await self.discord_obj()
@@ -112,17 +112,17 @@ class Display():
 # Funciones que hay que llamar
 
     async def create(self):
-        '''Ejecuta la conversacion en el modo `"create"`'''
+        '''ASYNC Ejecuta la conversacion en el modo `"create"`'''
 
         await self._conversate(mode='create')
 
     async def modify(self):
-        '''Ejecuta la conversacion en el modo `"modify"`'''
+        '''ASYNC Ejecuta la conversacion en el modo `"modify"`'''
 
         await self._conversate(mode='modify')
 
     async def delete(self):
-        '''Ejecuta la conversacion en el modo `"delete"`'''
+        '''ASYNC Ejecuta la conversacion en el modo `"delete"`'''
 
         await self._conversate(mode='delete')
 
@@ -204,7 +204,7 @@ class Display():
         return self._embed
 
     async def _add_reactions(self, message):
-        '''Añade las reacciones necesarias al `discord.Message`'''
+        '''ASYNC Añade las reacciones necesarias al `discord.Message`'''
 
         if self._embed._fields:
             for i in range(len(self._things_list)):
@@ -218,7 +218,7 @@ class Display():
 
     @check_if_channel()
     async def dm_send(self, *, text='', only_text=False) -> discord.Message:
-        '''Envia un `discord.Message` al usuario a traves del `discord.DMChannel`. 
+        '''ASYNC Envia un `discord.Message` al usuario a traves del `discord.DMChannel`. 
         Por defecto envia un `discord.Embed`. Si se especifica `text` se envia eso'''
 
         if only_text:
@@ -228,21 +228,21 @@ class Display():
             return await self._channel.send(embed=self._embed)
 
     async def resend(self, message):
-        '''Edita el `discord.Message` dado con el `discord.Embed` actualizado'''
+        '''ASYNC Edita el `discord.Message` dado con el `discord.Embed` actualizado'''
 
         self.embed()
         return await message.edit(embed=self._embed)
 
     @check_if_context()
     async def ctx_send(self) -> discord.Message:
-        '''Envia un mensaje al contexto que inicio el comando con el `discord.Embed` actual'''
+        '''ASYNC Envia un mensaje al contexto que inicio el comando con el `discord.Embed` actual'''
 
         self.embed
         return await self._ctx.send(embed=self._embed)
 
     @check_if_channel()
     async def _time_out(self) -> bool:
-        '''Envia un mensaje por el canal `dicord.DMChannel` informando de la llegada al limite de tiempo'''
+        '''ASYNC Envia un mensaje por el canal `dicord.DMChannel` informando de la llegada al limite de tiempo'''
 
         await self._channel.send('Se acabo el tiempo...')
         return False
@@ -252,7 +252,7 @@ class Display():
     @check_if_context()
     @check_if_channel()
     async def _conversate(self, *, mode='create'):
-        '''Conversacion que permite modificar a tiempo real los valores del objeto con un `discord.Embed`'''
+        '''ASYNC Conversacion que permite modificar a tiempo real los valores del objeto con un `discord.Embed`'''
 
         self.embed()
 
@@ -283,7 +283,7 @@ class Display():
                     return False
 
                 elif str(reaction.emoji) == '✅':
-                    self.remove_from_database()
+                    await self.remove_from_database()
                     return False
                     
                 elif str(reaction.emoji) == '❌':

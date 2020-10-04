@@ -32,6 +32,8 @@ class users_cog(
 
             if not user:
                 UsersDB.add_user(user)
+                user = UsersDB.get_user(ctx.author.id)
+
             await user.init_display(ctx)
             embeds_list.append(await user.embed_show())
 
@@ -42,6 +44,8 @@ class users_cog(
 
                 if not user:
                     UsersDB.add_user(user)
+                    user = UsersDB.get_user(ctx.author.id)
+                    
                 await user.init_display(ctx)
                 embeds_list.append(await user.embed_show())
 
@@ -128,8 +132,8 @@ class users_cog(
     )
     async def _karma(self, ctx):
 
-        await ctx.send('**Uso:** Para dar karma a alguien solo tienes que reaccionar con ⬆️ en un mensaje suyo. Para quitar ⬇️')
         if not ctx.invoked_subcommand:
+            await ctx.send('**Uso:** Para dar karma a alguien solo tienes que reaccionar con ⬆️ en un mensaje suyo. Para quitar ⬇️')
             await self.level(ctx)
 
 
@@ -145,29 +149,23 @@ class users_cog(
     async def rank(self, ctx):
         
         lista=[]
-        for memb in contex.guild.members:
-            usuario = memb
-            lista.extend([usuario])
+        for memb in UsersDB.get_all_users():
+            lista.append(memb)
+
+        frase = []
 
         lista.sort(key = lambda memb : memb.karma)
-
-        lista_tam=len(lista)
-
-        if lista_tam > 10:
-            lista_tam = 10
+        enum = enumerate(lista[-1:-11])
+        for i, memb in enumerate(lista[-1:], start=1):
+            if i < 10:
+                frase.append(f"{i}**{memb.name}**: {memb.karma}")
+    
 
         embed= discord.Embed(
             title='Ranking karma points',
-            description='Estos son l@s Físic@s que tienen más karma (fijo que son buena gente)',
+            description='Estos son l@s Físic@s que tienen más karma (fijo que son buena gente)\n' + '\n'.join(frase),
             color=discord.Color.orange()
         )
-
-        for i in range(1, lista_tam):
-            embed.add_field(
-                name = i + 'º⇒ ' + lista[i-1].name + ':',
-                value = lista[i].Karma,
-                inline = True,
-            )
 
         await ctx.send(embed=embed) 
     

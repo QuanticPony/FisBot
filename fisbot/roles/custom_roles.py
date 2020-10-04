@@ -17,9 +17,9 @@ class custom_roles(
         self.bot = bot
 
 
-    def _help_embed(self, *, ctx, mode) -> discord.Embed:
+    def _help_embed(self, ctx, *, mode=None) -> discord.Embed:
         
-        if mode == 0
+        if not mode:
             '''Devuelve un `discord.Embed` con los roles disponibles por subida de nivel ordenados'''
 
             rol_list = FisRol().database.get_all_roles()
@@ -32,30 +32,28 @@ class custom_roles(
                     frase += f"\n{disc_rol.mention} -> Desbloqueado al nivel {rol.level}"
 
             roles=discord.Embed(
-                title='Roles:',
+                title='Roles de niveles:',
                 description='Estos son los roles disponibles por subida de nivel:' +  frase,
                 color=discord.Color.purple()
             )
+            return roles
 
-            return roles  
-
-        if mode == 1
-            '''Devuelve un `discord.Embed` con los roles sobre asignaturas (lvl == 0)'''
+        if mode:
+            '''Devuelve un `discord.Embed` con los roles sobre asignaturas (lvl < 0)'''
             rol_list = FisRol().database.get_all_roles()
             frase = ''
             while rol_list:
                 rol = rol_list.pop()
                 disc_rol = ctx.guild.get_role(rol.id)
-                if disc_rol > 0 and rol.level == 0:
+                if disc_rol and rol.level < 0:
                     frase += f"\n{disc_rol.mention}"
 
             roles=discord.Embed(
-                title='Roles:',
+                title='Roles de asignaturas:',
                 description='Estos son los roles disponibles sobre asignaturas:' +  frase,
                 color=discord.Color.purple()
             )
-
-            return roles  
+            return roles
 
 
     @commands.group(
@@ -82,9 +80,9 @@ class custom_roles(
         ```''',
         usage='.role [subcommand] [args]'
     )
-    async def _roles(self, context):
-        if context.invoked_subcommand is None:
-            await context.send(embed=self._help_embed(ctx=context,0))
+    async def _roles(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send(embed=self._help_embed(ctx))
 
 
     @_roles.command(
@@ -117,12 +115,10 @@ class custom_roles(
         disc_rol = ctx.message.role_mentions
         if disc_rol:
             disc_rol = disc_rol[0]
-        else:
-            return
-        rol = await FisRol.init_from_discord(ctx, disc_rol)
-        await ctx.message.delete()
-        if rol:
-            await rol.modify()
+            rol = await FisRol.init_from_discord(ctx, disc_rol)
+            if rol:
+                await rol.modify()
+            await ctx.message.delete()
         
 
     @_roles.command(
@@ -164,20 +160,19 @@ class custom_roles(
         disc_rol = ctx.message.role_mentions
         if disc_rol:
             disc_rol = disc_rol[0]
-        else:
-            return
-        if '-u' in args and context_is_admin(ctx):
-            user = await FisUser.init_with_member(ctx.message.mentions[0])
-        else:
-            user = await FisUser.init_with_member(ctx.author)
-        await ctx.message.delete()
-
-        if disc_rol:
+        
+            admin = '-u' in args and context_is_admin(ctx)
+            if admin:
+                user = await FisUser.init_with_member(ctx.message.mentions[0])
+            else:
+                user = await FisUser.init_with_member(ctx.author)
+            await ctx.message.delete()
+    
             rol = await FisRol.init_from_discord(ctx, disc_rol)
-
-            if rol.level < user.level:
+    
+            if rol.level < 0 or admin:
                 await rol.give_to(user)
-
+    
 
     @_roles.command(
         pass_context=True,
@@ -192,18 +187,17 @@ class custom_roles(
         disc_rol = ctx.message.role_mentions
         if disc_rol:
             disc_rol = disc_rol[0]
-        else:
-            return
-        if '-u' in args and context_is_admin(ctx):
-            user = await FisUser.init_with_member(ctx.message.mentions[0])
-        else:
-            user = await FisUser.init_with_member(ctx.author)
-        await ctx.message.delete()
-
-        if disc_rol:
+        
+            admin = '-u' in args and context_is_admin(ctx)
+            if admin:
+                user = await FisUser.init_with_member(ctx.message.mentions[0])
+            else:
+                user = await FisUser.init_with_member(ctx.author)
+            await ctx.message.delete()
+    
             rol = await FisRol.init_from_discord(ctx, disc_rol)
-
-            if rol.level < user.level:
+    
+            if rol.level < 0 or admin:
                 await rol.remove_from(user)
 
     
@@ -266,18 +260,17 @@ class custom_roles(
         await ctx.message.delete()
 
 
-@_roles.command(
+    @commands.command(
         pass_context=True,
-        aliases=['sub', 'asignaturas'],
-        help='''¿Quieres ver los roles sobre asignaturas? ```.roles subjects```
-        ''',
+        aliases=['asignaturas'],
         brief='''Muestra los roles de asignaturas creados''',
-        description='''Muestra los roles de asignaturas creados, disponibles para cualquier usuario con el comando .roles subscribe @Geología''',
-        usage='.roles subjects',
+        description='''Muestra los roles de asignaturas creados, disponibles para cualquier usuario con al menos nivel 1''',
+        usage='.subjects',
         
     )
     async def subjects(self, ctx):
-        await context.send(embed=self._help_embed(ctx=context,1))
+
+        await ctx.send(embed=self._help_embed(ctx, mode=1))
 
 
     @commands.command(

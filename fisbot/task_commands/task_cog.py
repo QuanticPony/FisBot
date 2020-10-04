@@ -16,8 +16,7 @@ class task_commands(
     def __init__(self, bot):
         self.bot = bot 
     
-    # TODO  actualizar todo este cog
-
+    
     @commands.group(
         pass_context=True,
         aliases=['añadir'],
@@ -57,9 +56,7 @@ class task_commands(
     async def add(self, ctx, subject):
 
         task=FisTask(subject=subject, context=ctx)
-
         await task.create()
-        return
         
     @task.command(
         pass_context=True,
@@ -182,35 +179,12 @@ class task_commands(
 
         if task_id.isnumeric() and int(task_id) >= 0:
             
-            task = FisTask().database.get_task(int(task_id))
+            requested_task = FisTask().database.get_task(int(task_id))
+            await requested_task.init_display(ctx)
+            await requested_task.delete()
 
-            if task:
-
-                msg_conf = await ctx.send('¿Seguro que quiere borrar esto de la base de datos {.author.mention}?'.format(ctx),embed=task.embed())
-                await msg_conf.add_reaction("✅")
-                await msg_conf.add_reaction("❌")
-
-                def confirm(reaction, user):
-                    return str(reaction.emoji) == '✅' and ctx.message.author == user
-
-                try:
-                    reaction, user = await self.bot.wait_for('reaction_add', timeout=10.0, check=confirm)
-                except asyncio.TimeoutError:
-                    await msg_conf.delete()
-                else:
-                    task.database.del_task(task)
-                    if ctx.guild:
-                        await ctx.message.delete()
-                    await msg_conf.delete()
-                return
-
-
-            else:
-                await ctx.send('No se ha encontrado nada en la base de datos con id={}'.format(task_id))
-            return
-
-
-        await ctx.send('''**Lo siento**, pero la id de un elemento es un entero positivo. *{}* no es un entero positivo'''.format(task_id))
+        else:
+            await ctx.send('''**Lo siento**, pero la id de un elemento es un entero positivo. *{}* no es un entero positivo'''.format(task_id))
 
 
     @task.command(
@@ -222,6 +196,7 @@ class task_commands(
             usage='.task subjects',
         )
     async def subjects(self, ctx):
+
         asignaturas = FisTask().database.subjects()
 
         embed = discord.Embed(
@@ -253,4 +228,5 @@ class task_commands(
         )
     async def modify(self, ctx, task_id):
         requested_task = FisTask().database.get_task(task_id)
-        await requested_task.modify(ctx)
+        await requested_task.init_display(ctx)
+        await requested_task.modify()
