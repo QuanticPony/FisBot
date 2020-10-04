@@ -112,8 +112,6 @@ class UsersDB(database):
                         c.execute('UPDATE Users SET last_message = ? WHERE id = ?', (now_time, user_id))
             except:
                 return (False, None)
-            except TypeError:
-                return (False, None)
 
             if not last_time:
                 return (True, user)

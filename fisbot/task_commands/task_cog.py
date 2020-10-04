@@ -237,9 +237,5 @@ class task_commands(
     async def modify(self, ctx, task_id):
 
         requested_task = FisTask().database.get_task(task_id)
-<<<<<<< HEAD
         await requested_task.init_display(ctx)
         await requested_task.modify()
-=======
-        await requested_task.modify()
->>>>>>> 1.1.2
