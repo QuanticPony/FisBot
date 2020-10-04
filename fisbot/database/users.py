@@ -32,7 +32,7 @@ class UsersDB(database):
                     (user.id, user.name, user.karma, user.level, user.xp, user.last_message, user.last_join))
             return True
         except sqlite3.IntegrityError:
-            return False
+            return cls.update_user(user)
     
     @classmethod
     def update_user(cls, user: FisUser) -> bool:
@@ -106,11 +106,13 @@ class UsersDB(database):
             try:
                 with cls._connect() as conn:
                     c = conn.cursor()
-                    last_time , = c.execute('SELECT last_message FROM Users WHERE id = ?', (user_id,)).fetchone()
+                    last_time , = c.execute('SELECT last_message FROM Users WHERE id=?', (user_id,)).fetchone()
                     user = cls.get_user(user_id)
                     if user:
                         c.execute('UPDATE Users SET last_message = ? WHERE id = ?', (now_time, user_id))
             except:
+                return (False, None)
+            except TypeError:
                 return (False, None)
 
             if not last_time:

@@ -45,7 +45,7 @@ class FisTask(Display):
 
         task_embed = discord.Embed(
             title=f"**{self.school_year}º -> {self.subject}**",
-            description=f"**{self.title}**" + (f"[URL]({self.url})" if self.url else ''),
+            description=f"**{self.title}**  " + (f"[URL]({self.url})" if self.url else ''),
             color=discord.Color.purple()
         )
         task_embed.add_field(

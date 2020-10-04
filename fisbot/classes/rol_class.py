@@ -174,7 +174,7 @@ class FisRol(Display):
         self._disc_obj = self._ctx.guild.get_role(self.id)
 
         if not self._disc_obj:
-            self.create_discord_obj(self._ctx)
+            await self.create_discord_obj(self._ctx)
 
         self.name = self._disc_obj.name
         return self._disc_obj
