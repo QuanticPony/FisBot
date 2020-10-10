@@ -153,13 +153,13 @@ class users_cog(
         frase = []
 
         lista.sort(key = lambda memb : memb.karma)
-	lista.reverse()
+        lista.reverse()
         
         for i, memb in enumerate(lista, start=1):
-            if i < 10:
+            if i <= 10:
                 frase.append(f"{i} - **{memb.name}**: {memb.karma}")
-	    else:
-		break
+            else:
+                break
     
 
         embed= discord.Embed(
