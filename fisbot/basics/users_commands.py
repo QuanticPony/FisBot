@@ -148,17 +148,18 @@ class users_cog(
     )
     async def rank(self, ctx):
         
-        lista=[]
-        for memb in UsersDB.get_all_users():
-            lista.append(memb)
+        lista = list(UsersDB.get_all_users())
 
         frase = []
 
         lista.sort(key = lambda memb : memb.karma)
-        enum = enumerate(lista[-1:-11])
-        for i, memb in enumerate(lista[-1:], start=1):
+	lista.reverse()
+        
+        for i, memb in enumerate(lista, start=1):
             if i < 10:
-                frase.append(f"{i}**{memb.name}**: {memb.karma}")
+                frase.append(f"{i} - **{memb.name}**: {memb.karma}")
+	    else:
+		break
     
 
         embed= discord.Embed(
