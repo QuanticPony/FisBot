@@ -81,20 +81,26 @@ class FisUser(Display):
                     1: f"{mention()} ha ascendido al nivel {self.level}!! Esperemos que no se le suba a la cabeza...",
                     2: f"Felicidades {mention()}!! Disfruta de tu nivel {self.level}!",
                     3: f"Ya falta poco! Dentro de tan solo {1000-self.level} te damos rango admin {mention()}!",
-                    4: f"**Dato curioso**: Los koalas bebes lamen el ano de sus madres. Y {mention()} es tan solo nivel {self.level}"
+                    4: f"**Dato curioso**: Los koalas bebes lamen el ano de sus madres. Y {mention()} es tan solo nivel {self.level}",
+                    5: f"**Dato curioso**: 0.7% de la poblacion mundial se encuentra permanentemente borracha. Y {mention()} es nivel {self.level}",
+                    6: f"**Dato curioso**: Un **144%** de los datos que te encuentras en internet son ||FALSOS||. Y {mention()} ha subido a nivel {self.level**2 * 86}"
                 }
-        await guild.system_channel.send(new_level_frases[randint(0,len(new_level_frases) - 1)])
+
+        if guild.system_channel:
+            await guild.system_channel.send(new_level_frases[randint(0,len(new_level_frases) - 1)])
 
         roles = FisRol().check_new_rol_needed(self)
-        for rol in roles:
-            guild = bot.get_guild(rol.guild_id)
-            if guild and self.discord_obj in guild.members:
-                await rol.give_to(self, guild=guild)
-                rol = rol.prev_role_of_level(self.level)
-                if rol:
-                    await rol.remove_from(self, guild=guild)
+        if roles:
+            for role in roles:
+                guild = bot.get_guild(role.guild_id)
+                if guild and self._disc_obj in guild.members:
+                    await role.give_to(self, guild=guild)
+                    rols = role.prev_roles_of_level(self.level)
+                    if rols:
+                        for rol in rols:
+                            await rol.remove_from(self, guild=bot.get_guild(rol.guild_id))
 
-    async def addxp(self, guild, amount=None) :
+    async def addxp(self, bot, guild, *, amount=None) :
         '''ASYNC Sube la experiencia del usuario. Si el usuario necesita subir de nivel, lo hace'''
         
         if not amount:
@@ -105,7 +111,7 @@ class FisUser(Display):
         if newxp >= xp_required:
             self.xp = newxp - xp_required
             self.level += 1
-            await self.level_up(guild)
+            await self.level_up(bot, guild)
             self.database.update_user(self)
         else:
             self.xp = newxp

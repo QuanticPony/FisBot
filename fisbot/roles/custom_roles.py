@@ -4,6 +4,7 @@ from ..classes.rol_class import FisRol
 from ..classes.user_class import FisUser
 from ..classes.display_class import Display
 from ..classes.bot_class import context_is_admin
+from ..database.roles import RolesDB
 
 
 class custom_roles(
@@ -22,7 +23,7 @@ class custom_roles(
         if not mode:
             '''Devuelve un `discord.Embed` con los roles disponibles por subida de nivel ordenados'''
 
-            rol_list = FisRol().database.get_all_roles()
+            rol_list = FisRol().database.get_all_roles(ctx.guild.id)
 
             frase = ''
             while rol_list:
@@ -248,15 +249,14 @@ class custom_roles(
     )
     async def delete(self, ctx):
 
-        disc_rol = ctx.message.role_mentions[0]
-        if disc_rol:
+        disc_rols = ctx.message.role_mentions
+        for disc_rol in disc_rols:
             try:
                 await disc_rol.delete()
             except:
                 pass
             else:
-                rol = await FisRol.init_from_discord(ctx, disc_rol)
-                rol.database.del_rol(rol)
+                RolesDB.del_rol(FisRol(rol_id=disc_rol.id))
         await ctx.message.delete()
 
 

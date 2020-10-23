@@ -49,7 +49,8 @@ class listeners(
         confirm, user = UsersDB.last_message_cooldown(message.author.id)
 
         if confirm:
-            await user.addxp(message.guild)
+            user._disc_obj = message.author
+            await user.addxp(self.bot, message.guild)
         else:
             user = await FisUser.init_with_member(message.author)
     
@@ -67,7 +68,12 @@ class listeners(
                 user = await FisUser.init_with_member(member)
                 UsersDB.add_user(user)
             try:
-                await user.addxp(member.guild, amount=(amount % (30)))
+                level = FisUser.init_with_member(member).level
+                if level < 5:
+                    await user.addxp(member.guild, amount=(amount % (5 * (level + 1))))
+                else:
+                    await user.addxp(member.guild, amount=(amount % (30)))
+
             except:
                 pass
 

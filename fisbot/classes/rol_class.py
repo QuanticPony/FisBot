@@ -19,7 +19,7 @@ class FisRol(Display):
     _descr_for_del ='''¿Seguro que quiere eliminar este elemento de la base de datos y de discord?
         Si es así, reaccione ✅. De lo contrario, reaccione ❌:'''
 
-    def __init__(self, rol_id=0, level=0, description='None', privileges='None', context=None, name='None', guild_id=None):
+    def __init__(self, rol_id=0, level=0, description='None', privileges='None', guild_id=None, context=None, name='None'):
         super().__init__(context=context)
         self.id = rol_id
         self.name = name
@@ -33,7 +33,7 @@ class FisRol(Display):
 
         if context:
             self._ctx = context
-            self.guild_id = context
+            self.guild_id = context.guild.id
 
 
     @classmethod
@@ -67,7 +67,7 @@ class FisRol(Display):
     def check_new_rol_needed(self, user):
         '''Devuelve el rol `FisRol` que deberia tener el usuario especificado. Si no hay un rol para ese nivel devuelve `None`'''
 
-        return self.database.get_rol(user.level)
+        return self.database.get_roles(user.level)
 
     def prev_roles_of_level(self, level: int):
         '''Devuelve una lista de `FisRol` que consiguio el usuario. Devuelve `None` si no ha conseguido nunca un rol'''
@@ -170,7 +170,7 @@ class FisRol(Display):
     @check_if_context()
     async def discord_obj(self) -> discord.Role:
 
-        self._disc_obj = self._ctx.guild.get_role(self.id)
+        self._disc_obj = self._ctx.bot.get_guild(self.guild_id).get_role(self.id)
 
         if not self._disc_obj:
             await self.create_discord_obj(self._ctx)
@@ -187,13 +187,12 @@ class FisRol(Display):
         except:
             return False
 
-    @check_if_discord_obj()
-    def save_in_database(self) -> bool:
+    async def save_in_database(self) -> bool:
 
         self.database.add_rol(self)
         return self.database.update_rol(self)
 
-    def remove_from_database(self) -> bool:
+    async def remove_from_database(self) -> bool:
 
         return self.database.del_rol(self)
 
@@ -228,7 +227,7 @@ class FisRol(Display):
 
         self._atributes_dic = self.__dict__.copy()
 
-        for key in ['id', 'database']:
+        for key in ['id', 'database', 'guild_id']:
             try:
                 self._atributes_dic.pop(key)
             except KeyError:
