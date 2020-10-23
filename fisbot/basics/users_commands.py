@@ -32,6 +32,8 @@ class users_cog(
 
             if not user:
                 UsersDB.add_user(user)
+                user = UsersDB.get_user(ctx.author.id)
+
             await user.init_display(ctx)
             embeds_list.append(await user.embed_show())
 
@@ -42,6 +44,8 @@ class users_cog(
 
                 if not user:
                     UsersDB.add_user(user)
+                    user = UsersDB.get_user(ctx.author.id)
+                    
                 await user.init_display(ctx)
                 embeds_list.append(await user.embed_show())
 
@@ -119,11 +123,49 @@ class users_cog(
         help='''¿Quieres ver tu karma? ```.karma```
         ¿Quieres ver el karma de @Victor? ```.karma @Victor```''',
         brief='''Karma de un usuario''',
-        description='''Te muestra la informacion del usuario, igual que el comando ```.level```''',
+        description='''Te muestra la informacion del usuario, igual que el comando ```.level```
+        Los subcomandos disponibles son:
+        ```
+        rank muestra el top karma
+        ```''',
         usage='.karma [user/s_mention/s]'
     )
     async def _karma(self, ctx):
 
-        await ctx.send('**Uso:** Para dar karma a alguien solo tienes que reaccionar con ⬆️ en un mensaje suyo. Para quitar ⬇️')
         if not ctx.invoked_subcommand:
+            await ctx.send('**Uso:** Para dar karma a alguien solo tienes que reaccionar con ⬆️ en un mensaje suyo. Para quitar ⬇️')
             await self.level(ctx)
+
+
+    @_karma.command(
+        pass_context=True,
+        name='rank',
+        aliases=['top','list','t'],
+        help='''¿Quieres ver quién tiene más karma? ```.karma rank ```''',
+        description='''Muestra una lista de los usuarios ordenados según su karma''',
+        brief='''ranking del karma''',
+        usage='.karma rank',
+    )
+    async def rank(self, ctx):
+        
+        lista = list(UsersDB.get_all_users())
+
+        frase = []
+
+        lista.sort(key = lambda memb : memb.karma)
+        lista.reverse()
+        
+        for i, memb in enumerate(lista, start=1):
+            if i <= 10:
+                frase.append(f"{i} - **{memb.name}**: {memb.karma}")
+            else:
+                break
+    
+
+        embed= discord.Embed(
+            title='Ranking karma points',
+            description='Estos son l@s Físic@s que tienen más karma (fijo que son buena gente)\n' + '\n'.join(frase),
+            color=discord.Color.orange()
+        )
+
+        await ctx.send(embed=embed) 

@@ -46,14 +46,12 @@ class listeners(
 
         if message.author.bot or not message.guild:
             return
-        db = UsersDB
-        confirm, user = db.last_message_cooldown(message.author.id)
-        if not user:
-            user = await FisUser.init_with_member(message.author)
-            db.add_user(user)
+        confirm, user = UsersDB.last_message_cooldown(message.author.id)
+
         if confirm:
-            user.name = message.author.display_name
             await user.addxp(message.guild)
+        else:
+            user = await FisUser.init_with_member(message.author)
     
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -69,7 +67,7 @@ class listeners(
                 user = await FisUser.init_with_member(member)
                 UsersDB.add_user(user)
             try:
-                await user.addxp(member.guild, amount=(amount % (60)))
+                await user.addxp(member.guild, amount=(amount % (30)))
             except:
                 pass
 
@@ -78,10 +76,6 @@ class listeners(
     async def on_member_join(self, member):
         '''Añade al usuario que acaba de entrar en el servidor a la base de datos de usuarios'''
 
-        from ..database.users import UsersDB
-        from ..classes.user_class import FisUser
-        db = UsersDB()
-
         user = await FisUser.init_with_member(member)
         
         if not member.dm_channel:
@@ -89,7 +83,11 @@ class listeners(
             
         hello_message = self.create_embed_hello(member)
         await member.dm_channel.send(embed=hello_message)
-        await member.guild.system_channel.send('Bienvenido al servidor {0.guild.name}, {0.mention}'.format(member))
+        await member.guild.system_channel.send('Bienvenido al servidor {0.guild.name}, {0.mention}!'.format(member))
+
+        initial_roles = FisRol.database.get_rol(0)
+        for rol in initial_roles:
+            await rol.give_to(user, guild=self.bot.get_guild(rol.guild_id))
 
 
     async def _karma(self, mult, reaction, user):

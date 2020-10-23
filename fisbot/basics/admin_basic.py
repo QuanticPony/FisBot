@@ -24,8 +24,8 @@ class admin_basic_commands(
         usage='.status [estado]'
     )
     @commands.check(context_is_admin)
-    async def status(self, context, game=None):
-        if game == None:
+    async def status(self, context, *, game=None):
+        if not game:
             game = context.prefix + 'help'
         await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(name=game))
 

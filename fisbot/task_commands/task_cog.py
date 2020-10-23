@@ -16,8 +16,7 @@ class task_commands(
     def __init__(self, bot):
         self.bot = bot 
     
-    # TODO  actualizar todo este cog
-
+    
     @commands.group(
         pass_context=True,
         aliases=['añadir'],
@@ -61,7 +60,6 @@ class task_commands(
             .encode('ascii', 'ignore').decode('ascii')
 
         task=FisTask(subject=subject, context=ctx)
-
         await task.create()
         
     @task.command(
@@ -184,17 +182,17 @@ class task_commands(
             .encode('ascii', 'ignore').decode('ascii')
 
         if task_id.isnumeric() and int(task_id) >= 0:
-            task_requested = FisTask().database.get_task(int(task_id))
-
-        if task_requested:
-            await task_requested.delete()
-            return
-
+            
+            requested_task = FisTask().database.get_task(int(task_id))
+            if requested_task:
+                await requested_task.init_display(ctx)
+                await requested_task.delete()
+                return
+            else:
+                await ctx.send('No se ha encontrado nada en la base de datos con id={}'.format(task_id))
+                return
         else:
-            await ctx.send('No se ha encontrado nada en la base de datos con id={}'.format(task_id))
-            return
-
-        await ctx.send('''**Lo siento**, pero la id de un elemento es un entero positivo. *{}* no es un entero positivo'''.format(task_id))
+            await ctx.send('''**Lo siento**, pero la id de un elemento es un entero positivo. *{}* no es un entero positivo'''.format(task_id))
 
 
     @task.command(
@@ -206,6 +204,7 @@ class task_commands(
             usage='.task subjects',
         )
     async def subjects(self, ctx):
+
         asignaturas = FisTask().database.subjects()
 
         embed = discord.Embed(
@@ -238,4 +237,5 @@ class task_commands(
     async def modify(self, ctx, task_id):
 
         requested_task = FisTask().database.get_task(task_id)
+        await requested_task.init_display(ctx)
         await requested_task.modify()
