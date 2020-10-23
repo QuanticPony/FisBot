@@ -5,11 +5,12 @@ from sqlite3 import Connection
 
 class RolesDB(database):
 
-    SQL_TABLE = '''CREATE TABLE IF NOT EXISTS Roles (
+    SQL_TABLE = '''CREATE {guild.id} IF NOT EXISTS Roles (
         rol_id integer NOT NULL PRIMARY KEY,
         lvl integer,
         description text,
-        privileges text
+        privileges text,
+        guild_id integer
         )'''
 
     @classmethod
@@ -54,19 +55,23 @@ class RolesDB(database):
             return False
 
     @classmethod
-    def get_rol(cls, level) -> FisRol:
-        '''Obtiene un rol de la base de datos si su nivel coincide con `level`.
+    def get_roles(cls, level, *, guild_id=None) -> list[FisRol]:
+        '''Devuelve todos los roles que tengan el mismo `level`.
+        Si se introduce la id del servidor `guild_id` un rol de la base de datos si su nivel coincide con `level`.
         Si el rol no se encuentra devuelve `None`.'''
 
         try:
             with cls._connect() as conn:
                 c = conn.cursor()
-                result = c.execute('SELECT * FROM Roles WHERE lvl = ?', (level,)).fetchone()
+                if not guild_id:
+                    result = c.execute('SELECT * FROM Roles WHERE lvl = ?, guild_id = ?', (level, guild_id)).fetchone()
+                else:
+                    result = c.execute('SELECT * FROM Roles WHERE lvl = ?', (level,)).fetchall()
         except sqlite3.Error:
             return None
         if not result:
             return None
-        return FisRol(*result)
+        return list([FisRol(*rol) for rol in result])
 
     @classmethod
     def get_rol_id(cls, rol_id) -> FisRol:
@@ -84,15 +89,14 @@ class RolesDB(database):
         return FisRol(*result)
 
     @classmethod
-    def get_all_roles(cls) -> list:
+    def get_all_roles(cls, guild_id) -> list:
         '''Devuelve una colección de todos los roles registrados en la base de datos
         ordenados por nivel necesario.'''
 
         try:
             with cls._connect() as conn:
                 c = conn.cursor()
-                result = c.execute('SELECT * FROM Roles ORDER BY lvl').fetchall()
+                result = c.execute('SELECT * FROM Roles ORDER BY lvl WHERE guild_id = ?', (guild_id,)).fetchall()
         except sqlite3.Error:
             return None
         return list([FisRol(*rol) for rol in result])
-

@@ -67,13 +67,12 @@ class FisUser(Display):
         return  self._descr_for_del.format(self)
 
 
-
     def xp_to_lvl_up(self) -> int:
         '''Devuelve la cantidad de experiencia necesaria para subir al siguiente nivel'''
         
         return ((self.level ** 2) + self.level + 2) * 50 - self.level * 100
 
-    async def level_up(self, guild):
+    async def level_up(self, bot, guild):
         '''ASYNC Te sube de nivel'''
 
         mention = lambda: f"<@{self.id}>"
@@ -86,12 +85,14 @@ class FisUser(Display):
                 }
         await guild.system_channel.send(new_level_frases[randint(0,len(new_level_frases) - 1)])
 
-        rol = FisRol().check_new_rol_needed(self)
-        if rol:
-            await rol.give_to(self, guild=guild)
-            rol = rol.prev_role_of_level(self.level)
-            if rol:
-                await rol.remove_from(self, guild=guild)
+        roles = FisRol().check_new_rol_needed(self)
+        for rol in roles:
+            guild = bot.get_guild(rol.guild_id)
+            if guild and self.discord_obj in guild.members:
+                await rol.give_to(self, guild=guild)
+                rol = rol.prev_role_of_level(self.level)
+                if rol:
+                    await rol.remove_from(self, guild=guild)
 
     async def addxp(self, guild, amount=None) :
         '''ASYNC Sube la experiencia del usuario. Si el usuario necesita subir de nivel, lo hace'''

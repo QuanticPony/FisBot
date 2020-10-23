@@ -19,19 +19,21 @@ class FisRol(Display):
     _descr_for_del ='''¿Seguro que quiere eliminar este elemento de la base de datos y de discord?
         Si es así, reaccione ✅. De lo contrario, reaccione ❌:'''
 
-    def __init__(self, rol_id=0, level=0, description='None', privileges='None', context=None, name='None'):
+    def __init__(self, rol_id=0, level=0, description='None', privileges='None', context=None, name='None', guild_id=None):
         super().__init__(context=context)
         self.id = rol_id
         self.name = name
         self.level = level
         self.description = description
         self.privileges = privileges
+        self.guild_id = guild_id
 
         from ..database.roles import RolesDB
         self.database = RolesDB
 
         if context:
             self._ctx = context
+            self.guild_id = context
 
 
     @classmethod
@@ -67,16 +69,13 @@ class FisRol(Display):
 
         return self.database.get_rol(user.level)
 
-    def prev_role_of_level(self, level: int):
-        '''Devuelve el ultimo rol `FisRol` que consiguio el usuario. Devuelve `None` si no ha conseguido nunca un rol'''
+    def prev_roles_of_level(self, level: int):
+        '''Devuelve una lista de `FisRol` que consiguio el usuario. Devuelve `None` si no ha conseguido nunca un rol'''
 
 
         for i in reversed(range(1, level)):
-            rol = self.database.get_rol(i)
-            if rol: 
-                if self._ctx:
-                    rol._ctx = self._ctx
-                return rol
+            roles = self.database.get_roles(i)
+            return roles
                     
         else:
             return None
