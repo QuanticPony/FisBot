@@ -39,7 +39,14 @@ class admin_basic_commands(
         usage='.say <text>'
     )
     @commands.check(context_is_admin)
-    async def say(self, ctx, *, text):
+    async def say(self, ctx, *text):
+
+        if ctx.message.channel_mentions:
+            channel = ctx.message.channel_mentions[0]
+            text.remove(channel.mention)
+            new_text = ' '.join(text)
+            await channel.send(new_text)
+            return
 
         await ctx.message.delete()
         await ctx.send(text)

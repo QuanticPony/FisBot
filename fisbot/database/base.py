@@ -13,6 +13,7 @@ class database():
     def _create_db(cls) -> Connection:
         '''Crea la base de datos de FisBot'''
 
+        PATH = BOT_PATH
         with sqlite3.connect(cls.PATH + cls.FILE_NAME) as conn:
             c = conn.cursor()
             c.execute(cls.SQL_TABLE)
@@ -36,7 +37,7 @@ class database():
         '''Ejecuta en la base de datos una sentencia SQL'''
 
         try: 
-            conn = sqlite3.connect('file:{}?mode=rw'.format(cls.PATH + cls.FILE_NAME), uri=True)
+            conn = cls._connect()
             result = conn.cursor().execute(sentence)
             return result
 
