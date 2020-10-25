@@ -63,6 +63,8 @@ class listeners(
             UsersDB.new_voice_join(member.id)
 
         if not after.channel and before.channel:
+            if before.channel == before.guild.afk_channel:
+                return
             amount, user = UsersDB.last_voice_join(member.id)
             if not user:
                 user = await FisUser.init_with_member(member)

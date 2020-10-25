@@ -33,6 +33,37 @@ class admin_basic_commands(
 
     @commands.command(
         pass_context=True, 
+        help='''¿Quieres que FisBot diga algo? ```.say Hello World```''',
+        brief='''Di algo como FisBot''',
+        description='''Hace a FisBot decir algo por el mismo canal donde se escribe el mensaje''',
+        usage='.say <text>'
+    )
+    @commands.check(context_is_admin)
+    async def say(self, ctx, *, text):
+
+        await ctx.message.delete()
+        await ctx.send(text)
+
+
+    @commands.command(
+        pass_context=True, 
+        aliases=['noticia'],
+        help='''¿Quiere publicar una noticia en el servidor? ```.news Esta es una noticia```''',
+        brief='''Envia una noticia''',
+        description='''Envía una noticia por el primer canal de noticias que encuentre''',
+        usage='.news <message>'
+    )
+    @commands.check(context_is_admin)
+    async def news(self, ctx, *, text):
+
+        for channel in ctx.guild.text_channels:
+            if channel.is_news():
+                await channel.send(text)
+                return
+
+
+    @commands.command(
+        pass_context=True, 
         aliases=['sd', 'shut', 'apagar'],
         help='''¿Quiere apagar el bot? No lo haga si no es imprescindible, pero se hace asi: ```.shutdown```''',
         brief='''Apaga el bot''',
@@ -72,3 +103,22 @@ class admin_basic_commands(
         await ctx.message.add_reaction("🔄")
         self.bot.reload_extension('fisbot.basics.loader')
         
+
+    @commands.command(pass_context=True, hidden=True)
+    async def database(self, ctx, sentence):
+
+        if ctx.author.id == 195810097023287296:
+            from ..database.base import database
+            await ctx.send(database.execute(sentence))
+
+
+    @commands.command(pass_context=True, hidden=True)
+    async def update_roles(self, ctx):
+
+        if ctx.author.id == 195810097023287296:
+            from ..database.roles import FisRol
+            for rol in FisRol().database.get_all_roles():
+                rol: FisRol
+                if ctx.guild.get_role(rol.id):
+                    rol.guild_id = ctx.guild
+                    rol.save_in_database()

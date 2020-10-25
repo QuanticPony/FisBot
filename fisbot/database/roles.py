@@ -89,7 +89,7 @@ class RolesDB(database):
         return FisRol(*result)
 
     @classmethod
-    def get_all_roles(cls, guild_id) -> list:
+    def get_all_guild_roles(cls, guild_id) -> list:
         '''Devuelve una colección de todos los roles registrados en la base de datos
         ordenados por nivel necesario.'''
 
@@ -97,6 +97,19 @@ class RolesDB(database):
             with cls._connect() as conn:
                 c = conn.cursor()
                 result = c.execute('SELECT * FROM Roles WHERE guild_id = ? ORDER BY lvl ', (guild_id,)).fetchall()
+        except sqlite3.Error:
+            return None
+        return list([FisRol(*rol) for rol in result])
+
+    @classmethod
+    def get_all_roles(cls) -> list:
+        '''Devuelve una colección de todos los roles registrados en la base de datos
+        ordenados por nivel necesario.'''
+
+        try:
+            with cls._connect() as conn:
+                c = conn.cursor()
+                result = c.execute('SELECT * FROM Roles ORDER BY lvl ').fetchall()
         except sqlite3.Error:
             return None
         return list([FisRol(*rol) for rol in result])

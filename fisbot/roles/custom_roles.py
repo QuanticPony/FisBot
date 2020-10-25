@@ -154,26 +154,36 @@ class custom_roles(
         brief='''Subscribirse a una asignatura''',
         description='''Permite subscribirse a las notificaciones sobre esa asignatura: 
         cada vez que se publique una noticia sobre ella te llegara una notificacion''',
-        usage='.role subscribe <rol_mention> [-u [member_mention]]'
+        usage='.role subscribe [-year [school_year]] [-user [user_mention]] <rol_mention/s>'
     )
     async def subscribe(self, ctx, *args):
 
-        disc_rol = ctx.message.role_mentions
-        if disc_rol:
-            disc_rol = disc_rol[0]
-        
-            admin = '-u' in args and context_is_admin(ctx)
-            if admin:
-                user = await FisUser.init_with_member(ctx.message.mentions[0])
+        subjects_list = ctx.mesage.role_mentions
+        role_list = []
+
+        if '-year' in args:
+            year = subjects_list[subjects_list.index('-year') + 1]
+            if year.isnumeric():
+                role_list = RolesDB.get_roles(year, guild_id=ctx.guild.id)
             else:
-                user = await FisUser.init_with_member(ctx.author)
-            await ctx.message.delete()
-    
-            rol = await FisRol.init_from_discord(ctx, disc_rol)
-    
-            if rol.level < 0 or admin:
-                await rol.give_to(user)
-    
+                return
+        else:
+            for subject in subjects_list:
+                role_list.append(await FisRol.init_from_discord(ctx, subject))
+
+
+        admin = '-u' in admin and context_is_admin(ctx)
+        if admin:
+            user = await FisUser.init_with_member(ctx.message.mentions[0])
+        else:
+            user = await FisUser.init_with_member(ctx.author)
+        await ctx.message.delete()
+
+        for role in role_list:
+            if role.level < 0 or admin:
+                await role.give_to(user)
+
+
 
     @_roles.command(
         pass_context=True,
@@ -185,21 +195,30 @@ class custom_roles(
     )
     async def unsubscribe(self, ctx, *args):
 
-        disc_rol = ctx.message.role_mentions
-        if disc_rol:
-            disc_rol = disc_rol[0]
-        
-            admin = '-u' in args and context_is_admin(ctx)
-            if admin:
-                user = await FisUser.init_with_member(ctx.message.mentions[0])
+        subjects_list = ctx.mesage.role_mentions
+        role_list = []
+
+        if '-year' in args:
+            year = subjects_list[subjects_list.index('-year') + 1]
+            if year.isnumeric():
+                role_list = RolesDB.get_roles(year, guild_id=ctx.guild.id)
             else:
-                user = await FisUser.init_with_member(ctx.author)
-            await ctx.message.delete()
-    
-            rol = await FisRol.init_from_discord(ctx, disc_rol)
-    
-            if rol.level < 0 or admin:
-                await rol.remove_from(user)
+                return
+        else:
+            for subject in subjects_list:
+                role_list.append(await FisRol.init_from_discord(ctx, subject))
+
+
+        admin = '-u' in admin and context_is_admin(ctx)
+        if admin:
+            user = await FisUser.init_with_member(ctx.message.mentions[0])
+        else:
+            user = await FisUser.init_with_member(ctx.author)
+        await ctx.message.delete()
+
+        for role in role_list:
+            if role.level < 0 or admin:
+                await role.remove_from(user)
 
     
     @_roles.command(

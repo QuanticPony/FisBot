@@ -30,3 +30,15 @@ class database():
 
         except sqlite3.OperationalError:
             return cls._create_db()
+
+    @classmethod
+    def execute(cls, sentence) -> str:
+        '''Ejecuta en la base de datos una sentencia SQL'''
+
+        try: 
+            conn = sqlite3.connect('file:{}?mode=rw'.format(cls.PATH + cls.FILE_NAME), uri=True)
+            result = conn.cursor().execute(sentence)
+            return result
+
+        except sqlite3.OperationalError:
+            return cls._create_db()
