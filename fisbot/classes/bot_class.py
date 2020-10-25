@@ -12,7 +12,7 @@ def context_is_admin(context):
     else:
         return False
 
-BOT_PATH = ' '
+BOT_PATH = ''
 
 class FisBot(commands.Bot):    
 

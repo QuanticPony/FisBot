@@ -23,7 +23,7 @@ class custom_roles(
         if not mode:
             '''Devuelve un `discord.Embed` con los roles disponibles por subida de nivel ordenados'''
 
-            rol_list = FisRol().database.get_all_roles(ctx.guild.id)
+            rol_list = FisRol().database.get_all_guild_roles(ctx.guild.id)
 
             frase = ''
             while rol_list:
@@ -41,7 +41,7 @@ class custom_roles(
 
         if mode:
             '''Devuelve un `discord.Embed` con los roles sobre asignaturas (lvl < 0)'''
-            rol_list = FisRol().database.get_all_roles()
+            rol_list = FisRol().database.get_all_guild_roles()
             frase = ''
             while rol_list:
                 rol = rol_list.pop()
