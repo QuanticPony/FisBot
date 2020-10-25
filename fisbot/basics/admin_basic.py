@@ -48,8 +48,9 @@ class admin_basic_commands(
             await channel.send(new_text)
             return
 
+        new_text = ' '.join(text)
         await ctx.message.delete()
-        await ctx.send(text)
+        await ctx.send(new_text)
 
 
     @commands.command(
