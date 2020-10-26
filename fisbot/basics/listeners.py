@@ -59,15 +59,19 @@ class listeners(
         '''Cuando se actualiza el estado de voz de un miembro. 
         Sube la experiencia del usuario en funcion del tiempo en canal de voz'''
 
-
         def check_channel(state):
-            if before.channel == before.guild.afk_channel:
-                return False
-            if '!' in before.channel.category.name:
-                return False
+            try:
+                if before.channel == before.guild.afk_channel:
+                    return False
+            except AttributeError:
+                pass
+            try:
+                if '!' in before.channel.category.name:
+                    return False
+            except AttributeError:
+                pass
             return True
 
-        
         if after.channel and not before.channel:
             UsersDB.new_voice_join(member.id)
 
@@ -79,12 +83,10 @@ class listeners(
                 user = await FisUser.init_with_member(member)
                 UsersDB.add_user(user)
             try:
-                level = FisUser.init_with_member(member).level
-                if level < 5:
-                    await user.addxp(member.guild, amount=(amount % (5 * (level + 1))))
+                if user.level < 5:
+                    await user.addxp(member.guild, amount=(amount % (5 * (user.level + 1))))
                 else:
                     await user.addxp(member.guild, amount=(amount % (30)))
-
             except:
                 pass
 
