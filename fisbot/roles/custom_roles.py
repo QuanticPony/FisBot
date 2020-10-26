@@ -158,7 +158,7 @@ class custom_roles(
     )
     async def subscribe(self, ctx, *args):
 
-        subjects_list = ctx.mesage.role_mentions
+        subjects_list = ctx.message.role_mentions
         role_list = []
 
         if '-year' in args:
@@ -195,7 +195,7 @@ class custom_roles(
     )
     async def unsubscribe(self, ctx, *args):
 
-        subjects_list = ctx.mesage.role_mentions
+        subjects_list = ctx.message.role_mentions
         role_list = []
 
         if '-year' in args:

@@ -61,7 +61,7 @@ class listeners(
 
         def check_channel(state):
             try:
-                if before.channel == before.guild.afk_channel:
+                if before.channel == before.channel.guild.afk_channel:
                     return False
             except AttributeError:
                 pass
