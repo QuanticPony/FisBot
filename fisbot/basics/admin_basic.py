@@ -132,23 +132,3 @@ class admin_basic_commands(
 
         await ctx.message.add_reaction("🔄")
         self.bot.reload_extension('fisbot.basics.loader')
-        
-
-    @commands.command(pass_context=True, hidden=True)
-    async def database(self, ctx, sentence):
-
-        if ctx.author.id == 195810097023287296:
-            from ..database.base import database
-            await ctx.send(database.execute(sentence))
-
-
-    @commands.command(pass_context=True, hidden=True)
-    async def update_roles(self, ctx):
-
-        if ctx.author.id == 195810097023287296:
-            from ..database.roles import FisRol
-            for rol in FisRol().database.get_all_roles():
-                rol: FisRol
-                if ctx.guild.get_role(rol.id):
-                    rol.guild_id = ctx.guild
-                    rol.save_in_database()
