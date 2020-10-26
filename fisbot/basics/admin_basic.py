@@ -14,6 +14,7 @@ class admin_basic_commands(
         self.bot = bot
         self.cog_check(context_is_admin)
 
+
     @commands.command(
         pass_context=True, 
         aliases=['estado','juego'],
@@ -28,7 +29,6 @@ class admin_basic_commands(
         if not game:
             game = context.prefix + 'help'
         await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(name=game))
-
 
 
     @commands.command(

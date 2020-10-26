@@ -58,12 +58,21 @@ class listeners(
     async def on_voice_state_update(self, member, before, after):
         '''Cuando se actualiza el estado de voz de un miembro. 
         Sube la experiencia del usuario en funcion del tiempo en canal de voz'''
+
+
+        def check_channel(state):
+            if before.channel == before.guild.afk_channel:
+                return False
+            if '!' in before.channel.category.name:
+                return False
+            return True
+
         
         if after.channel and not before.channel:
             UsersDB.new_voice_join(member.id)
 
         if not after.channel and before.channel:
-            if before.channel == before.guild.afk_channel:
+            if not check_channel(before):
                 return
             amount, user = UsersDB.last_voice_join(member.id)
             if not user:
