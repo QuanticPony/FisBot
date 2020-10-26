@@ -33,24 +33,46 @@ class admin_basic_commands(
 
     @commands.command(
         pass_context=True, 
-        help='''¿Quieres que FisBot diga algo? ```.say Hello World```''',
+        help='''¿Quieres que FisBot diga algo? ```.say Hello World```
+        ¿Quieres que FisBot diga algo cierto canal de texto?```.say #bots Horld Wello''',
         brief='''Di algo como FisBot''',
-        description='''Hace a FisBot decir algo por el mismo canal donde se escribe el mensaje''',
-        usage='.say <text>'
+        description='''Hace a FisBot decir algo tanto por el mismo canal como por otro, segun se especifique''',
+        usage='.say [channel_mention] <text>'
     )
     @commands.check(context_is_admin)
-    async def say(self, ctx, *text):
+    async def say(self, ctx, *, text):
 
         if ctx.message.channel_mentions:
             channel = ctx.message.channel_mentions[0]
-            text.remove(channel.mention)
-            new_text = ' '.join(text)
+            words_list = text.split()
+            new_text = ' '.join(list(word for word in words_list if channel.mention not in word))
             await channel.send(new_text)
             return
 
         new_text = ' '.join(text)
         await ctx.message.delete()
         await ctx.send(new_text)
+
+
+    @commands.command(
+        pass_context=True, 
+        help='''¿Quieres que FisBot diga algo a alguien? ```.tellto @Jose Buenos dias caballero```''',
+        brief='''Habla a alguien como Fisbot''',
+        description='''Hace a FisBot decir algo por mensajes directos a algun usuario''',
+        usage='.tellto <user_mention> <text>'
+        )
+    @commands.check(context_is_admin)
+    async def tellto(self, ctx, *, text):
+
+        if ctx.message.author:
+            member = ctx.message.mentions[0]
+            words_list = text.split()
+            new_text = ' '.join(list(word for word in words_list if member.mention not in word))
+            channel = member.dm_channel
+            if not channel:
+                channel = await member.create_dm()
+
+            await channel.send(new_text)
 
 
     @commands.command(
