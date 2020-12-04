@@ -189,43 +189,44 @@ class channels_managment(
         usage='.jose [member|role|group]'
     )
     @commands.guild_only()
+    @commands.check(context_is_admin)
+    @commands.bot_has_guild_permissions(discord.Permissions.administrator)
     async def jose(self, context, *member):
-        if context_is_admin(context):
-            jose = discord.Member
-            if len(member) == 0:
-                for memb in context.guild.members:
-                    if memb.id == ID_JOSE:
-                        jose = memb
-                        break
-            else:
+
+        if context.message.mention_everyone:
+            jose = context.guild.members 
+
+        else:
+            if not member:
+                try:
+                    jose = [context.guild.get_member_named('RainbowWarrior#3399')]
+                except:
+                    return
+
+            if context.message.mentions:
                 jose = context.message.mentions
-                if len(jose) == 0:
-                    role_list = context.message.role_mentions
-                    jose.clear()
-                    for role in role_list:
-                        jose.append(role.members)
 
-                if len(jose) == 0:
-                    if context.message.mention_everyone:
-                        jose = context.guild.members
+            if context.message.role_mentions:
+                jose = []
+                role_list = context.message.role_mentions
+                for role in role_list:
+                    jose.append(role.members)
 
-            channels = context.guild.channels
+        channels = context.guild.channels
+        try:
             await context.message.delete()
+        except:
+            pass
 
-            if type(jose[0]) == list :
-                for member in jose[0]:
-                    for channel_destination in channels:
-                        if type(member.voice) == discord.VoiceState:
-                            channel_origin = member.voice.channel
-                            if channel_destination != channel_origin and str(channel_destination.type) == 'voice':
+        for member in jose:
+            for channel_destination in channels:
+                if type(member.voice) == discord.VoiceState:
+                        channel_origin = member.voice.channel
+                        if channel_destination != channel_origin and str(channel_destination.type) == 'voice':
+                            try:
                                 await member.move_to(channel_destination)
                                 await member.move_to(channel_origin)
-                                break
-            else: 
-                for channel_destination in channels:
-                    if type(jose[0].voice) == discord.VoiceState:
-                        channel_origin = jose[0].voice.channel
-                        if channel_destination != channel_origin and str(channel_destination.type) == 'voice':
-                            await jose[0].move_to(channel_destination)
-                            await jose[0].move_to(channel_origin)
+                            except:
+                                await context.send('lol no xd')
+                                return
                             break

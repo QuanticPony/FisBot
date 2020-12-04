@@ -168,9 +168,10 @@ class FisUser(Display):
 
         embed= discord.Embed(
             title=self.name if self.name else self._disc_obj.name,
-            description='Nombre en discord: ' + self._disc_obj.name,
             color=discord.Color.green()
         )
+        if self._disc_obj:
+            embed.description= 'Nombre en discord: ' + self._disc_obj.name
         embed.add_field(
             name='Nivel:',
             value=self.level,

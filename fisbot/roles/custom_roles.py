@@ -41,7 +41,14 @@ class custom_roles(
 
         if mode:
             '''Devuelve un `discord.Embed` con los roles sobre asignaturas (lvl < 0)'''
-            rol_list = FisRol().database.get_all_guild_roles(ctx.guild.id)
+            try:
+                rol_list = FisRol().database.get_all_guild_roles(ctx.guild.id)
+            else:
+                return discord.Embed(
+                    title='Hubo un error', 
+                    description='Así que me tomo un melocotón\n lol',
+                    color=discord.Color.red())
+                    
             frase = ''
             while rol_list:
                 rol = rol_list.pop()
@@ -164,7 +171,7 @@ class custom_roles(
         if '-year' in args:
             year = subjects_list[subjects_list.index('-year') + 1]
             if year.isnumeric():
-                role_list = RolesDB.get_roles(year, guild_id=ctx.guild.id)
+                role_list = RolesDB.get_roles(-abs(int(year)), guild_id=ctx.guild.id)
             else:
                 return
         else:
@@ -191,7 +198,7 @@ class custom_roles(
         help='''¿Quieres dejar de recibir notificaciones de la asignatura Termodinamica? ```.role unsubscribe <@&753362848851165185>```''',
         brief='''Desubscribirse de una asignatura''',
         description='''Te desubscribe de una asignatura: no recibiras mas notificaciones cuando haya noticias sobre ella''',
-        usage='.role unsubscribe <rol_mention> [-u [member_mention]]'
+        usage='.role unsubscribe [-year [school_year]] <rol_mention> [-u [member_mention]]'
     )
     async def unsubscribe(self, ctx, *args):
 
@@ -201,7 +208,7 @@ class custom_roles(
         if '-year' in args:
             year = subjects_list[subjects_list.index('-year') + 1]
             if year.isnumeric():
-                role_list = RolesDB.get_roles(year, guild_id=ctx.guild.id)
+                role_list = RolesDB.get_roles(-abs(int(year)), guild_id=ctx.guild.id)
             else:
                 return
         else:

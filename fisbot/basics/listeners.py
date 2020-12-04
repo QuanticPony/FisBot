@@ -43,10 +43,12 @@ class listeners(
     @commands.Cog.listener()
     async def on_message(self, message):
         '''Cuando recibe un mensaje sube de nivel al autor si cumple ciertas condiciones'''
-
-        if message.author.bot or not message.guild:
+        try:
+            if message.author.bot or not message.guild:
+                return
+            confirm, user = UsersDB.last_message_cooldown(message.author.id)
+        except AttributeError:
             return
-        confirm, user = UsersDB.last_message_cooldown(message.author.id)
 
         if confirm:
             user._disc_obj = message.author
@@ -84,9 +86,9 @@ class listeners(
                 UsersDB.add_user(user)
             try:
                 if user.level < 5:
-                    await user.addxp(member.guild, amount=(amount % (5 * (user.level + 1))))
+                    await user.addxp(member.guild, amount=(amount % 180))
                 else:
-                    await user.addxp(member.guild, amount=(amount % (30)))
+                    await user.addxp(member.guild, amount=(amount % 30))
             except:
                 pass
 
@@ -101,10 +103,14 @@ class listeners(
             await member.create_dm()
             
         hello_message = self.create_embed_hello(member)
-        await member.dm_channel.send(embed=hello_message)
-        await member.guild.system_channel.send('Bienvenido al servidor {0.guild.name}, {0.mention}!'.format(member))
 
-        initial_roles = FisRol.database.get_rol(0)
+        await member.guild.system_channel.send('Bienvenido al servidor {0.guild.name}, {0.mention}!'.format(member))
+        try:
+            await member.dm_channel.send(embed=hello_message)
+        except:
+            await member.guild.system_channel.send(embed=hello_message)
+        
+        initial_roles = FisRol().database.get_rol(0)
         for rol in initial_roles:
             await rol.give_to(user, guild=self.bot.get_guild(rol.guild_id))
 

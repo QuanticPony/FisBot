@@ -42,7 +42,7 @@ class admin_basic_commands(
     @commands.check(context_is_admin)
     async def say(self, ctx, *, text):
 
-        if ctx.message.channel_mentions:
+        if ctx.message.channel_mentions and text:
             channel = ctx.message.channel_mentions[0]
             words_list = text.split()
             new_text = ' '.join(list(word for word in words_list if channel.mention not in word))
@@ -50,8 +50,12 @@ class admin_basic_commands(
             return
 
         new_text = ' '.join(text)
-        await ctx.message.delete()
-        await ctx.send(new_text)
+        try:
+            await ctx.message.delete()
+            await ctx.send(new_text)
+        except commands.MissingPermissions:
+            await ctx.send('No voy a hablar por ti lol')
+        
 
 
     @commands.command(
@@ -64,7 +68,7 @@ class admin_basic_commands(
     @commands.check(context_is_admin)
     async def tellto(self, ctx, *, text):
 
-        if ctx.message.author:
+        if ctx.message.mentions and text:
             member = ctx.message.mentions[0]
             words_list = text.split()
             new_text = ' '.join(list(word for word in words_list if member.mention not in word))
@@ -73,6 +77,8 @@ class admin_basic_commands(
                 channel = await member.create_dm()
 
             await channel.send(new_text)
+        else:
+            await self.say(ctx, text=text)
 
 
     @commands.command(
