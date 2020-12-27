@@ -85,10 +85,7 @@ class listeners(
                 user = await FisUser.init_with_member(member)
                 UsersDB.add_user(user)
             try:
-                if user.level < 5:
-                    await user.addxp(member.guild, amount=(amount % 180))
-                else:
-                    await user.addxp(member.guild, amount=(amount % 30))
+                await user.addxp(self.bot, member.guild, amount=(amount % 30))
             except:
                 pass
 
@@ -110,7 +107,7 @@ class listeners(
         except:
             await member.guild.system_channel.send(embed=hello_message)
         
-        initial_roles = FisRol().database.get_rol(0)
+        initial_roles = FisRol().database.get_roles(0, guild_id=member.guild.id)
         for rol in initial_roles:
             await rol.give_to(user, guild=self.bot.get_guild(rol.guild_id))
 

@@ -123,7 +123,9 @@ class FisUser(Display):
         servidor del contexto. Si no lo encuentra devuelve `None`'''
 
         try:
+            # TODO: comprobar esto
             self._disc_obj = self._ctx.guild.get_member(self.id)
+            #self._disc_obj = self._ctx.guild.get_member_named(self.name)
         except:
             self._disc_obj = None
         return self._disc_obj

@@ -190,9 +190,9 @@ class channels_managment(
     )
     @commands.guild_only()
     @commands.check(context_is_admin)
-    @commands.bot_has_guild_permissions(discord.Permissions.administrator)
     async def jose(self, context, *member):
 
+        jose = []
         if context.message.mention_everyone:
             jose = context.guild.members 
 
@@ -207,7 +207,6 @@ class channels_managment(
                 jose = context.message.mentions
 
             if context.message.role_mentions:
-                jose = []
                 role_list = context.message.role_mentions
                 for role in role_list:
                     jose.append(role.members)

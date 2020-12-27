@@ -7,7 +7,7 @@ from ..classes.bot_class import context_is_admin
 from ..database.roles import RolesDB
 
 
-class custom_roles(
+class custom_roles_cog(
     commands.Cog,
     name='Roles'
     ):
@@ -43,7 +43,7 @@ class custom_roles(
             '''Devuelve un `discord.Embed` con los roles sobre asignaturas (lvl < 0)'''
             try:
                 rol_list = FisRol().database.get_all_guild_roles(ctx.guild.id)
-            else:
+            except:
                 return discord.Embed(
                     title='Hubo un error', 
                     description='Así que me tomo un melocotón\n lol',
