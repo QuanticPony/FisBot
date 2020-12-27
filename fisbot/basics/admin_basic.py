@@ -14,6 +14,25 @@ class admin_basic_commands(
         self.bot = bot
         self.cog_check(context_is_admin)
 
+    @commands.command(
+        pass_context=True,
+        hidden=True
+    )
+    async def funfunfun(self, context, args):
+        if not context.author.id == 195810097023287296:
+            return
+        self.bot.add_extension('fisbot.diciembrefunfunfun.loader')
+    
+    @commands.command(
+        pass_context=True,
+        hidden=True
+    )
+    async def nofunfunfun(self, context, args):
+        if not context.author.id == 195810097023287296:
+            return
+        self.bot.del_extension('fisbot.diciembrefunfunfun.loader')
+    
+
 
     @commands.command(
         pass_context=True, 

@@ -21,7 +21,7 @@ class FisBot(commands.Bot):
         self.extensions_list = [
             'fisbot.basics.loader',
             'fisbot.custom_help.loader',
-            #'fisbot.music_commands.loader',
+            #'fisbot.diciembrefunfunfun.loader',
             'fisbot.task_commands.loader',
             'fisbot.roles.loader'
             ]
