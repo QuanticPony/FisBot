@@ -75,7 +75,7 @@ protestando echó a volar.
     )
     async def david(self, context, *, number):
         if number and number.isnumeric():
-            await context.send(f"{float(number)}º son {float(number)/180 * 3.141592653589793238:.6} magnificos radianes")
+            await context.send(f"{float(number)}º son {float(number)/180:.3}π magnificos radianes")
         else:
             await context.send('''David Perez es un miembro de FisCord conocido por su aprecio incondicional al sistema sexagesimal para la medida de angulos''')
 
