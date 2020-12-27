@@ -44,12 +44,12 @@ class admin_basic_commands(
 
         if ctx.message.channel_mentions and text:
             channel = ctx.message.channel_mentions[0]
-            words_list = text.split()
+            words_list = text.split(' ')
             new_text = ' '.join(list(word for word in words_list if channel.mention not in word))
             await channel.send(new_text)
             return
 
-        new_text = ' '.join(text)
+        new_text = ' '.join(text.split(' '))
         try:
             await ctx.message.delete()
             await ctx.send(new_text)
@@ -70,7 +70,7 @@ class admin_basic_commands(
 
         if ctx.message.mentions and text:
             member = ctx.message.mentions[0]
-            words_list = text.split()
+            words_list = text.split(' ')
             new_text = ' '.join(list(word for word in words_list if member.mention not in word))
             channel = member.dm_channel
             if not channel:
