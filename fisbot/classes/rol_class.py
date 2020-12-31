@@ -72,13 +72,8 @@ class FisRol(Display):
     def prev_roles_of_level(self, level: int):
         '''Devuelve una lista de `FisRol` que consiguio el usuario. Devuelve `None` si no ha conseguido nunca un rol'''
 
-
-        for i in reversed(range(1, level)):
-            roles = self.database.get_roles(i)
-            return roles
-                    
-        else:
-            return None
+        return [self.database.get_roles(i) for i in reversed(range(1,level))]
+ 
 
     async def give_to(self, user, *, guild=None) -> bool:
         '''Da al usuario especificado este rol. Se puede especificar el servidor con la palabra clave `guild`'''

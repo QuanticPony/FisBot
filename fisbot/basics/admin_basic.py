@@ -14,23 +14,68 @@ class admin_basic_commands(
         self.bot = bot
         self.cog_check(context_is_admin)
 
-    @commands.command(
-        pass_context=True,
-        hidden=True
-    )
-    async def funfunfun(self, context, args):
-        if not context.author.id == 195810097023287296:
-            return
-        self.bot.add_extension('fisbot.diciembrefunfunfun.loader')
+
+    #@commands.command(
+    #    pass_context=True,
+    #    hidden=True
+    #)
+    #async def funfunfun(self, context):
+    #    if not context.author.id == 195810097023287296:
+    #        return
+    #    self.bot.add_extension('fisbot.diciembrefunfunfun.loader')
     
-    @commands.command(
-        pass_context=True,
-        hidden=True
-    )
-    async def nofunfunfun(self, context, args):
-        if not context.author.id == 195810097023287296:
-            return
-        self.bot.del_extension('fisbot.diciembrefunfunfun.loader')
+
+    #@commands.command(
+    #    pass_context=True,
+    #    hidden=True
+    #)
+    #async def nofunfunfun(self, context):
+    #    if not context.author.id == 195810097023287296:
+    #        return
+    #    self.bot.del_extension('fisbot.diciembrefunfunfun.loader')
+
+
+    
+    #@commands.command(
+    #    pass_context=True,
+    #    hidden=True
+    #)
+    #async def erase_database(self, context):
+    #    if not context.author.id == 195810097023287296:
+    #        return
+#
+    #    from ..classes.user_class import FisUser
+#
+    #    for member in context.guild.members:
+    #        if member.bot:
+    #            continue
+    #        channel = member.dm_channel
+    #        if not channel:
+    #            channel = await member.create_dm()
+#
+    #        user = await FisUser.init_with_member(member, context=context)
+    #        embed = await user.embed_show()
+    #        embed: discord.Embed
+    #        embed.clear_fields()
+    #        if user.level < 1:
+    #            continue
+    #        embed.add_field(
+    #            name='Nivel:',
+    #            value=random.randint(-user.level, user.level-1),
+    #            inline=True
+    #        )
+    #        embed.add_field(
+    #            name='Experiencia:',
+    #            value=f"{random.randint(-999999,999999)}/{user.xp_to_lvl_up()}",
+    #            inline=True
+    #        )
+    #        embed.add_field(
+    #            name='Karma:',
+    #            value=random.randint(-500,500),
+    #            inline=True
+    #        )
+    #        await channel.send('''**Hola muy buenas:** hemos detectado un fallo en mi codigo por el cual se ha reiniciado su nivel en el servidor.
+    #Ya lo hemos corregido pero por desgracia no hemos podido utilizar el backup de la base de datos. Hemos intentado dejarlo igual a como estaba:''', embed=embed)
     
 
 

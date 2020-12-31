@@ -17,7 +17,7 @@ BOT_PATH = ''
 class FisBot(commands.Bot):    
 
     def __init__(self, *, command_prefix: str, path: str):
-        super().__init__(command_prefix=commands.when_mentioned_or(command_prefix if command_prefix else '.'))
+        super().__init__(command_prefix=command_prefix if command_prefix else '.')
         self.extensions_list = [
             'fisbot.basics.loader',
             'fisbot.custom_help.loader',

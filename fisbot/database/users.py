@@ -106,17 +106,16 @@ class UsersDB(database):
             try:
                 with cls._connect() as conn:
                     c = conn.cursor()
-                    last_time , = c.execute('SELECT last_message FROM Users WHERE id=?', (user_id,)).fetchone()
                     user = cls.get_user(user_id)
                     if user:
-                        c.execute('UPDATE Users SET last_message = ? WHERE id = ?', (now_time, user_id))
+                        if not user.last_message:
+                            user.last_message = now_time
+
+                        if now_time - user.last_message >= cls.COOLDOWN:
+                            c.execute('UPDATE Users SET last_message = ? WHERE id = ?', (now_time, user_id))
+                            return (True, user)
             except:
                 return (False, None)
-
-            if not last_time:
-                return (True, user)
-            if now_time - last_time >= cls.COOLDOWN:
-                return (True, user)
         return (False, None)
 
     @classmethod

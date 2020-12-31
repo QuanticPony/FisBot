@@ -37,18 +37,22 @@ class listeners(
     @commands.Cog.listener()
     async def on_ready(self):
         '''Cambia el estado a `Playing .help` cuando el bot esta listo'''
-        await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(name=".help"))
+        await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(name=f"{self.bot.command_prefix}help"))
 
 
     @commands.Cog.listener()
     async def on_message(self, message):
         '''Cuando recibe un mensaje sube de nivel al autor si cumple ciertas condiciones'''
+
         try:
             if message.author.bot or not message.guild:
                 return
             confirm, user = UsersDB.last_message_cooldown(message.author.id)
         except AttributeError:
             return
+        
+        if '!' in message.channel.category.name:
+            return 
 
         if confirm:
             user._disc_obj = message.author
@@ -60,6 +64,9 @@ class listeners(
     async def on_voice_state_update(self, member, before, after):
         '''Cuando se actualiza el estado de voz de un miembro. 
         Sube la experiencia del usuario en funcion del tiempo en canal de voz'''
+
+        if member.bot:
+            return
 
         def check_channel(state):
             try:
@@ -85,7 +92,7 @@ class listeners(
                 user = await FisUser.init_with_member(member)
                 UsersDB.add_user(user)
             try:
-                await user.addxp(self.bot, member.guild, amount=(amount % 30))
+                await user.addxp(self.bot, member.guild, amount=(amount / 3600 * user.xp_to_lvl_up()/(user.level*3)))
             except:
                 pass
 
