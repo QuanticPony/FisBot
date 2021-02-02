@@ -3,7 +3,7 @@ from discord.ext import commands
 from ..classes.rol_class import FisRol
 from ..classes.user_class import FisUser
 from ..classes.display_class import Display
-from ..classes.bot_class import context_is_admin
+from .. import context_is_admin
 from ..database.roles import RolesDB
 
 
@@ -23,7 +23,7 @@ class custom_roles_cog(
         if not mode:
             '''Devuelve un `discord.Embed` con los roles disponibles por subida de nivel ordenados'''
 
-            rol_list = FisRol().database.get_all_guild_roles(ctx.guild.id)
+            rol_list = FisRol.convert_from_database(RolesDB.get_all_guild_roles, ctx.guild.id)
 
             frase = ''
             while rol_list:
@@ -42,7 +42,7 @@ class custom_roles_cog(
         if mode:
             '''Devuelve un `discord.Embed` con los roles sobre asignaturas (lvl < 0)'''
             try:
-                rol_list = FisRol().database.get_all_guild_roles(ctx.guild.id)
+                rol_list = FisRol.convert_from_database(RolesDB.get_all_guild_roles, ctx.guild.id)
             except:
                 return discord.Embed(
                     title='Hubo un error', 
@@ -105,7 +105,7 @@ class custom_roles_cog(
     )
     async def _create(self, ctx):
         
-        await FisRol().init_and_discord(ctx)
+        await FisRol.init_and_discord(ctx)
 
 
     @_roles.command(
@@ -171,7 +171,7 @@ class custom_roles_cog(
         if '-year' in args:
             year = subjects_list[subjects_list.index('-year') + 1]
             if year.isnumeric():
-                role_list = RolesDB.get_roles(-abs(int(year)), guild_id=ctx.guild.id)
+                role_list = FisRol.convert_from_database(RolesDB.get_roles, (-abs(int(year)), ctx.guild.id))
             else:
                 return
         else:
@@ -179,7 +179,7 @@ class custom_roles_cog(
                 role_list.append(await FisRol.init_from_discord(ctx, subject))
 
 
-        admin = '-u' in admin and context_is_admin(ctx)
+        admin = '-u' in args and context_is_admin(ctx)
         if admin:
             user = await FisUser.init_with_member(ctx.message.mentions[0])
         else:
@@ -208,7 +208,7 @@ class custom_roles_cog(
         if '-year' in args:
             year = subjects_list[subjects_list.index('-year') + 1]
             if year.isnumeric():
-                role_list = RolesDB.get_roles(-abs(int(year)), guild_id=ctx.guild.id)
+                role_list = FisRol.convert_from_database(RolesDB.get_roles, (-abs(int(year)), ctx.guild.id))
             else:
                 return
         else:
@@ -216,7 +216,7 @@ class custom_roles_cog(
                 role_list.append(await FisRol.init_from_discord(ctx, subject))
 
 
-        admin = '-u' in admin and context_is_admin(ctx)
+        admin = '-u' in args and context_is_admin(ctx)
         if admin:
             user = await FisUser.init_with_member(ctx.message.mentions[0])
         else:
@@ -297,13 +297,3 @@ class custom_roles_cog(
     async def subjects(self, ctx):
 
         await ctx.send(embed=self._help_embed(ctx, mode=1))
-
-
-    @commands.command(
-        pass_context=True,
-        hidden=True
-    )
-    async def no(self, ctx, puedes, listillo):
-
-        if puedes == 'puedes' and listillo == 'listillo':
-            await ctx.send(f"Ssssh, me estas retando {ctx.author.mention}? Que soy admin colega... que te baneo")

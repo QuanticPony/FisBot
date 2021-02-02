@@ -3,7 +3,7 @@ import asyncio
 import random
 from discord.ext import commands
 from ..classes.poll_class import Poll
-from ..classes.bot_class import context_is_admin
+from .. import context_is_admin
 from ..classes.display_class import Display
 
 class poll_cog(

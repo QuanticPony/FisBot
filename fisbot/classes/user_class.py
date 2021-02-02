@@ -36,9 +36,12 @@ class FisUser(Display):
         objeto FisUser'''
 
         try:
-            result = [cls(*line) for line in funcion(*args)]
+            result = cls(*(funcion(*args)))
         except:
-            result = None
+            try:
+                result = [cls(*line) for line in funcion(*args)]
+            except:
+                return None
         return result
 
 

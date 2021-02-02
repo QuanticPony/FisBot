@@ -72,6 +72,7 @@ class UsersDB(database):
         '''Comprueba si la llamada a esta funcion y con la ultima llamada a la misma del mismo `user_id` es mayor que el cooldown.
         Devuelve un booleano si cumple el cooldown y el usuario de la base de datos con mismo id'''
 
+        return (False, None)
         now_time = time.time()
         if user_id:
             user = cls.get_user(user_id)

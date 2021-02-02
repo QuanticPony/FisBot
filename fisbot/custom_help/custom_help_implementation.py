@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from ..classes.bot_class import context_is_admin
+from .. import context_is_admin
 
 
 async def custom_help_implementation_all(bot, ctx):

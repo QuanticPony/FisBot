@@ -2,7 +2,7 @@ import discord
 import asyncio
 import unicodedata
 from discord.ext import commands
-from ..classes.bot_class import context_is_admin
+from .. import context_is_admin
 from ..classes.task_class import FisTask
 
 class task_commands(

@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from ..classes.bot_class import context_is_admin
+from .. import context_is_admin
 from ..classes.user_class import FisUser
 from ..database.users import UsersDB
 
@@ -28,11 +28,10 @@ class users_cog(
         embeds_list = []
         if not ctx.message.mentions:
 
-            user = UsersDB.get_user(ctx.author.id)
+            user = FisUser.convert_from_database(UsersDB.get_user, ctx.author.id)
 
             if not user:
-                UsersDB.add_user(user)
-                user = UsersDB.get_user(ctx.author.id)
+                UsersDB.add_user(FisUser(ctx.author.id, name=ctx.author.name))
 
             await user.init_display(ctx)
             embeds_list.append(await user.embed_show())
@@ -40,11 +39,11 @@ class users_cog(
         else:
             for user in ctx.message.mentions:
 
-                user = UsersDB.get_user(user.id)
+                user = FisUser.convert_from_database(UsersDB.get_user, user.id)
 
                 if not user:
-                    UsersDB.add_user(user)
-                    user = UsersDB.get_user(ctx.author.id)
+                    UsersDB.add_user(FisUser(user.id))
+                    return
                     
                 await user.init_display(ctx)
                 embeds_list.append(await user.embed_show())
@@ -169,3 +168,12 @@ class users_cog(
         )
 
         await ctx.send(embed=embed) 
+
+    @commands.command(
+        pass_context=True,
+        hidden=True
+    )
+    async def no(self, ctx, puedes, listillo):
+
+        if puedes == 'puedes' and listillo == 'listillo':
+            await ctx.send(f"Ssssh, me estas retando {ctx.author.mention}? Que soy admin colega... que te baneo")

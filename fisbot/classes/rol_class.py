@@ -43,9 +43,12 @@ class FisRol(Display):
         objeto FisRol'''
 
         try:
-            result = [cls(*line) for line in funcion(*args)]
+            result = cls(*(funcion(*args)))
         except:
-            result = None
+            try:
+                result = [cls(*line) for line in funcion(*args)]
+            except:
+                return None
         return result
 
 
@@ -79,13 +82,13 @@ class FisRol(Display):
 # Funciones de la clase FisRol
 
     @classmethod
-    def check_new_rol_needed(cls, user) -> FisRol:
+    def check_new_rol_needed(cls, user):
         '''Devuelve el rol `FisRol` que deberia tener el usuario especificado. Si no hay un rol para ese nivel devuelve `None`'''
 
         return cls.convert_from_database(roles.RolesDB.get_roles, user.level)
 
     @classmethod
-    def prev_roles_of_level(cls, level: int) -> FisRol:
+    def prev_roles_of_level(cls, level: int):
         '''Devuelve una lista de `FisRol` que consiguio el usuario. Devuelve `None` si no ha conseguido nunca un rol'''
 
         return [cls.convert_from_database(roles.RolesDB.get_roles, i) for i in reversed(range(1,level))]
