@@ -5,6 +5,7 @@ import time
 from random import randint
 from .rol_class import FisRol
 from .display_class import *
+from ..database import users
 
 class FisUser(Display):
 
@@ -19,36 +20,40 @@ class FisUser(Display):
     _descr_for_del ='''¿Seguro que quiere eliminar este elemento de la base de datos?
         Si es así, reaccione ✅. De lo contrario, reaccione ❌:'''
 
-    def __init__(self, user_id=0, name='', karma=0, level=0, xp=0, last_message=0, last_join=None):
+    def __init__(self, user_id=0, name='', karma=0, level=0, xp=0, last_message=0, last_join=time.time()):
         self.id = int(user_id)
         self.name = name
         self.karma = int(karma)
         self.level = int(level)
         self.xp = int(xp)
         self.last_message = int(last_message)
-        if not last_join:
-            last_join = time.time()
         self.last_join = last_join
 
-        from ..database.users import UsersDB
-        self.database = UsersDB
+
+    @classmethod
+    def convert_from_database(cls, funcion, *args):
+        '''Ejecuta la funcion `funcion` con los argumentos dados en la base de datos. Convierte el resultado a un
+        objeto FisUser'''
+
+        try:
+            result = [cls(*line) for line in funcion(*args)]
+        except:
+            result = None
+        return result
+
 
     @classmethod
     async def init_with_member(cls, member: discord.Member, *, context=None):
         '''ASYNC Devuelve un usuario `FisUser` a partir de un miembro'''
 
-        user = cls().database.get_user(member.id)
+        user = cls.convert_from_database(users.UsersDB.get_user, member.id)
         if not user:
-            user = cls(
-                user_id=member.id,
-                name=member.display_name
-            )
-            user.database.add_user(user)
-        if not context:
-            return user
-        else:
+            user = cls(user_id=member.id, name=member.display_name)
+            users.UsersDB.add_user(user)
+
+        if context:
             await user.init_display(context)
-            return user
+        return user
 
     def title_for_mod(self) -> str:
 
@@ -72,6 +77,8 @@ class FisUser(Display):
         
         return ((self.level ** 2) + self.level + 2) * 50 - self.level * 100
 
+
+    # TODO: preguntar a Aitor como puedo optimizar esta función para no crear el diccionario cada vez que alguien sube de nivel
     async def level_up(self, bot, guild):
         '''ASYNC Te sube de nivel'''
 
@@ -89,16 +96,21 @@ class FisUser(Display):
         if guild.system_channel:
             await guild.system_channel.send(new_level_frases[randint(0,len(new_level_frases) - 1)])
 
-        roles = FisRol().check_new_rol_needed(self)
-        if roles:
-            for role in roles:
-                guild = bot.get_guild(role.guild_id)
-                if guild and self._disc_obj in guild.members:
-                    await role.give_to(self, guild=guild)
-                    rols = role.prev_roles_of_level(self.level)
-                    if rols:
-                        for rol in rols:
-                            await rol.remove_from(self, guild=bot.get_guild(rol.guild_id))
+        roles_nuevos = FisRol.check_new_rol_needed(self)
+        if not roles_nuevos:
+            return
+        
+        for role in roles_nuevos:
+            guild = bot.get_guild(role.guild_id)
+
+            if guild and self._disc_obj in guild.members:
+                await role.give_to(self, guild=guild)
+
+                roles_previos = FisRol.prev_roles_of_level(self.level)
+                if roles_previos:
+                    for rol in roles_previos:
+                        await rol.remove_from(self, guild=bot.get_guild(rol.guild_id))
+
 
     async def addxp(self, bot, guild, *, amount=None) :
         '''ASYNC Sube la experiencia del usuario. Si el usuario necesita subir de nivel, lo hace'''
@@ -108,14 +120,12 @@ class FisUser(Display):
 
         newxp = self.xp + amount
         xp_required = self.xp_to_lvl_up()
-        if newxp >= xp_required:
-            self.xp = newxp - xp_required
+        self.xp = newxp
+        if self.xp >= xp_required:
+            self.xp -=  xp_required
             self.level += 1
-            await self.level_up(bot, guild)
-            self.database.update_user(self)
-        else:
-            self.xp = newxp
-            self.database.update_user(self)
+            await self.level_up(bot, guild)  
+        users.UsersDB.update_user(self)
 
     @check_if_context()
     async def discord_obj(self) -> discord.Member:
@@ -145,12 +155,12 @@ class FisUser(Display):
     async def save_in_database(self) -> bool:
         '''ASYNC Guarda al usuario en la base de datos. Devuelve `True` si lo ha conseguido y `False` si no '''
         
-        return self.database.update_user(self)
+        return users.UsersDB.update_user(self)
 
     async def remove_from_database(self):
         '''ASYNC Elimina al usuario en la base de datos. Devuelve `True` si lo ha conseguido y `False` si no '''
 
-        return self.database.del_user(self)
+        return users.UsersDB.del_user(self)
 
     def prepare_atributes_dic(self):
         '''Prepara los diccionarios internos para trabajar con ellos'''
@@ -163,6 +173,8 @@ class FisUser(Display):
             except KeyError:
                 continue
 
+
+    # TODO: Hay que rehacer esto
     async def embed_show(self) -> discord.Embed:
         '''ASYNC Devuelve un mensaje tipo `discord.Embed` que muestra la info del usuario'''
 
