@@ -2,6 +2,7 @@ import discord
 from random import randint
 from discord.ext import commands
 from ..database.users import UsersDB
+from ..database.roles import RolesDB
 from ..classes.rol_class import FisRol
 from ..classes.user_class import FisUser 
 
@@ -47,7 +48,7 @@ class listeners(
         try:
             if message.author.bot or not message.guild:
                 return
-            confirm, user = UsersDB.last_message_cooldown(message.author.id)
+            confirm, user = FisUser.last_message_cooldown(message.author.id)
         except AttributeError:
             return
         
@@ -92,7 +93,7 @@ class listeners(
                 user = await FisUser.init_with_member(member)
                 UsersDB.add_user(user)
             try:
-                await user.addxp(self.bot, member.guild, amount=(amount / 3600 * user.xp_to_lvl_up()/(user.level*3)))
+                await user.addxp(self.bot, member.guild, amount=(amount / 3600 * user.xp_to_lvl_up()/(user.level*5)))
             except:
                 pass
 
@@ -114,7 +115,7 @@ class listeners(
         except:
             await member.guild.system_channel.send(embed=hello_message)
         
-        initial_roles = FisRol().database.get_roles(0, guild_id=member.guild.id)
+        initial_roles = FisRol.convert_from_database(RolesDB.get_roles, (0, member.guild.id))
         for rol in initial_roles:
             await rol.give_to(user, guild=self.bot.get_guild(rol.guild_id))
 
@@ -126,14 +127,14 @@ class listeners(
 
         if not fis_user:
             fis_user = FisUser(reaction.message.author.id)
-            fis_user.database.add_user(fis_user)
+            UsersDB.add_user(fis_user)
         
         if reaction.emoji == '⬆️':
             fis_user.karma += 1 * mult
         elif reaction.emoji == '⬇️':
             fis_user.karma -= 1 * mult
         
-        fis_user.database.update_user(fis_user)
+        UsersDB.update_user(fis_user)
 
 
     def check_if_different(self, reaction, user):

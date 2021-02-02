@@ -66,25 +66,6 @@ class UsersDB(database):
         return result
 
 
-    # TODO: mover a FisUser
-    @classmethod
-    def last_message_cooldown(cls, user_id)-> (bool, list):
-        '''Comprueba si la llamada a esta funcion y con la ultima llamada a la misma del mismo `user_id` es mayor que el cooldown.
-        Devuelve un booleano si cumple el cooldown y el usuario de la base de datos con mismo id'''
-
-        return (False, None)
-        now_time = time.time()
-        if user_id:
-            user = cls.get_user(user_id)
-            if user:
-                if not user.last_message:
-                    user.last_message = now_time
-
-                if now_time - user.last_message >= cls.COOLDOWN:
-                    cls.execute('UPDATE Users SET last_message = ? WHERE id = ?', (now_time, user_id))
-                    return (True, user)
-        return (False, None)
-
     @classmethod
     def new_voice_join(cls, user_id):
         '''Permite ingresar el momento en el que el usuario de id especificada se conecto a un canal de voz por ultima vez.

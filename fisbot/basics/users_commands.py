@@ -32,6 +32,9 @@ class users_cog(
 
             if not user:
                 UsersDB.add_user(FisUser(ctx.author.id, name=ctx.author.name))
+            if ctx.author.nick != user.name:
+                user.name = ctx.author.nick
+                UsersDB.update_user(user)
 
             await user.init_display(ctx)
             embeds_list.append(await user.embed_show())

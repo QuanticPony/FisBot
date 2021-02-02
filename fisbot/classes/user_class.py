@@ -130,6 +130,26 @@ class FisUser(Display):
             await self.level_up(bot, guild)  
         users.UsersDB.update_user(self)
 
+
+    @classmethod
+    def last_message_cooldown(cls, user_id)-> (bool, list):
+        '''Comprueba si la llamada a esta funcion y con la ultima llamada a la misma del mismo `user_id` es mayor que el cooldown.
+        Devuelve un booleano si cumple el cooldown y el usuario de la base de datos con mismo id'''
+
+        return (False, None)
+        now_time = time.time()
+        if user_id:
+            user = cls.convert_from_database(users.UsersDB.get_user, user_id) 
+            if user:
+                if not user.last_message:
+                    user.last_message = now_time
+
+                if now_time - user.last_message >= cls.COOLDOWN:
+                    users.UsersDB.execute('UPDATE Users SET last_message = ? WHERE id = ?', (now_time, user_id))
+                    return (True, user)
+        return (False, None)
+    
+
     @check_if_context()
     async def discord_obj(self) -> discord.Member:
         '''ASYNC Devuelve el objeto de discord asociado: `discord.Member` si lo encuentra en el 
