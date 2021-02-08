@@ -52,9 +52,11 @@ class listeners(
         except AttributeError:
             return
         
-        if '!' in message.channel.category.name:
-            return 
-
+        try:
+            if '!' in message.channel.category.name:
+                return 
+        except:
+            pass
         if confirm:
             user._disc_obj = message.author
             await user.addxp(self.bot, message.guild)
