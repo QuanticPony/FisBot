@@ -2,7 +2,6 @@ import discord
 import asyncio
 import random
 from discord.ext import commands
-from ..classes.poll_class import Poll
 from .. import context_is_admin
 from ..classes.display_class import Display
 
@@ -28,7 +27,10 @@ class poll_cog(
         u = ctx.author
         c = u.dm_channel
 
-        await ctx.message.delete()
+        try:
+            await ctx.message.delete()
+        except:
+            pass
 
         if not c:
             c = await u.create_dm()
@@ -221,8 +223,7 @@ class poll_cog(
             )
         e.add_field(
             name='Como añadir una opcion?',
-            value='''En las reacciones del mensaje de FisBot pulsa la reaccion 🔼. FisBot te preguntara por un emoticono y por la opcion.
-            Hazle caso y todo saldra bien''',
+            value='''Reacciona con el emoticono que quieres que represente esa opcion. FisBot te preguntara por el valor de esa opcion''',
             inline=False
             )
         e.add_field(
