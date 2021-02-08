@@ -19,7 +19,7 @@ class RolesDB(database):
         '''Añade un rol a la base de datos. Si el rol se ha añadido devuelve True,
         en caso contrario (si ya existe uno con el mismo id) devuelve `False`.'''
 
-        cls.execute('INSERT INTO Roles VALUES (?,?,?,?,?)', (rol.id, rol.level, rol.description, rol.privileges, rol.guild_id))
+        cls.execute('INSERT INTO Roles VALUES (?,?,?,?,?)', args=(rol.id, rol.level, rol.description, rol.privileges, rol.guild_id))
   
 
     @classmethod
@@ -27,14 +27,14 @@ class RolesDB(database):
         '''Actualiza los datos de un rol si existe en la base de datos. Si el rol
         existe y se ha podido modificar devuelve `True`, en caso contrario devuelve `False`.'''
 
-        cls.execute('UPDATE Roles SET lvl = ?, description = ?, privileges = ? WHERE rol_id = ?', (rol.level, rol.description, rol.privileges, rol.id))
+        cls.execute('UPDATE Roles SET lvl = ?, description = ?, privileges = ? WHERE rol_id = ?', args=(rol.level, rol.description, rol.privileges, rol.id))
 
     @classmethod
     def del_rol(cls, rol) -> bool:
         '''Elimina un rol de la base de datos si su id coincide con el de `rol`. 
         Si el rol se ha eliminado devuelve `True`, en caso contrario devuelve `False`.'''
 
-        cls.execute('DELETE FROM Roles WHERE rol_id = ?', (rol.id,))
+        cls.execute('DELETE FROM Roles WHERE rol_id = ?', args=(rol.id,))
 
 
     @classmethod
@@ -44,9 +44,9 @@ class RolesDB(database):
         Si el rol no se encuentra devuelve `None`.'''
 
         if guild_id:
-            result = cls.execute('SELECT * FROM Roles WHERE lvl = ? AND guild_id = ?', (level, guild_id)).fetchone()
+            result = cls.execute('SELECT * FROM Roles WHERE lvl = ? AND guild_id = ?', args=(level, guild_id)).fetchone()
         else:
-            result = cls.execute('SELECT * FROM Roles WHERE lvl = ?', (level,)).fetchall()
+            result = cls.execute('SELECT * FROM Roles WHERE lvl = ?', args=(level,)).fetchall()
 
         if not result:
             return None
@@ -57,7 +57,7 @@ class RolesDB(database):
         '''Obtiene un rol de la base de datos si su id coincide con `rol_id`.
         Si el rol no se encuentra devuelve `None`.'''
 
-        result = cls.execute('SELECT * FROM Roles WHERE rol_id = ?', (rol_id,)).fetchone()
+        result = cls.execute('SELECT * FROM Roles WHERE rol_id = ?', args=(rol_id,)).fetchone()
         
         if not result:
             return None
@@ -68,7 +68,7 @@ class RolesDB(database):
         '''Devuelve una colección de todos los roles registrados en la base de datos
         ordenados por nivel necesario.'''
 
-        result = cls.execute('SELECT * FROM Roles WHERE guild_id = ? ORDER BY lvl ', (guild_id,)).fetchall()
+        result = cls.execute('SELECT * FROM Roles WHERE guild_id = ? ORDER BY lvl ', args=(guild_id,)).fetchall()
         return result
 
     @classmethod

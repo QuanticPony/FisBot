@@ -26,7 +26,7 @@ class ProyectsDB(database):
             with cls._connect() as conn:
                 c = conn.cursor()
                 c.execute('INSERT INTO Tasks (subject, title, description, day, month, year, school_year, url) VALUES (?,?,?,?,?,?,?,?)', 
-                    (task.subject, task.title, task.description, task.day, task.month, task.year, task.school_year, task.url))
+                    args=(task.subject, task.title, task.description, task.day, task.month, task.year, task.school_year, task.url))
             return True
         except sqlite3.IntegrityError:
             return False
@@ -40,7 +40,7 @@ class ProyectsDB(database):
             with cls._connect() as conn:
                 c = conn.cursor()
                 c.execute('UPDATE Tasks SET subject = ?, title = ?, description = ?, day = ?, month=?, year = ?, school_year = ?, url = ? WHERE id = ?', 
-                    (task.subject, task.title, task.description, task.day, task.month, task.year, task.school_year, task.url, task.id))
+                    args=(task.subject, task.title, task.description, task.day, task.month, task.year, task.school_year, task.url, task.id))
             return True
         except sqlite3.Error:
             return False
@@ -54,7 +54,7 @@ class ProyectsDB(database):
         try:
             with cls._connect() as conn:
                 c = conn.cursor()
-                c.execute('DELETE FROM Tasks WHERE id = ?', (task.id,))
+                c.execute('DELETE FROM Tasks WHERE id = ?', args=(task.id,))
             return True
         except sqlite3.Error:
             return False
@@ -67,7 +67,7 @@ class ProyectsDB(database):
         try:
             with cls._connect() as conn:
                 c = conn.cursor()
-                result = c.execute('SELECT * FROM Tasks WHERE id = ?', (task_id,)).fetchone()
+                result = c.execute('SELECT * FROM Tasks WHERE id = ?', args=(task_id,)).fetchone()
         except sqlite3.Error:
             return None
         if not result:
@@ -96,7 +96,7 @@ class ProyectsDB(database):
             with cls._connect() as conn:
                 c = conn.cursor()
                 result = c.execute('SELECT * FROM Tasks WHERE subject = ? ORDER BY title',\
-                 (subject,)).fetchall()
+                 args=(subject,)).fetchall()
         except sqlite3.Error:
             return None
         return tuple([FisTask(*user) for user in result])

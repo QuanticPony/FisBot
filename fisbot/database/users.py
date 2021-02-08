@@ -24,7 +24,7 @@ class UsersDB(database):
         '''Añade un usuario a la base de datos. Si el usuario se ha añadido devuelve True,
         en caso contrario (si ya existe uno con el mismo id) devuelve `False`.'''
 
-        confirmation = cls.execute('INSERT INTO Users VALUES (?,?,?,?,?,?,?)', (user.id, user.name, user.karma, user.level, user.xp, user.last_message, user.last_join))
+        confirmation = cls.execute('INSERT INTO Users VALUES (?,?,?,?,?,?,?)', args=(user.id, user.name, user.karma, user.level, user.xp, user.last_message, user.last_join))
         if confirmation:
             return True
         return cls.update_user(user)
@@ -41,7 +41,7 @@ class UsersDB(database):
         '''Elimina un usuario de la base de datos si su id coincide con el de `user`. 
         Si el usuario se ha eliminado devuelve `True`, en caso contrario devuelve `False`.'''
 
-        return cls.execute('DELETE FROM Users WHERE id = ?', (user.id,))
+        return cls.execute('DELETE FROM Users WHERE id = ?', args=(user.id,))
     
     @classmethod
     def get_user(cls, user_id) -> list:
@@ -50,10 +50,10 @@ class UsersDB(database):
 
         if not user_id:
             return False
-        result = cls.execute('SELECT * FROM Users WHERE id = ?', (user_id,)).fetchone()
+        result = cls.execute('SELECT * FROM Users WHERE id = ?', args=(user_id,)).fetchone()
 
         if not result:
-            cls.execute('INSERT INTO Users (id) VALUES (?)', (user_id,))
+            cls.execute('INSERT INTO Users (id) VALUES (?)', args=(user_id,))
             return None
         return result
     
@@ -75,7 +75,7 @@ class UsersDB(database):
         if not user_id:
             return False
         
-        return cls.execute('UPDATE Users SET last_join = ? WHERE id = ?', (now_time, user_id))
+        return cls.execute('UPDATE Users SET last_join = ? WHERE id = ?', args=(now_time, user_id))
 
     @classmethod
     def last_voice_join(cls, user_id)-> (bool, list):
@@ -84,10 +84,10 @@ class UsersDB(database):
 
         now_time = time.time()
         if user_id:
-            last_time , = cls.execute('SELECT last_join FROM Users WHERE id = ?', (user_id,)).fetchone()
+            last_time , = cls.execute('SELECT last_join FROM Users WHERE id = ?', args=(user_id,)).fetchone()
             user = cls.get_user(user_id)
             if user:
-                cls.execute('UPDATE Users SET last_join = ? WHERE id = ?', (now_time, user_id))
+                cls.execute('UPDATE Users SET last_join = ? WHERE id = ?', args=(now_time, user_id))
                 return (now_time - last_time, user)
         return (False, None)
 

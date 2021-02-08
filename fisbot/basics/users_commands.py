@@ -28,7 +28,7 @@ class users_cog(
         embeds_list = []
         if not ctx.message.mentions:
 
-            user = FisUser.convert_from_database(UsersDB.get_user, ctx.author.id)
+            user = FisUser.convert_from_database(UsersDB.get_user, args=ctx.author.id)
 
             if not user:
                 UsersDB.add_user(FisUser(ctx.author.id, name=ctx.author.name))
@@ -42,7 +42,7 @@ class users_cog(
         else:
             for user in ctx.message.mentions:
 
-                user = FisUser.convert_from_database(UsersDB.get_user, user.id)
+                user = FisUser.convert_from_database(UsersDB.get_user, args=user.id)
 
                 if not user:
                     UsersDB.add_user(FisUser(user.id))
@@ -150,17 +150,26 @@ class users_cog(
     )
     async def rank(self, ctx):
         
-        lista = list(UsersDB.get_all_users())
+        lista = FisUser.convert_from_database(UsersDB.get_all_users)
 
         frase = []
 
         lista.sort(key = lambda memb : memb.karma)
         lista.reverse()
-        
+
+        check = False
         for i, memb in enumerate(lista, start=1):
             if i <= 10:
-                frase.append(f"{i} - **{memb.name}**: {memb.karma}")
+                if memb.id == ctx.author.id:
+                    check = True
+                    frase.append(f"**{i} - {memb.name}: {memb.karma}**")
+                else:
+                    frase.append(f"*{i} - {memb.name}*: {memb.karma}")
             else:
+                if not check:
+                    user = await FisUser.init_with_member(ctx.author)
+                    frase.append('...')
+                    frase.append(f"**{lista.index(user)} - {user.name}: {user.karma}**")
                 break
     
 

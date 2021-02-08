@@ -26,17 +26,30 @@ class FisUser(Display):
         self.karma = int(karma)
         self.level = int(level)
         self.xp = int(xp)
-        self.last_message = int(last_message)
+        self.last_message = int(last_message if last_message else time.time())
         self.last_join = last_join
 
 
+    def __eq__(self, value):
+        if isinstance(value, FisUser):
+            return self.id == value.id
+        else:
+            return False
+
+
     @classmethod
-    def convert_from_database(cls, funcion, *args):
+    def convert_from_database(cls, funcion, *, args=[]):
         '''Ejecuta la funcion `funcion` con los argumentos dados en la base de datos. Convierte el resultado a un
         objeto FisUser'''
 
+        if args:
+            _return = funcion(args)
+        else: 
+            _return = funcion()
+
         try:
-            result = cls(*(funcion(*args)))
+            
+            result = cls(*_return)
         except:
             try:
                 result = [cls(*line) for line in funcion(*args)]
@@ -49,7 +62,7 @@ class FisUser(Display):
     async def init_with_member(cls, member: discord.Member, *, context=None):
         '''ASYNC Devuelve un usuario `FisUser` a partir de un miembro'''
 
-        user = cls.convert_from_database(users.UsersDB.get_user, member.id)
+        user = cls.convert_from_database(users.UsersDB.get_user, args=member.id)
         if not user:
             user = cls(user_id=member.id, name=member.display_name)
             users.UsersDB.add_user(user)
@@ -139,7 +152,7 @@ class FisUser(Display):
         return (False, None)
         now_time = time.time()
         if user_id:
-            user = cls.convert_from_database(users.UsersDB.get_user, user_id) 
+            user = cls.convert_from_database(users.UsersDB.get_user, args=user_id) 
             if user:
                 if not user.last_message:
                     user.last_message = now_time

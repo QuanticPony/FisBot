@@ -28,17 +28,23 @@ class database():
             return cls._create_db()
 
     @classmethod
-    def execute(cls, sentence, parameters) -> str:
+    def execute(cls, sentence, *, args=None) -> str:
         '''Ejecuta en la base de datos una sentencia SQL'''
 
         try: 
             conn = cls._connect()
-            result = conn.cursor().execute(sentence, parameters)
+            if args:
+                result = conn.cursor().execute(sentence, args)
+            else:
+                result = conn.cursor().execute(sentence)
             
 
         except sqlite3.OperationalError:
             conn = cls._create_db()
-            result = conn.cursor().execute(sentence, parameters)
+            if args:
+                result = conn.cursor().execute(sentence, args)
+            else:
+                result = conn.cursor().execute(sentence)
 
         except sqlite3.IntegrityError:
             return False
