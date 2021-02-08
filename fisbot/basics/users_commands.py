@@ -180,3 +180,70 @@ class users_cog(
 
         if puedes == 'puedes' and listillo == 'listillo':
             await ctx.send(f"Ssssh, me estas retando {ctx.author.mention}? Que soy admin colega... que te baneo")
+
+
+    @commands.command(
+        pass_context=True, 
+        brief='''Te da 3.14 de experiencia''',
+        description='''pi matematicos, pi fisicos, pi ingenieros, pi de letras, pi pi''',
+        usage='.pi [modo]'
+    )
+    async def pi(self, context, *mode):
+        types = {'matematicos': 'π',
+        'ingenieros': '5',
+        'fisicos': '3.14',
+        'pi': 'Que infantil...',
+        'de letras': '''Se reflejaba en el agua
+el pájaro confundido,
+levantaba la cabeza
+que asomaba desde el nido.
+
+Eh, amigo - le gritó -
+¿Vienes a volar conmigo?
+Parecemos muy iguales,
+seremos buenos amigos.
+He descargado este poema
+para escribir Pi (o) pi (o)
+
+Pájaro escucha, -insistió-
+Te pareces mucho a mí,
+tienes las plumas verdosas
+y el pico color añil.
+
+Pero el ave sin moverse 
+miraba sin contestar,
+y el pajarito en el árbol
+se empezó a desesperar.
+
+Oyes, pájaro antipático
+¿Es que acaso no me ves?
+aquí arriba -gritó fuerte-
+en el nido del ciprés.
+
+Pero el reflejo del agua
+no se dignó a contestar,
+y el del árbol enfadado
+protestando echó a volar. 
+(Lo he copiado de internet, evidentemente)'''}
+
+        if not mode:
+            await context.send('''3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196442881097566593344612847564823378678316527120190914564856692346034861045432664821339360726024914127372458700660631558817488152092096282925409171536436789259036001133053054882046652138414695194151160943305727036575959195309218611738193261179310511854807446237996274956735188575272489122793818301194912''')
+            return 
+        mode = ' '.join(mode)
+        for key in types.keys():
+            if mode in key:
+                await context.send(types[key])
+                return
+
+
+    @commands.command(
+        pass_context=True, 
+        brief='''Convierne grados a radianes''',
+        description='''Hace el cambio que todos necesitamos; pero que solo David Perez no hace''',
+        usage='.david [numero]'
+    )
+    async def david(self, context, *, number):
+        if number and number.isnumeric():
+            await context.send(f"{float(number)}º son {float(number)/180:.3}π magnificos radianes")
+        else:
+            await context.send('''David Perez es un miembro de FisCord conocido por su aprecio incondicional al sistema sexagesimal para la medida de angulos''')
