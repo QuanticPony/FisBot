@@ -95,6 +95,8 @@ class listeners(
                 user = await FisUser.init_with_member(member)
                 UsersDB.add_user(user)
             try:
+                if 'En Clase' in before.channel.name:
+                    amount /= 2
                 await user.addxp(self.bot, member.guild, amount=(amount / 3600 * user.xp_to_lvl_up()/(user.level*5)))
             except:
                 pass
