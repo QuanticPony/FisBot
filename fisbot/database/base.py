@@ -32,19 +32,19 @@ class database():
         '''Ejecuta en la base de datos una sentencia SQL'''
 
         try: 
-            conn = cls._connect()
-            if args:
-                result = conn.cursor().execute(sentence, args)
-            else:
-                result = conn.cursor().execute(sentence)
+            with cls._connect() as conn:
+                if args:
+                    result = conn.cursor().execute(sentence, args)
+                else:
+                    result = conn.cursor().execute(sentence)
             
 
         except sqlite3.OperationalError:
-            conn = cls._create_db()
-            if args:
-                result = conn.cursor().execute(sentence, args)
-            else:
-                result = conn.cursor().execute(sentence)
+            with cls._create_db() as conn:
+                if args:
+                    result = conn.cursor().execute(sentence, args)
+                else:
+                    result = conn.cursor().execute(sentence)
 
         except sqlite3.IntegrityError:
             return False

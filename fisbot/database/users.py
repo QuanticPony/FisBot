@@ -34,7 +34,7 @@ class UsersDB(database):
         '''Actualiza los datos de un usuario si existe en la base de datos. Si el usuario
         existe y se ha podido modificar devuelve `True`, en caso contrario devuelve `False`.'''
 
-        return cls.execute('UPDATE Users SET name = ?, karma = ?, level = ?, xp = ? WHERE id = ?', (user.name, user.karma, user.level, user.xp, user.id))
+        return cls.execute('UPDATE Users SET name = ?, karma = ?, level = ?, xp = ? WHERE id = ?', args=(user.name, user.karma, user.level, user.xp, user.id))
     
     @classmethod
     def del_user(cls, user) -> bool:
@@ -90,4 +90,3 @@ class UsersDB(database):
                 cls.execute('UPDATE Users SET last_join = ? WHERE id = ?', args=(now_time, user_id))
                 return (now_time - last_time, user)
         return (False, None)
-

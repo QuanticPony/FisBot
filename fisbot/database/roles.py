@@ -6,13 +6,12 @@ from .base import database
 
 class RolesDB(database):
 
-    SQL_TABLE = '''CREATE Table IF NOT EXISTS Roles (
+    SQL_TABLE = '''CREATE TABLE IF NOT EXIST Roles (
         rol_id integer NOT NULL PRIMARY KEY,
         lvl integer,
         description text,
-        privileges text,
-        guild_id integer
-        )'''
+        privileges text, 
+        guild_id INTEGER)'''
 
     @classmethod
     def add_rol(cls, rol) -> bool:
