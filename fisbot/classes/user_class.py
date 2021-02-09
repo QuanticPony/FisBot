@@ -1,11 +1,15 @@
-import random
 import math
-import discord
+import random
 import time
 from random import randint
-from .rol_class import FisRol
-from .display_class import *
+
+import discord
+
 from ..database import users
+from .achievements_class import Achievements
+from .display_class import *
+from .rol_class import FisRol
+
 
 class FisUser(Display):
 
@@ -23,9 +27,9 @@ class FisUser(Display):
     def __init__(self, user_id=0, name='', karma=0, level=0, xp=0, last_message=0, last_join=time.time()):
         self.id = int(user_id)
         self.name = name
-        self.karma = int(karma)
-        self.level = int(level)
-        self.xp = int(xp)
+        self.karma = int(karma if karma else 0) 
+        self.level = int(level if level else 0)
+        self.xp = int(xp if xp else 0)
         self.last_message = int(last_message if last_message else time.time())
         self.last_join = last_join
 
@@ -63,9 +67,11 @@ class FisUser(Display):
         '''ASYNC Devuelve un usuario `FisUser` a partir de un miembro'''
 
         user = cls.convert_from_database(users.UsersDB.get_user, args=member.id)
+        
         if not user:
             user = cls(user_id=member.id, name=member.display_name)
             users.UsersDB.add_user(user)
+        user.name = member.display_name
 
         if context:
             await user.init_display(context)
@@ -209,16 +215,26 @@ class FisUser(Display):
             except KeyError:
                 continue
 
+        
+    def get_achievements(self):
+        return Achievements.get_achievement(self)
 
-    # TODO: Hay que rehacer esto
+
     async def embed_show(self) -> discord.Embed:
         '''ASYNC Devuelve un mensaje tipo `discord.Embed` que muestra la info del usuario'''
 
         await self.discord_obj()
+        ach = Achievements.get_achievement(self)
+        try:
+            if self.name != self._disc_obj.nick:
+                self.name = self._disc_obj.nick
+                self.save_in_database()
+        except:
+            pass
 
         embed= discord.Embed(
-            title=self.name if self.name else self._disc_obj.name,
-            color=discord.Color.green()
+            title=self.name,
+            color=discord.Color.from_rgb(*(ach.color))
         )
         if self._disc_obj:
             embed.description= 'Nombre en discord: ' + self._disc_obj.name
@@ -237,5 +253,23 @@ class FisUser(Display):
             value=self.karma,
             inline=True
         )
-        embed.set_thumbnail(url=str(self._disc_obj.avatar_url_as(size=128)))
+
+        frase = ''
+        if ach.extras:
+            frase += ach.extras + '\n'
+
+        
+        for moment, level in ach.level_s_y:
+            try:
+                frase += f"{moment.replace('_', ' ',2).replace('_','-')}: Nivel {level}\n" if level > 4 else ''
+            except:
+                pass
+        
+        if frase:
+            embed.add_field(
+                name='Logros:',
+                value=frase,
+                inline=False
+            )
+        embed.set_thumbnail(url=str(self._disc_obj.avatar_url_as(size=256)))
         return embed
