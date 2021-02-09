@@ -53,8 +53,9 @@ class listeners(
             return
         
         try:
-            if '!' in message.channel.category.name:
-                return 
+            if message.channel.category:
+                if '!' in message.channel.category.name:
+                    return 
         except:
             pass
         if confirm:
@@ -90,7 +91,8 @@ class listeners(
         if not after.channel and before.channel:
             if not check_channel(before):
                 return
-            amount, user = UsersDB.last_voice_join(member.id)
+            amount, user_data = UsersDB.last_voice_join(member.id)
+            user = FisUser(*user_data)
             if not user:
                 user = await FisUser.init_with_member(member)
                 UsersDB.add_user(user)
