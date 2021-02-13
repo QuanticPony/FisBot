@@ -2,8 +2,7 @@ import discord
 import asyncio
 import random
 from discord.ext import commands
-from ..classes.poll_class import Poll
-from ..classes.bot_class import context_is_admin
+from .. import context_is_admin
 from ..classes.display_class import Display
 
 class poll_cog(
@@ -14,6 +13,8 @@ class poll_cog(
     '''Comandos para realizar encuestas. Pasos para realizar una: escriba ```.poll``` donde quiere que aparezca la encuesta.
     Cambia los campos de la encuesta por mensajes privados. Cuando este acabado pulsa 💾'''
 
+    TIMEOUT = 300
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -22,131 +23,226 @@ class poll_cog(
         '''Crea una encuesta a traves de un dialogo por mensajes privados. Devuelve una `tupla` cuyos 
         elementos son el `embed` y una `lista` de las opciones respectivamente'''
 
-        poll = Poll()
-        channel = ctx.author.dm_channel
-        if not channel:
-            channel = await ctx.author.create_dm()
+        
+        u = ctx.author
+        c = u.dm_channel
 
-
-        new_poll = discord.Embed(
-            title=poll._mod_title(),
-            description=poll._mod_desc(),
-            color=discord.Color.blurple()
-        )
-
-        for element in poll.options:
-            new_poll.add_field(
-                name=f"{element} - {poll.options[element][0]}",
-                value=f"{poll.options[element][1]}",
-                inline=False
-            )
-
-        config_message = await channel.send(embed=new_poll)
-
-        for i in poll.options:
-            await config_message.add_reaction(i) 
-        await config_message.add_reaction("❎")
-        await config_message.add_reaction("❌")
-        await config_message.add_reaction("💾")
-
-
-
-        def confirm_reaction(reaction, user):
-            return user.id == ctx.message.author.id
-        def confirm_message(response_msg):
-            return response_msg.author.id == ctx.message.author.id
-
-
-
-        async def ask_field() -> bool:
-            try:
-                reaction, user = await ctx.bot.wait_for('reaction_add', timeout=30.0, check=confirm_reaction)
-                if str(reaction.emoji) == '💾':
-                    return False
-
-                elif reaction.emoji == '❌':
-                    try:
-                        ask_message = await channel.send('Selecciona el campo a eliminar')
-                        try:
-                            reaction, user = await ctx.bot.wait_for('reaction_add', timeout=30.0, check=confirm_reaction)
-                        except asyncio.TimeoutError:
-                            await channel.send('Se acabo el tiempo...')
-                            return False
-                        if str(reaction.emoji) == '💾' or str(reaction.emoji) == '❌' or  str(reaction.emoji) == '❎':
-                            await channel.send('No puedes eliminar ese campo...')
-                            return False
-                    except asyncio.TimeoutError:
-                        await channel.send('Se acabo el tiempo...')
-                        return False
-                    if reaction.emoji in poll.options.keys():
-                        poll.del_element(reaction.emoji)
-                    return True
-
-            except asyncio.TimeoutError:
-                await channel.send('Se acabo el tiempo...')
-                return False
-
-            ask_message = await channel.send('Introduce el nuevo valor:')
-            try:
-                response_msg = await ctx.bot.wait_for('message', timeout=150.0, check=confirm_message)
-            except asyncio.TimeoutError:
-                await channel.send('Se acabo el tiempo...')
-                return False
-
-            if reaction.emoji == '❎':
-                poll.add_element(response_msg.content)
-            else:
-                poll.mod_element(reaction.emoji, response_msg.content)
-            
-            await ask_message.delete()
-            return True
-
-
-        while await ask_field():
-            new_poll.clear_fields()
-            for element in poll.options:
-                new_poll.add_field(
-                    name=f"{element} - {poll.options[element][0]}",
-                    value=f"{poll.options[element][1]}",
-                    inline=False
-            )
-            await config_message.edit(embed=new_poll)
-
-
-        final_poll = discord.Embed(
-            title=poll.options['🟫'][1],
-            description=poll.options['🟩'][1],
-            color=discord.Color.blurple()
-        )
-        elements_dic = poll.return_values()
-
-        frase = ''
-        for i in elements_dic:
-            frase += f"{i} - {elements_dic[i][1]}\n"
-
-        final_poll.add_field(
-            name='Opciones:',
-            value=frase,
-            inline=False
-            )
-        return (final_poll, list(elements_dic.keys()))
-
-
-    @commands.command(
-        pass_context=True, 
-        aliases=['encuesta','p'],
-        help='''¿Quieres hacer una encuesta? Escribe ```.poll``` Y sigue los pasos''',
-        brief='''Hace una encuesta''',
-        description='''Hace una encuesta preguntandote por privado los campos que quieres que tenga''',
-        usage='.poll [custom_message]'
-    )
-    async def poll(self, ctx, *, text=''):
-        embed, emojis= await self.create_poll(ctx)
         try:
             await ctx.message.delete()
-            msg = await ctx.send(text, embed=embed)
-        except discord.Forbidden:
-            msg = await ctx.author.dm_channel.send(text, embed=embed)
+        except:
+            pass
 
-        for emoji in emojis:
-            await msg.add_reaction(emoji)  
+        if not c:
+            c = await u.create_dm()
+
+        def confirm_reaction(reaction, user):
+            return user.id == u.id
+        def confirm_message(response_msg):
+            return response_msg.author.id == u.id
+
+        e = discord.Embed(
+            title="📯 Título",
+            description="🪕 Descripción",
+            color=discord.Color.blurple()
+            )
+        e.add_field(
+            name="Opciones",
+            value="Reacciona con el emoticono que represente una nueva opcion",
+            inline=False
+        )
+
+        poll_message = await c.send(embed=e)
+
+        for i in ['📯', '🪕', '🎨', '🔺', '💾']:
+            await poll_message.add_reaction(i)
+
+
+        emoji= {}
+
+        async def ask_field(embed) -> bool:
+            try:
+                reaction, user = await ctx.bot.wait_for('reaction_add', timeout=self.TIMEOUT, check=confirm_reaction)
+                emoj = str(reaction.emoji)
+
+                if emoj == '💾':
+                    return False, embed
+
+                elif emoj == '🔺':
+                    ask_message = await c.send('Quita la reaccion del campo que quieres eliminar')
+                    reaction, user = await ctx.bot.wait_for('reaction_remove', timeout=self.TIMEOUT, check=confirm_reaction)
+                    if str(reaction.emoji) in emoji.keys():
+                        emoji.pop(str(reaction.emoji))
+                    await ask_message.delete()
+
+                elif emoj == '🎨':
+                    ask_message = await c.send('Escribe el codigo RGB (0-255): (ej: 0 200 100)')
+                    try:
+                        response_msg = await ctx.bot.wait_for('message', timeout=self.TIMEOUT, check=confirm_message)
+                        try:
+                            r, g, b = map(int, response_msg.content.split())
+                            title = embed.title
+                            description = embed.description
+                            new_e = discord.Embed(
+                                title=title,
+                                description=description,
+                                color=discord.Color.from_rgb(r,g,b)
+                            )
+                            embed = new_e
+                            await response_msg.add_reaction("✔️")
+                        except :
+                            await ask_message.delete()
+                            await response_msg.add_reaction("❌")
+
+                    except asyncio.TimeoutError:
+                        await c.send('Se acabo el tiempo...')
+                        return False, embed
+
+                elif emoj =='📯':
+                    try:
+                        ask_message = await c.send('Escribe el nuevo titulo')
+                        response_msg = await ctx.bot.wait_for('message', timeout=self.TIMEOUT, check=confirm_message)
+                        try:
+                            embed.title =  response_msg.content
+                            await response_msg.add_reaction("✔️")
+                        except:
+                            await ask_message.delete()
+                            await response_msg.add_reaction("❌")
+                    except asyncio.TimeoutError:
+                        await c.send('Se acabo el tiempo...')
+                        return False, embed
+
+                elif emoj =='🪕':
+                    try:
+                        ask_message = await c.send('Escribe la nueva descripccion')
+                        response_msg = await ctx.bot.wait_for('message', timeout=self.TIMEOUT, check=confirm_message)
+                        try:
+                            embed.description =  response_msg.content
+                            await response_msg.add_reaction("✔️")
+                        except:
+                            await ask_message.delete()
+                            await response_msg.add_reaction("❌")
+                    except asyncio.TimeoutError:
+                        await c.send('Se acabo el tiempo...')
+                        return False, embed
+                    
+                
+                else:
+                    ask_message = await c.send(f'Escribe la opcion que quieres añadir con el emoticono {emoj}')
+                    try:
+                        response_msg = await ctx.bot.wait_for('message', timeout=self.TIMEOUT, check=confirm_message)
+                        try:
+                            emoji.update({emoj : response_msg.content})
+                            await response_msg.add_reaction("✔️")
+
+                        except:
+                            await ask_message.delete()
+                            await response_msg.add_reaction("❌")
+
+                    except asyncio.TimeoutError:
+                        await c.send('Se acabo el tiempo...')
+                        return False, embed
+                return True, embed
+            except:
+                return False, embed
+
+        check = True
+        while check:
+            check, e = await ask_field(e)
+            e.clear_fields()
+            frase = ''
+            for emoj in emoji.keys():
+                frase += f"{emoj} - {emoji[emoj]}\n"
+            if not frase:
+                frase = "Reacciona con el emoticono que represente una nueva opcion"
+            e.add_field(
+                name='Opciones:',
+                value=frase,
+                inline=False
+                )
+            await poll_message.edit(embed=e)
+
+        try:
+            want_user_confirm = await c.send("Quieres aparecer como creador de la encuesta? (Si:✅. No:❌)")
+            await want_user_confirm.add_reaction("✅")
+            await want_user_confirm.add_reaction("❌")
+
+            try:
+                reaction, user = await ctx.bot.wait_for('reaction_add', timeout=30.0, check=confirm_reaction)
+                if str(reaction.emoji) == "✅":
+                    e.set_footer(text=u.nick, icon_url=str(u.avatar_url))
+
+            except asyncio.TimeoutError:
+                pass
+        except asyncio.TimeoutError:
+            pass
+        return (e, emoji.keys())
+        
+
+    @commands.group(
+        pass_context=True, 
+        aliases=['encuesta','p'],
+        help='''¿Quieres hacer una encuesta? Escribe ```.poll``` Y sigue los pasos
+        ¿Quieres saber como funcionan las encuestas? ```.poll -tutorial```''',
+        brief='''Hace una encuesta''',
+        description='''Hace una encuesta preguntandote por privado los campos que quieres que tenga''',
+        usage='.poll [-tutorial] [custom_message]'
+    )
+    async def poll(self, ctx, *, text=''):
+
+        if text.startswith('-tutorial'):
+            await self.tutorial(ctx)
+            return
+
+        embed, emojis= await self.create_poll(ctx)
+        try:
+            msg = await ctx.send(text, embed=embed)
+            for emoji in emojis:
+                await msg.add_reaction(emoji)
+        except:
+            pass
+        
+    async def tutorial(self, ctx):
+        e = discord.Embed(
+            title='Explicacion .poll',
+            description='''Ten en cuenta que el bot no puede estar pendiente de ti todo el rato: 
+            si te pide algo y no obtiene una respuesta en 5 minutos pasara a otra cosa''',
+            color=discord.Color.from_rgb(38,236,227)
+        )
+        e.add_field(
+            name='Como comenzar una encuesta?',
+            value='''Escribe en el canal de texto donde quieras enviar la encuesta lo siguiente: 
+            `.poll [Mensaje que quieres que acompañe a la encuesta]`. El mensaje entre [] es opcional.
+            FisBot te enviara un mensaje por privado donde podras cambiar el titulo, descripcion, y opciones de la encuesta''',
+            inline=False
+            )
+        e.add_field(
+            name='Como cambiar el titulo o la descripcion de la encuesta?',
+            value='''En el mensaje por privado de FisBot hay varias reacciones. Sirven para seleccionar el campo que quieres modificar.
+            En cuanto lo selecciones FisBot te preguntara lo que quieres poner en ese campo. Y no seas impaciente, ve con calma que FisBot no es instantaneo''',
+            inline=False
+            )
+        e.add_field(
+            name='Como añadir una opcion?',
+            value='''Reacciona con el emoticono que quieres que represente esa opcion. FisBot te preguntara por el valor de esa opcion''',
+            inline=False
+            )
+        e.add_field(
+            name='Como eliminar una opcion?',
+            value='''Pulsa la reaccion 🔺. FisBot te pedira que elimines la reaccion de la opcion a eliminar''',
+            inline=False
+            )
+        e.add_field(
+            name='Como cambiar el color?',
+            value='''Pulsa la reaccion 🎨. FisBot te preguntara por el color en RGB de 0 a 255 (ej: 0 255 144). 
+            Separadlos por espacios o comas, no por ambas. Y solo escribid eso''',
+            inline=False
+        )
+        e.add_field(
+            name='Como finalizo la encuesta?',
+            value='''Esta accion es irreversible. Pulsa la reaccion 💾. FisBot te preguntara si quieres aparecer como creador de la encuesta.
+            Reacciona acorde a lo que quieras y la encuesta se enviara''',
+            inline=False
+        )
+        await ctx.send(f"{ctx.author.mention}",embed=e)
+        
+        
