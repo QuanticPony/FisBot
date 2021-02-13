@@ -1,8 +1,14 @@
-import discord
 import asyncio
+import pickle
 import random
+
+import discord
 from discord.ext import commands
-from ..classes.bot_class import context_is_admin
+
+from .. import context_is_admin
+from ..classes import user_class
+from ..classes.achievements_class import Achievements
+
 
 class admin_basic_commands(
     commands.Cog,
@@ -202,3 +208,104 @@ class admin_basic_commands(
 
         await ctx.message.add_reaction("🔄")
         self.bot.reload_extension('fisbot.basics.loader')
+
+    
+    @commands.command(
+        pass_context=True,
+        hidden=True
+    )
+    async def names(self, context, args):
+
+        if not context.author.id == self.bot.owner_id:
+            return
+        
+        if args=='do':
+            members = context.guild.members
+
+            shuffled_members = members.copy()
+            random.shuffle(shuffled_members)
+
+            change_log = [[(i.id, i.nick if i.nick else i.name), (j.id, j.nick if j.nick else j.name)] for i, j in zip(members, shuffled_members)]
+
+            with open('change_log', 'wb') as changes_file:
+                pickle.dump(change_log, changes_file)
+
+            for i, j in change_log:
+                one = context.guild.get_member(i[0])
+                two = context.guild.get_member(j[0])
+                if one and two:
+                    try:
+                        await two.edit(nick=i[1])
+                    except:
+                        pass
+        
+        if args=='revert':
+            with open('change_log', 'rb') as changes_file:
+                changes_log = pickle.load(changes_file)
+
+                for i, j in changes_log:
+                    one = context.guild.get_member(i[0])
+                    two = context.guild.get_member(j[0])
+                    if one and two:
+                        try:
+                            await two.edit(nick=j[1])
+                        except:
+                            pass
+
+    
+    @commands.group(
+        pass_context=True,
+        hidden=True
+    )
+    async def achievements(self, context):
+        pass
+
+    @achievements.command(
+        pass_context=True,
+        hidden=True
+    )
+    async def add(self, context, semester, year):
+
+        members = context.message.mentions
+        if context.message.mention_everyone:
+            members = context.guild.members
+
+        for member in members:
+            fisuser = await user_class.FisUser.init_with_member(member)
+            Achievements.add_achievement(fisuser, semester, year)
+        await context.message.add_reaction("✔️")
+
+    @achievements.command(
+        pass_context=True,
+        hidden=True
+    )
+    async def insert(self, context):
+
+        members = context.message.mentions
+        id_list=[]
+        for member in members:
+            id_list.append(member.id)
+        from ..database.achievements import AchievementsDB
+        AchievementsDB.insert_all(id_list)
+
+        await context.message.add_reaction("✔️")
+
+    # TODO: cambiar clase Achievements a tipo d
+
+
+    @achievements.command(
+        pass_context=True,
+        hidden=True
+    )
+    async def extras(self, context, text):
+
+        members = context.message.mentions
+        achs = []
+        for member in members:
+            achs.append(Achievements.get_achievement(member))
+
+        for ach in achs:
+            ach.extras = text
+            ach.update()
+    
+        await context.message.add_reaction("✔️")

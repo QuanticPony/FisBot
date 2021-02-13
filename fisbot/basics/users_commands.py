@@ -1,7 +1,8 @@
 import discord
 from discord.ext import commands
-from ..classes.bot_class import context_is_admin
+from .. import context_is_admin
 from ..classes.user_class import FisUser
+from ..classes.achievements_class import Achievements
 from ..database.users import UsersDB
 
 class users_cog(
@@ -28,11 +29,14 @@ class users_cog(
         embeds_list = []
         if not ctx.message.mentions:
 
-            user = UsersDB.get_user(ctx.author.id)
-
+            user = FisUser.convert_from_database(UsersDB.get_user, args=ctx.author.id)
             if not user:
-                UsersDB.add_user(user)
-                user = UsersDB.get_user(ctx.author.id)
+                UsersDB.add_user(FisUser(ctx.author.id, name=ctx.author.name))
+                user = FisUser.convert_from_database(UsersDB.get_user, args=ctx.author.id)
+
+            if ctx.author.nick != user.name:
+                user.name = ctx.author.nick
+                UsersDB.update_user(user)
 
             await user.init_display(ctx)
             embeds_list.append(await user.embed_show())
@@ -40,11 +44,11 @@ class users_cog(
         else:
             for user in ctx.message.mentions:
 
-                user = UsersDB.get_user(user.id)
+                user = FisUser.convert_from_database(UsersDB.get_user, args=user.id)
 
                 if not user:
-                    UsersDB.add_user(user)
-                    user = UsersDB.get_user(ctx.author.id)
+                    UsersDB.add_user(FisUser(user.id))
+                    return
                     
                 await user.init_display(ctx)
                 embeds_list.append(await user.embed_show())
@@ -54,6 +58,15 @@ class users_cog(
         for embed in embeds_list:
             await ctx.send(embed=embed)
 
+        
+    @commands.command(
+
+    )
+    async def colour(self, context, r, g, b):
+
+        ach = Achievements.get_achievement(context.author)
+        ach.set_color(r, g, b)
+        await context.message.add_reaction("✔️")
 
     @commands.group(
         pass_context=True,
@@ -73,6 +86,34 @@ class users_cog(
     async def _user(self, ctx):
         pass
 
+    @_user.command(
+        hidden=True,
+        pass_context=True,
+        checks=[context_is_admin]
+    )
+    async def main_update(self, ctx):
+
+        members = ctx.guild.members
+        for member in members:
+            UsersDB.update_user(await FisUser.init_with_member(member))
+
+        await ctx.message.add_reaction("✔️")
+
+
+    @_user.command(
+        hidden=True,
+        pass_context=True,
+        checks=[context_is_admin]
+    )
+    async def main_reset(self, ctx):
+        members = ctx.guild.members
+        for member in members:
+            user = await FisUser.init_with_member(member)
+            user.level = 0
+            user.xp = 0
+            UsersDB.update_user(user)
+
+        await ctx.message.add_reaction("✔️")
 
     @_user.command(
         pass_context=True,
@@ -148,17 +189,26 @@ class users_cog(
     )
     async def rank(self, ctx):
         
-        lista = list(UsersDB.get_all_users())
+        lista = FisUser.convert_from_database(UsersDB.get_all_users)
 
         frase = []
 
         lista.sort(key = lambda memb : memb.karma)
         lista.reverse()
-        
+
+        check = False
         for i, memb in enumerate(lista, start=1):
             if i <= 10:
-                frase.append(f"{i} - **{memb.name}**: {memb.karma}")
+                if memb.id == ctx.author.id:
+                    check = True
+                    frase.append(f"**{i} - {memb.name}: {memb.karma}**")
+                else:
+                    frase.append(f"*{i} - {memb.name}*: {memb.karma}")
             else:
+                if not check:
+                    user = await FisUser.init_with_member(ctx.author)
+                    frase.append('...')
+                    frase.append(f"**{lista.index(user)} - {user.name}: {user.karma}**")
                 break
     
 
@@ -169,3 +219,79 @@ class users_cog(
         )
 
         await ctx.send(embed=embed) 
+
+    @commands.command(
+        pass_context=True,
+        hidden=True
+    )
+    async def no(self, ctx, puedes, listillo):
+
+        if puedes == 'puedes' and listillo == 'listillo':
+            await ctx.send(f"Ssssh, me estas retando {ctx.author.mention}? Que soy admin colega... que te baneo")
+
+
+    @commands.command(
+        pass_context=True, 
+        brief='''Te da 3.14 de experiencia''',
+        description='''pi matematicos, pi fisicos, pi ingenieros, pi de letras, pi pi''',
+        usage='.pi [modo]'
+    )
+    async def pi(self, context, *mode):
+        types = {'matematicos': 'π',
+        'ingenieros': '5',
+        'fisicos': '3.14',
+        'pi': 'Que infantil...',
+        'de letras': '''Se reflejaba en el agua
+el pájaro confundido,
+levantaba la cabeza
+que asomaba desde el nido.
+
+Eh, amigo - le gritó -
+¿Vienes a volar conmigo?
+Parecemos muy iguales,
+seremos buenos amigos.
+He descargado este poema
+para escribir Pi (o) pi (o)
+
+Pájaro escucha, -insistió-
+Te pareces mucho a mí,
+tienes las plumas verdosas
+y el pico color añil.
+
+Pero el ave sin moverse 
+miraba sin contestar,
+y el pajarito en el árbol
+se empezó a desesperar.
+
+Oyes, pájaro antipático
+¿Es que acaso no me ves?
+aquí arriba -gritó fuerte-
+en el nido del ciprés.
+
+Pero el reflejo del agua
+no se dignó a contestar,
+y el del árbol enfadado
+protestando echó a volar. 
+(Lo he copiado de internet, evidentemente)'''}
+
+        if not mode:
+            await context.send('''3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196442881097566593344612847564823378678316527120190914564856692346034861045432664821339360726024914127372458700660631558817488152092096282925409171536436789259036001133053054882046652138414695194151160943305727036575959195309218611738193261179310511854807446237996274956735188575272489122793818301194912''')
+            return 
+        mode = ' '.join(mode)
+        for key in types.keys():
+            if mode in key:
+                await context.send(types[key])
+                return
+
+
+    @commands.command(
+        pass_context=True, 
+        brief='''Convierne grados a radianes''',
+        description='''Hace el cambio que todos necesitamos; pero que solo David Perez no hace''',
+        usage='.david [numero]'
+    )
+    async def david(self, context, *, number):
+        if number and number.isnumeric():
+            await context.send(f"{float(number)}º son {float(number)/180:.3}π magnificos radianes")
+        else:
+            await context.send('''David Perez es un miembro de FisCord conocido por su aprecio incondicional al sistema sexagesimal para la medida de angulos''')

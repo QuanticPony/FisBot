@@ -1,8 +1,12 @@
-import discord
-from discord.ext import commands
 import asyncio
 from random import randint
+
+import discord
+from discord.ext import commands
+
+from ..database import roles
 from .display_class import *
+
 
 class FisRol(Display):
 
@@ -28,12 +32,24 @@ class FisRol(Display):
         self.privileges = privileges
         self.guild_id = guild_id
 
-        from ..database.roles import RolesDB
-        self.database = RolesDB
-
         if context:
             self._ctx = context
             self.guild_id = context.guild.id
+
+
+    @classmethod
+    def convert_from_database(cls, funcion, *args):
+        '''Ejecuta la funcion `funcion` con los argumentos dados en la base de datos. Convierte el resultado a un
+        objeto FisRol'''
+
+        try:
+            result = cls(*(funcion(*args)))
+        except:
+            try:
+                result = [cls(*line) for line in funcion(*args)]
+            except:
+                return None
+        return result
 
 
     @classmethod
@@ -50,12 +66,13 @@ class FisRol(Display):
         await instance.create()
         return instance
 
+
     @classmethod
     async def init_from_discord(cls, ctx: commands.Context, role: discord.Role):
         '''Inicia la clase `FisRol` a partir de un `discord.Role`. Mira en la base de datos a ver si encuentra un rol
         con la misma id. Si no lo encuentra devuelve `None`'''
 
-        instance = cls().database.get_rol_id(role.id)
+        instance = cls.convert_from_database(roles.RolesDB.get_rol_id, role.id)
         if not instance:
             instance = cls(rol_id=role.id, context=ctx, name=role.name)
         await instance.init_display(ctx)
@@ -64,15 +81,17 @@ class FisRol(Display):
 
 # Funciones de la clase FisRol
 
-    def check_new_rol_needed(self, user):
+    @classmethod
+    def check_new_rol_needed(cls, user):
         '''Devuelve el rol `FisRol` que deberia tener el usuario especificado. Si no hay un rol para ese nivel devuelve `None`'''
 
-        return self.database.get_roles(user.level)
+        return cls.convert_from_database(roles.RolesDB.get_roles, user.level)
 
-    def prev_roles_of_level(self, level: int):
+    @classmethod
+    def prev_roles_of_level(cls, level: int):
         '''Devuelve una lista de `FisRol` que consiguio el usuario. Devuelve `None` si no ha conseguido nunca un rol'''
 
-        return [self.database.get_roles(i) for i in reversed(range(1,level))]
+        return [cls.convert_from_database(roles.RolesDB.get_roles, i) for i in reversed(range(1,level))]
  
 
     async def give_to(self, user, *, guild=None) -> bool:
@@ -184,12 +203,12 @@ class FisRol(Display):
 
     async def save_in_database(self) -> bool:
 
-        self.database.add_rol(self)
-        return self.database.update_rol(self)
+        self.convert_from_database(roles.RolesDB.add_rol, self)
+        return self.convert_from_database(roles.RolesDB.update_rol, self)
 
     async def remove_from_database(self) -> bool:
 
-        return self.database.del_rol(self)
+        return self.convert_from_database(roles.RolesDB.del_rol, self)
 
 
     

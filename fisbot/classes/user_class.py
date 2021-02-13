@@ -1,14 +1,20 @@
-import random
 import math
-import discord
+import random
 import time
 from random import randint
-from .rol_class import FisRol
+
+import discord
+
+from ..database import users
+from .achievements_class import Achievements
 from .display_class import *
+from .rol_class import FisRol
+
 
 class FisUser(Display):
 
     XP_ADD_BASE = 6
+    COOLDOWN = 30
 
     _title_for_mod = 'Modificar **{0.name}**'
     _title_for_del = 'Eliminar **{0.name}** de la base de datos'
@@ -19,36 +25,58 @@ class FisUser(Display):
     _descr_for_del ='''¿Seguro que quiere eliminar este elemento de la base de datos?
         Si es así, reaccione ✅. De lo contrario, reaccione ❌:'''
 
-    def __init__(self, user_id=0, name='', karma=0, level=0, xp=0, last_message=0, last_join=None):
+    def __init__(self, user_id=0, name='', karma=0, level=0, xp=0, last_message=None, last_join=time.time()):
         self.id = int(user_id)
         self.name = name
-        self.karma = int(karma)
-        self.level = int(level)
-        self.xp = int(xp)
-        self.last_message = int(last_message)
-        if not last_join:
-            last_join = time.time()
+        self.karma = int(karma if karma else 0) 
+        self.level = int(level if level else 0)
+        self.xp = int(xp if xp else 0)
+        self.last_message = last_message
         self.last_join = last_join
 
-        from ..database.users import UsersDB
-        self.database = UsersDB
+
+    def __eq__(self, value):
+        if isinstance(value, FisUser):
+            return self.id == value.id
+        else:
+            return False
+
+
+    @classmethod
+    def convert_from_database(cls, funcion, *, args=[]):
+        '''Ejecuta la funcion `funcion` con los argumentos dados en la base de datos. Convierte el resultado a un
+        objeto FisUser'''
+
+        if args:
+            _return = funcion(args)
+        else: 
+            _return = funcion()
+
+        try:
+            
+            result = cls(*_return)
+        except:
+            try:
+                result = [cls(*line) for line in funcion(*args)]
+            except:
+                return None
+        return result
+
 
     @classmethod
     async def init_with_member(cls, member: discord.Member, *, context=None):
         '''ASYNC Devuelve un usuario `FisUser` a partir de un miembro'''
 
-        user = cls().database.get_user(member.id)
+        user = cls.convert_from_database(users.UsersDB.get_user, args=member.id)
+        
         if not user:
-            user = cls(
-                user_id=member.id,
-                name=member.display_name
-            )
-            user.database.add_user(user)
-        if not context:
-            return user
-        else:
+            user = cls(user_id=member.id, name=member.display_name)
+            users.UsersDB.add_user(user)
+        user.name = member.display_name
+
+        if context:
             await user.init_display(context)
-            return user
+        return user
 
     def title_for_mod(self) -> str:
 
@@ -72,6 +100,8 @@ class FisUser(Display):
         
         return ((self.level ** 2) + self.level + 2) * 50 - self.level * 100
 
+
+    # TODO: preguntar a Aitor como puedo optimizar esta función para no crear el diccionario cada vez que alguien sube de nivel
     async def level_up(self, bot, guild):
         '''ASYNC Te sube de nivel'''
 
@@ -89,16 +119,21 @@ class FisUser(Display):
         if guild.system_channel:
             await guild.system_channel.send(new_level_frases[randint(0,len(new_level_frases) - 1)])
 
-        roles = FisRol().check_new_rol_needed(self)
-        if roles:
-            for role in roles:
-                guild = bot.get_guild(role.guild_id)
-                if guild and self._disc_obj in guild.members:
-                    await role.give_to(self, guild=guild)
-                    rols = role.prev_roles_of_level(self.level)
-                    if rols:
-                        for rol in rols:
-                            await rol.remove_from(self, guild=bot.get_guild(rol.guild_id))
+        roles_nuevos = FisRol.check_new_rol_needed(self)
+        if not roles_nuevos:
+            return
+        
+        for role in roles_nuevos:
+            guild = bot.get_guild(role.guild_id)
+
+            if guild and self._disc_obj in guild.members:
+                await role.give_to(self, guild=guild)
+
+                roles_previos = FisRol.prev_roles_of_level(self.level)
+                if roles_previos:
+                    for rol in roles_previos:
+                        await rol.remove_from(self, guild=bot.get_guild(rol.guild_id))
+
 
     async def addxp(self, bot, guild, *, amount=None) :
         '''ASYNC Sube la experiencia del usuario. Si el usuario necesita subir de nivel, lo hace'''
@@ -108,14 +143,31 @@ class FisUser(Display):
 
         newxp = self.xp + amount
         xp_required = self.xp_to_lvl_up()
-        if newxp >= xp_required:
-            self.xp = newxp - xp_required
+        self.xp = newxp
+        if self.xp >= xp_required:
+            self.xp -=  xp_required
             self.level += 1
-            await self.level_up(bot, guild)
-            self.database.update_user(self)
-        else:
-            self.xp = newxp
-            self.database.update_user(self)
+            await self.level_up(bot, guild)  
+        users.UsersDB.update_user(self)
+
+
+    @classmethod
+    def last_message_cooldown(cls, user_id)-> (bool, list):
+        '''Comprueba si la llamada a esta funcion y con la ultima llamada a la misma del mismo `user_id` es mayor que el cooldown.
+        Devuelve un booleano si cumple el cooldown y el usuario de la base de datos con mismo id'''
+
+        now_time = time.time()
+        if user_id:
+            user = cls.convert_from_database(users.UsersDB.get_user, args=user_id) 
+            if user:
+                users.UsersDB.execute('UPDATE Users SET last_message = ? WHERE id = ?', args=(now_time, user_id))
+                if not user.last_message:
+                    user.last_message = now_time
+                if now_time - user.last_message >= cls.COOLDOWN:
+                    
+                    return (True, user)
+        return (False, user)
+    
 
     @check_if_context()
     async def discord_obj(self) -> discord.Member:
@@ -145,12 +197,12 @@ class FisUser(Display):
     async def save_in_database(self) -> bool:
         '''ASYNC Guarda al usuario en la base de datos. Devuelve `True` si lo ha conseguido y `False` si no '''
         
-        return self.database.update_user(self)
+        return users.UsersDB.update_user(self)
 
     async def remove_from_database(self):
         '''ASYNC Elimina al usuario en la base de datos. Devuelve `True` si lo ha conseguido y `False` si no '''
 
-        return self.database.del_user(self)
+        return users.UsersDB.del_user(self)
 
     def prepare_atributes_dic(self):
         '''Prepara los diccionarios internos para trabajar con ellos'''
@@ -163,14 +215,26 @@ class FisUser(Display):
             except KeyError:
                 continue
 
+        
+    def get_achievements(self):
+        return Achievements.get_achievement(self)
+
+
     async def embed_show(self) -> discord.Embed:
         '''ASYNC Devuelve un mensaje tipo `discord.Embed` que muestra la info del usuario'''
 
         await self.discord_obj()
+        ach = Achievements.get_achievement(self)
+        try:
+            if self.name != self._disc_obj.nick:
+                self.name = self._disc_obj.nick
+                self.save_in_database()
+        except:
+            pass
 
         embed= discord.Embed(
-            title=self.name if self.name else self._disc_obj.name,
-            color=discord.Color.green()
+            title=self.name,
+            color=discord.Color.from_rgb(*(ach.color))
         )
         if self._disc_obj:
             embed.description= 'Nombre en discord: ' + self._disc_obj.name
@@ -189,5 +253,23 @@ class FisUser(Display):
             value=self.karma,
             inline=True
         )
-        embed.set_thumbnail(url=str(self._disc_obj.avatar_url_as(size=128)))
+
+        frase = ''
+        if ach.extras:
+            frase += ach.extras + '\n'
+
+        
+        for moment, level in ach.level_s_y:
+            try:
+                frase += f"{moment.replace('_', ' ',2).replace('_','-')}: Nivel {level}\n" if level > 4 else ''
+            except:
+                pass
+        
+        if frase:
+            embed.add_field(
+                name='Logros:',
+                value=frase,
+                inline=False
+            )
+        embed.set_thumbnail(url=str(self._disc_obj.avatar_url_as(size=256)))
         return embed

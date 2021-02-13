@@ -3,17 +3,6 @@ import asyncio
 from discord.ext import commands
 
 
-def context_is_admin(context):
-    '''Devuelve True si el author del contexto que activa cierta funcion del Bot tiene permisos de administrador en dicho Servidor.
-    Esta funcion se puede importar a otras extensiones para ponerla como check de commandos y cogs'''
-    
-    if context.guild:
-        return context.message.author.guild_permissions.administrator
-    else:
-        return False
-
-BOT_PATH = ''
-
 class FisBot(commands.Bot):    
 
     def __init__(self, *, command_prefix: str, path: str):
@@ -21,14 +10,10 @@ class FisBot(commands.Bot):
         self.extensions_list = [
             'fisbot.basics.loader',
             'fisbot.custom_help.loader',
-            #'fisbot.diciembrefunfunfun.loader',
             'fisbot.task_commands.loader',
             'fisbot.roles.loader'
             ]
         self.add_extensions(self.extensions_list)
-        
-        if path:
-            BOT_PATH = path
         
 
     def add_extension(self, extension_name):
