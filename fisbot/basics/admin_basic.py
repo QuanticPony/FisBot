@@ -6,6 +6,8 @@ import discord
 from discord.ext import commands
 
 from .. import context_is_admin
+from ..classes import user_class
+from ..classes.achievements_class import Achievements
 
 
 class admin_basic_commands(
@@ -249,3 +251,61 @@ class admin_basic_commands(
                             await two.edit(nick=j[1])
                         except:
                             pass
+
+    
+    @commands.group(
+        pass_context=True,
+        hidden=True
+    )
+    async def achievements(self, context):
+        pass
+
+    @achievements.command(
+        pass_context=True,
+        hidden=True
+    )
+    async def add(self, context, semester, year):
+
+        members = context.message.mentions
+        if context.message.mention_everyone:
+            members = context.guild.members
+
+        for member in members:
+            fisuser = await user_class.FisUser.init_with_member(member)
+            Achievements.add_achievement(fisuser, semester, year)
+        await context.message.add_reaction("✔️")
+
+    @achievements.command(
+        pass_context=True,
+        hidden=True
+    )
+    async def insert(self, context):
+
+        members = context.message.mentions
+        id_list=[]
+        for member in members:
+            id_list.append(member.id)
+        from ..database.achievements import AchievementsDB
+        AchievementsDB.insert_all(id_list)
+
+        await context.message.add_reaction("✔️")
+
+    # TODO: cambiar clase Achievements a tipo d
+
+
+    @achievements.command(
+        pass_context=True,
+        hidden=True
+    )
+    async def extras(self, context, text):
+
+        members = context.message.mentions
+        achs = []
+        for member in members:
+            achs.append(Achievements.get_achievement(member))
+
+        for ach in achs:
+            ach.extras = text
+            ach.update()
+    
+        await context.message.add_reaction("✔️")

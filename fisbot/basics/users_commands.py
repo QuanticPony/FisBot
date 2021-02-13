@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from .. import context_is_admin
 from ..classes.user_class import FisUser
+from ..classes.achievements_class import Achievements
 from ..database.users import UsersDB
 
 class users_cog(
@@ -29,9 +30,10 @@ class users_cog(
         if not ctx.message.mentions:
 
             user = FisUser.convert_from_database(UsersDB.get_user, args=ctx.author.id)
-
             if not user:
                 UsersDB.add_user(FisUser(ctx.author.id, name=ctx.author.name))
+                user = FisUser.convert_from_database(UsersDB.get_user, args=ctx.author.id)
+
             if ctx.author.nick != user.name:
                 user.name = ctx.author.nick
                 UsersDB.update_user(user)
@@ -56,6 +58,15 @@ class users_cog(
         for embed in embeds_list:
             await ctx.send(embed=embed)
 
+        
+    @commands.command(
+
+    )
+    async def colour(self, context, r, g, b):
+
+        ach = Achievements.get_achievement(context.author)
+        ach.set_color(r, g, b)
+        await context.message.add_reaction("✔️")
 
     @commands.group(
         pass_context=True,
@@ -75,6 +86,34 @@ class users_cog(
     async def _user(self, ctx):
         pass
 
+    @_user.command(
+        hidden=True,
+        pass_context=True,
+        checks=[context_is_admin]
+    )
+    async def main_update(self, ctx):
+
+        members = ctx.guild.members
+        for member in members:
+            UsersDB.update_user(await FisUser.init_with_member(member))
+
+        await ctx.message.add_reaction("✔️")
+
+
+    @_user.command(
+        hidden=True,
+        pass_context=True,
+        checks=[context_is_admin]
+    )
+    async def main_reset(self, ctx):
+        members = ctx.guild.members
+        for member in members:
+            user = await FisUser.init_with_member(member)
+            user.level = 0
+            user.xp = 0
+            UsersDB.update_user(user)
+
+        await ctx.message.add_reaction("✔️")
 
     @_user.command(
         pass_context=True,
