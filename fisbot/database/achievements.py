@@ -24,23 +24,36 @@ class AchievementsDB(database):
         '''Añade un usuario a la base de datos. Si el usuario se ha añadido devuelve True,
         en caso contrario (si ya existe uno con el mismo id) devuelve `False`.'''
 
-        tup = tuple(i[1] for i in achiev.level_s_y)
-        confirmation = cls.execute('INSERT INTO Achievements VALUES (?,?,?,'+ ','.join(['?' for i in achiev.level_s_y]) + ')', 
-            args=(achiev.id, ' '.join(achiev.color),achiev.extras, *tup))
+        tup = tuple(i for i in achiev.level_s_y if i)
+        sentence = 'INSERT INTO Achievements (id,color,extras'
+        back_sentence = ') VALUES (?,?,?'
+        for i in tup:
+            sentence += ',' + achiev._to_str(i)
+            back_sentence += ',?'
+        sentence += back_sentence + ')'
+
+        confirmation = cls.execute(sentence, args=(achiev.id, achiev._color_to_str() ,achiev.extras, *tup))
         if confirmation:
             return True
-        return cls.update_achiev(achiev)
+        return cls.update_achievement(achiev)
     
     @classmethod
     def update_achievement(cls, achiev) -> bool:
         '''Actualiza los datos de un usuario si existe en la base de datos. Si el usuario
         existe y se ha podido modificar devuelve `True`, en caso contrario devuelve `False`.'''
 
-        tup = tuple(i[1] for i in achiev.level_s_y if i)
-        tup_names = tuple(f'"{i[0]}"=?' for i in achiev.level_s_y if i)
-
-        return cls.execute('UPDATE Achievements SET color=?, extras=?,' + ', '.join(tup_names) +' WHERE id = ?',
-            args=( ' '.join(map(str, achiev.color)),achiev.extras, *tup, achiev.id))
+        sentence = 'UPDATE Achievements SET color=?, extras=?'
+        _l = []
+        for i,j in achiev.level_s_y:
+            try:
+                if j>=0:
+                    sentence += ',' + i + '=?'
+                    _l.append(j)
+            except:
+                pass
+        sentence += ' WHERE id = ?'
+        tup = tuple(_l)
+        return cls.execute(sentence, args=(achiev._color_to_str(), achiev.extras, *tup, achiev.id))
     
     @classmethod
     def del_achievement(cls, achiev) -> bool:
@@ -58,9 +71,9 @@ class AchievementsDB(database):
             return None
         result = cls.execute('SELECT * FROM Achievements WHERE id = ?', args=(achiev_id,)).fetchone()
 
-        if not result:
-            cls.execute('INSERT INTO Achievements (id, color) VALUES (?,?)', args=(achiev_id, '50 50 150'))
-            return None
+        #if not result:
+        #    cls.execute('INSERT INTO Achievements (id, color) VALUES (?,?)', args=(achiev_id, '50 50 150'))
+        #    return None
         return result
 
     @classmethod

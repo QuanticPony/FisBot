@@ -19,6 +19,9 @@ class Achievements():
     def _to_str(cls, i):
         s, y = 1 + i%2 , 2020 + int((i - i%2)/2)
         return f"C{s}_de_{y}_{y+1}"
+
+    def _color_to_str(self):
+        return f"{self.color[0]} {self.color[1]} {self.color[2]}"
         
     @classmethod
     def convert_from_database(cls, funcion, *, args=[]):
@@ -58,7 +61,11 @@ class Achievements():
     @classmethod
     def get_achievement(cls, user):
 
-        return cls.convert_from_database(achievements.AchievementsDB.get_achievements, args=user.id)
+        ach = cls.convert_from_database(achievements.AchievementsDB.get_achievements, args=user.id)
+        if not ach:
+            ach = cls(user.id)
+            achievements.AchievementsDB.add_achievement(ach)
+        return ach
 
     def update(self):
         '''Actualiza los logros en la base de datos'''

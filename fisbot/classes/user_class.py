@@ -14,6 +14,7 @@ from .rol_class import FisRol
 class FisUser(Display):
 
     XP_ADD_BASE = 6
+    COOLDOWN = 30
 
     _title_for_mod = 'Modificar **{0.name}**'
     _title_for_del = 'Eliminar **{0.name}** de la base de datos'
@@ -24,13 +25,13 @@ class FisUser(Display):
     _descr_for_del ='''¿Seguro que quiere eliminar este elemento de la base de datos?
         Si es así, reaccione ✅. De lo contrario, reaccione ❌:'''
 
-    def __init__(self, user_id=0, name='', karma=0, level=0, xp=0, last_message=0, last_join=time.time()):
+    def __init__(self, user_id=0, name='', karma=0, level=0, xp=0, last_message=None, last_join=time.time()):
         self.id = int(user_id)
         self.name = name
         self.karma = int(karma if karma else 0) 
         self.level = int(level if level else 0)
         self.xp = int(xp if xp else 0)
-        self.last_message = int(last_message if last_message else time.time())
+        self.last_message = last_message
         self.last_join = last_join
 
 
@@ -155,18 +156,17 @@ class FisUser(Display):
         '''Comprueba si la llamada a esta funcion y con la ultima llamada a la misma del mismo `user_id` es mayor que el cooldown.
         Devuelve un booleano si cumple el cooldown y el usuario de la base de datos con mismo id'''
 
-        return (False, None)
         now_time = time.time()
         if user_id:
             user = cls.convert_from_database(users.UsersDB.get_user, args=user_id) 
             if user:
+                users.UsersDB.execute('UPDATE Users SET last_message = ? WHERE id = ?', args=(now_time, user_id))
                 if not user.last_message:
                     user.last_message = now_time
-
                 if now_time - user.last_message >= cls.COOLDOWN:
-                    users.UsersDB.execute('UPDATE Users SET last_message = ? WHERE id = ?', (now_time, user_id))
+                    
                     return (True, user)
-        return (False, None)
+        return (False, user)
     
 
     @check_if_context()

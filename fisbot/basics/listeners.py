@@ -1,4 +1,5 @@
 import discord
+from time import time
 from random import randint
 from discord.ext import commands
 from ..database.users import UsersDB
@@ -62,7 +63,8 @@ class listeners(
             user._disc_obj = message.author
             await user.addxp(self.bot, message.guild)
         else:
-            user = await FisUser.init_with_member(message.author)
+            if not user:
+                UsersDB.add_user(FisUser(message.author.id, message.author.display_name, last_message=time()))
     
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):

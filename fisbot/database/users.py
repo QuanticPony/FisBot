@@ -52,9 +52,9 @@ class UsersDB(database):
             return False
         result = cls.execute('SELECT * FROM Users WHERE id = ?', args=(user_id,)).fetchone()
 
-        if not result:
-            cls.execute('INSERT INTO Users (id) VALUES (?)', args=(user_id,))
-            return None
+        #if not result:
+        #    cls.execute('INSERT INTO Users (id) VALUES (?)', args=(user_id,))
+        #    return None
         return result
     
     @classmethod
