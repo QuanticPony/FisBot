@@ -101,7 +101,7 @@ class listeners(
             try:
                 if 'En Clase' in before.channel.name:
                     amount /= 2
-                await user.addxp(self.bot, member.guild, amount=(amount / 3600 * user.xp_to_lvl_up()/(user.level*5)))
+                await user.addxp(self.bot, member.guild, amount=(amount / 3600 * user.xp_to_lvl_up()/((user.level + 1)*5)))
             except:
                 pass
 
