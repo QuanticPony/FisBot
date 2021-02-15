@@ -116,23 +116,31 @@ class FisUser(Display):
                     6: f"**Dato curioso**: Un **144%** de los datos que te encuentras en internet son ||FALSOS||. Y {mention()} ha subido a nivel {self.level**2 * 86}"
                 }
 
+        # TODO: rehacer esto
+
         if guild.system_channel:
             await guild.system_channel.send(new_level_frases[randint(0,len(new_level_frases) - 1)])
 
         roles_nuevos = FisRol.check_new_rol_needed(self)
         if not roles_nuevos:
             return
+
+        try:
+            for role in roles_nuevos:
+                guild = bot.get_guild(role.guild_id)
+                if guild and self._disc_obj in guild.members:
+                    await role.give_to(self, guild=guild)
+        except:
+            pass
         
-        for role in roles_nuevos:
-            guild = bot.get_guild(role.guild_id)
 
-            if guild and self._disc_obj in guild.members:
-                await role.give_to(self, guild=guild)
-
-                roles_previos = FisRol.prev_roles_of_level(self.level)
-                if roles_previos:
-                    for rol in roles_previos:
-                        await rol.remove_from(self, guild=bot.get_guild(rol.guild_id))
+        roles_previos = FisRol.prev_roles_of_level(self.level)
+        if roles_previos:
+            try:
+                for rol in roles_previos:
+                    await rol.remove_from(self, guild=bot.get_guild(rol.guild_id))
+            except:
+                pass
 
 
     async def addxp(self, bot, guild, *, amount=None) :

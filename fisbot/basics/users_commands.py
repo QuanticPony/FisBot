@@ -34,8 +34,8 @@ class users_cog(
                 UsersDB.add_user(FisUser(ctx.author.id, name=ctx.author.name))
                 user = FisUser.convert_from_database(UsersDB.get_user, args=ctx.author.id)
 
-            if ctx.author.nick != user.name:
-                user.name = ctx.author.nick
+            if ctx.author.display_name != user.name:
+                user.name = ctx.author.display_name
                 UsersDB.update_user(user)
 
             await user.init_display(ctx)
