@@ -14,7 +14,7 @@ class users_cog(
         self.bot = bot
 
 
-    @commands.command(
+    @commands.group(
         pass_context=True, 
         aliases=['nivel','lvl'],
         help='''¿Quiere ver tu nivel? ```.level```
@@ -25,6 +25,9 @@ class users_cog(
         usage='.level [member|s]'
     )
     async def level(self, ctx):
+
+        if ctx.invoked_subcommand:
+            return
 
         embeds_list = []
         if not ctx.message.mentions:
@@ -57,6 +60,45 @@ class users_cog(
 
         for embed in embeds_list:
             await ctx.send(embed=embed)
+
+    @level.command(
+        pass_context=True, 
+        help='''¿Quiere ver el ranking de niveles? ```.level rank```''',
+        brief='''Muestra el rank de niveles''',
+        description='''Muestra el ranking de los usuarios con mayor nivel en el cuatrimestre actual''',
+        usage='.level rank'
+    )
+    async def rank(self, ctx):
+        lista = FisUser.convert_from_database(UsersDB.get_all_users)
+
+        frase = []
+
+        lista.sort(key = lambda memb : memb.level)
+        lista.reverse()
+
+        check = False
+        for i, memb in enumerate(lista, start=1):
+            if i <= 10:
+                if memb.id == ctx.author.id:
+                    check = True
+                    frase.append(f"**{i} - {memb.name}: {memb.level}**")
+                else:
+                    frase.append(f"*{i} - {memb.name}*: {memb.level}")
+            else:
+                if not check:
+                    user = await FisUser.init_with_member(ctx.author)
+                    frase.append('...')
+                    frase.append(f"**{lista.index(user)} - {user.name}: {user.level}**")
+                break
+    
+
+        embed= discord.Embed(
+            title='Level Rank',
+            description='Estos son l@s Físic@s que tienen más nivel (fijo que trabajan mucho)\n' + '\n'.join(frase),
+            color=discord.Color.orange()
+        )
+
+        await ctx.send(embed=embed) 
 
         
     @commands.command(
@@ -187,7 +229,7 @@ class users_cog(
         brief='''ranking del karma''',
         usage='.karma rank',
     )
-    async def rank(self, ctx):
+    async def _rank(self, ctx):
         
         lista = FisUser.convert_from_database(UsersDB.get_all_users)
 
