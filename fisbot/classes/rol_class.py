@@ -36,17 +36,22 @@ class FisRol(Display):
             self._ctx = context
             self.guild_id = context.guild.id
 
+        if not isinstance(rol_id, int):
+            raise TypeError
+
 
     @classmethod
     def convert_from_database(cls, funcion, *args):
         '''Ejecuta la funcion `funcion` con los argumentos dados en la base de datos. Convierte el resultado a un
         objeto FisRol'''
 
+        res_data = funcion(*args)
+
         try:
-            result = cls(*(funcion(*args)))
+            result = cls(*(res_data))
         except:
             try:
-                result = [cls(*line) for line in funcion(*args)]
+                result = [cls(*line) for line in res_data]
             except:
                 return None
         return result
