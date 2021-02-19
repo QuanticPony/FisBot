@@ -105,8 +105,9 @@ class FisRol(Display):
             role = cls.convert_from_database(roles.RolesDB.get_roles, i)
             if role:
                 if isinstance(role, list):
-                    role = *role
-                role_list.append(role)
+                    role_list.append(*role)
+                else:
+                    role_list.append(role)
         return role_list
  
 
