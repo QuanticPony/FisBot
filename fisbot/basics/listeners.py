@@ -93,15 +93,19 @@ class listeners(
         if not after.channel and before.channel:
             if not check_channel(before):
                 return
-            amount, user_data = UsersDB.last_voice_join(member.id)
-            user = FisUser(*user_data)
-            if not user:
-                user = await FisUser.init_with_member(member)
-                UsersDB.add_user(user)
-            try:
-                await user.addxp(self.bot, member.guild, amount=(amount / 3600 * user.xp_to_lvl_up()/((user.level + 1)*6)))
-            except:
-                pass
+            for memb in before.channel.members:
+                amount, user_data = UsersDB.last_voice_join(member.id)
+                user = FisUser(*user_data)
+                UsersDB.new_voice_join(member.id)
+                
+                if not user:
+                    user = await FisUser.init_with_member(member)
+                    UsersDB.add_user(user)
+                try:
+                    await user.addxp(self.bot, member.guild, amount=(amount / 3600 * user.xp_to_lvl_up()/((user.level + 1)*4)))
+                    
+                except:
+                    pass
 
 
     @commands.Cog.listener()
