@@ -99,9 +99,7 @@ class listeners(
                 user = await FisUser.init_with_member(member)
                 UsersDB.add_user(user)
             try:
-                if 'En Clase' in before.channel.name:
-                    amount /= 2
-                await user.addxp(self.bot, member.guild, amount=(amount / 3600 * user.xp_to_lvl_up()/((user.level + 1)*5)))
+                await user.addxp(self.bot, member.guild, amount=(amount / 3600 * user.xp_to_lvl_up()/((user.level + 1)*6)))
             except:
                 pass
 
@@ -124,6 +122,8 @@ class listeners(
             await member.guild.system_channel.send(embed=hello_message)
         
         initial_roles = FisRol.convert_from_database(RolesDB.get_roles, (0, member.guild.id))
+        if not isinstance(initial_roles, list):
+            initial_roles = [initial_roles]
         for rol in initial_roles:
             await rol.give_to(user, guild=self.bot.get_guild(rol.guild_id))
 

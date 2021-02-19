@@ -90,13 +90,24 @@ class FisRol(Display):
     def check_new_rol_needed(cls, user):
         '''Devuelve el rol `FisRol` que deberia tener el usuario especificado. Si no hay un rol para ese nivel devuelve `None`'''
 
-        return cls.convert_from_database(roles.RolesDB.get_roles, user.level)
+        role = cls.convert_from_database(roles.RolesDB.get_roles, user.level)
+        if role:
+            if not isinstance(role, list):
+                role = [role]
+        return role
 
     @classmethod
     def prev_roles_of_level(cls, level: int):
         '''Devuelve una lista de `FisRol` que consiguio el usuario. Devuelve `None` si no ha conseguido nunca un rol'''
 
-        return [cls.convert_from_database(roles.RolesDB.get_roles, i) for i in reversed(range(1,level))]
+        role_list = []
+        for i in reversed(range(1,level)):
+            role = cls.convert_from_database(roles.RolesDB.get_roles, i)
+            if role:
+                if isinstance(role, list):
+                    role = *role
+                role_list.append(role)
+        return role_list
  
 
     async def give_to(self, user, *, guild=None) -> bool:
