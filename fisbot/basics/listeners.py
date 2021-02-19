@@ -49,7 +49,7 @@ class listeners(
         try:
             if message.author.bot or not message.guild:
                 return
-            confirm, user = FisUser.last_message_cooldown(message.author.id)
+            time, user = FisUser.last_message_cooldown(message.author.id)
         except AttributeError:
             return
         
@@ -59,12 +59,14 @@ class listeners(
                     return 
         except:
             pass
-        if confirm:
+
+        if user:
             user._disc_obj = message.author
-            await user.addxp(self.bot, message.guild)
+            user:FisUser
+            await user.addxp(self.bot, message.guild, time=time, amount_type='Text')
+
         else:
-            if not user:
-                UsersDB.add_user(FisUser(message.author.id, message.author.display_name, last_message=time()))
+            UsersDB.add_user(FisUser(message.author.id, message.author.display_name, last_message=time()))
     
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -93,16 +95,24 @@ class listeners(
         if not after.channel and before.channel:
             if not check_channel(before):
                 return
-            for memb in before.channel.members:
-                amount, user_data = UsersDB.last_voice_join(member.id)
+
+            g = before.channel.guild
+            for memb in g.members:
+                if memb.voice:
+                    if memb.voice.channel != before.channel and memb != member and not memb.bot:
+                        continue
+                else:
+                    continue
+
+                time, user_data = UsersDB.last_voice_join(member.id)
                 user = FisUser(*user_data)
                 UsersDB.new_voice_join(member.id)
-                
+
                 if not user:
                     user = await FisUser.init_with_member(member)
                     UsersDB.add_user(user)
                 try:
-                    await user.addxp(self.bot, member.guild, amount=(amount / 3600 * user.xp_to_lvl_up()/((user.level + 1)*4)))
+                    await user.addxp(self.bot, member.guild, time=time, amount_type='Voice')
                     
                 except:
                     pass

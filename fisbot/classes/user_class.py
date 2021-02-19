@@ -13,8 +13,7 @@ from .rol_class import FisRol
 
 class FisUser(Display):
 
-    XP_ADD_BASE = 6
-    COOLDOWN = 30
+    C = 0.001
 
     _title_for_mod = 'Modificar **{0.name}**'
     _title_for_del = 'Eliminar **{0.name}** de la base de datos'
@@ -142,12 +141,22 @@ class FisUser(Display):
             except:
                 pass
 
-
-    async def addxp(self, bot, guild, *, amount=None) :
+    async def addxp(self, bot, guild, *, amount=None, time=0, amount_type='Text') :
         '''ASYNC Sube la experiencia del usuario. Si el usuario necesita subir de nivel, lo hace'''
-        
+
         if not amount:
-            amount = random.randint(1, self.XP_ADD_BASE) * (random.randint(1, self.level+1) if self.level > 0 else 1)
+            with self.level as l:
+                if amount_type is 'Text':
+                    with self.C*time^2 as x:
+                        t = x/(1+x)
+                        h = 80*self.level/(160-8*l+0.2*l^2)+20
+
+
+                if amount_type is 'Voice':
+                    t = 80*self.level/(320-8*l+l^2)+1
+                    h = time/3600
+
+            amount = self.xp_to_lvl_up()/t * h
 
         newxp = self.xp + amount
         xp_required = self.xp_to_lvl_up()
@@ -160,9 +169,9 @@ class FisUser(Display):
 
 
     @classmethod
-    def last_message_cooldown(cls, user_id)-> (bool, list):
+    def last_message_cooldown(cls, user_id)-> (float, list):
         '''Comprueba si la llamada a esta funcion y con la ultima llamada a la misma del mismo `user_id` es mayor que el cooldown.
-        Devuelve un booleano si cumple el cooldown y el usuario de la base de datos con mismo id'''
+        Devuelve un float que es la cantidad de tiempo desde el ultimo mensaje del usuario de la base de datos con mismo id'''
 
         now_time = time.time()
         if user_id:
@@ -170,11 +179,11 @@ class FisUser(Display):
             if user:
                 users.UsersDB.execute('UPDATE Users SET last_message = ? WHERE id = ?', args=(now_time, user_id))
                 if not user.last_message:
-                    user.last_message = now_time
-                if now_time - user.last_message >= cls.COOLDOWN:
+                    user.last_message = now_time-1000
+                
                     
-                    return (True, user)
-        return (False, user)
+                return (now_time-user.last_message, user)
+        return (1000, user)
     
 
     @check_if_context()

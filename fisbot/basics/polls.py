@@ -244,5 +244,3 @@ class poll_cog(
             inline=False
         )
         await ctx.send(f"{ctx.author.mention}",embed=e)
-        
-        
