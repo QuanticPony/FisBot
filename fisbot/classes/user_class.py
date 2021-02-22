@@ -120,26 +120,30 @@ class FisUser(Display):
         if guild.system_channel:
             await guild.system_channel.send(new_level_frases[randint(0,len(new_level_frases) - 1)])
 
-        roles_nuevos = FisRol.check_new_rol_needed(self)
-        if not roles_nuevos:
-            return
-
         try:
-            for role in roles_nuevos:
-                guild = bot.get_guild(role.guild_id)
-                if guild and self._disc_obj in guild.members:
-                    await role.give_to(self, guild=guild)
-        except:
-            pass
-        
 
-        roles_previos = FisRol.prev_roles_of_level(self.level)
-        if roles_previos:
+            roles_nuevos = FisRol.check_new_rol_needed(self)
+            if not roles_nuevos:
+                return
+        
             try:
-                for rol in roles_previos:
-                    await rol.remove_from(self, guild=bot.get_guild(rol.guild_id))
+                for role in roles_nuevos:
+                    guild = bot.get_guild(role.guild_id)
+                    if guild and self._disc_obj in guild.members:
+                        await role.give_to(self, guild=guild)
             except:
                 pass
+            
+
+            roles_previos = FisRol.prev_roles_of_level(self.level)
+            if roles_previos:
+                try:
+                    for rol in roles_previos:
+                        await rol.remove_from(self, guild=bot.get_guild(rol.guild_id))
+                except:
+                    pass
+        except:
+            pass
 
     async def addxp(self, bot, guild, *, amount=None, time=0, amount_type='Text') :
         '''ASYNC Sube la experiencia del usuario. Si el usuario necesita subir de nivel, lo hace'''
