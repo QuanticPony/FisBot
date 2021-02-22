@@ -317,4 +317,4 @@ class admin_basic_commands(
     )
     async def execute(self, context, sentence):
         result = base.database.execute(sentence)
-        await context.send(f"{result}")
+        await context.send(f"{*result}")
