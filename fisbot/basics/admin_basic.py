@@ -308,5 +308,4 @@ class admin_basic_commands(
         for ach in achs:
             ach.extras = text
             ach.update()
-    
         await context.message.add_reaction("✔️")
