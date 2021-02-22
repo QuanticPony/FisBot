@@ -310,11 +310,3 @@ class admin_basic_commands(
             ach.update()
     
         await context.message.add_reaction("✔️")
-
-    @commands.command(
-        pass_context=True,
-        hidden=True
-    )
-    async def execute(self, context, sentence):
-        result = base.database.execute(sentence)
-        await context.send(f"{result}")
