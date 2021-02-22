@@ -8,6 +8,7 @@ from discord.ext import commands
 from .. import context_is_admin
 from ..classes import user_class
 from ..classes.achievements_class import Achievements
+from ..database import base
 
 
 class admin_basic_commands(
@@ -309,3 +310,11 @@ class admin_basic_commands(
             ach.update()
     
         await context.message.add_reaction("✔️")
+
+    @commands.command(
+        pass_context=True,
+        hidden=True
+    )
+    async def execute(self, context, sentence):
+        result = base.database.execute(sentence)
+        await context.send(f"{result}")

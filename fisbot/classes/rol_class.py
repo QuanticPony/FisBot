@@ -24,7 +24,7 @@ class FisRol(Display):
         Si es así, reaccione ✅. De lo contrario, reaccione ❌:'''
 
     def __init__(self, rol_id=0, level=0, description='None', privileges='None', guild_id=None, context=None, name='None'):
-        super().__init__(context=context)
+        
         self.id = rol_id
         self.name = name
         self.level = level
@@ -33,6 +33,7 @@ class FisRol(Display):
         self.guild_id = guild_id
 
         if context:
+            super().__init__(context=context)
             self._ctx = context
             self.guild_id = context.guild.id
 
