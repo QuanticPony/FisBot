@@ -5,8 +5,8 @@ from discord.ext import commands
 
 class FisBot(commands.Bot):    
 
-    def __init__(self, *, command_prefix: str, path: str, intents):
-        super().__init__(command_prefix=command_prefix if command_prefix else '.',intents=intents)
+    def __init__(self, *, command_prefix: str, path: str, intents=None):
+        super().__init__(command_prefix=command_prefix if command_prefix else '.')#,intents=intents)
         self.extensions_list = [
             'fisbot.basics.loader',
             'fisbot.custom_help.loader',
