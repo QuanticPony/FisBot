@@ -121,7 +121,6 @@ class FisUser(Display):
             await guild.system_channel.send(new_level_frases[randint(0,len(new_level_frases) - 1)])
 
         try:
-
             roles_nuevos = FisRol.check_new_rol_needed(self)
             if not roles_nuevos:
                 return
@@ -129,11 +128,12 @@ class FisUser(Display):
             try:
                 for role in roles_nuevos:
                     guild = bot.get_guild(role.guild_id)
-                    if guild and self._disc_obj in guild.members:
+                    try:
                         await role.give_to(self, guild=guild)
+                    except:
+                        pass
             except:
                 pass
-            
 
             roles_previos = FisRol.prev_roles_of_level(self.level)
             if roles_previos:
@@ -150,24 +150,24 @@ class FisUser(Display):
 
         if not amount:
             if amount_type == 'Text':
-                with self.C*time**2 as x:
-                    t = x/(1+x)
-                    h = 80*self.level/(160-8*self.level+0.2*self.level**2)+20
+                x = self.C*time**2
+                t = 80*self.level/(160-8*self.level+0.2*self.level**2)+20
+                h = x/(1+x)
 
             if amount_type == 'Voice':
                 t = 80*self.level/(320-8*self.level+self.level**2)+1
                 h = time/3600
 
-            amount = self.xp_to_lvl_up()/t * h
+            amount = self.xp_to_lvl_up()/t*h
 
         newxp = self.xp + amount
         xp_required = self.xp_to_lvl_up()
         self.xp = newxp
-        if self.xp >= xp_required:
+        while self.xp >= xp_required:
             self.xp -=  xp_required
             self.level += 1
             await self.level_up(bot, guild)  
-        users.UsersDB.update_user(self)
+        await self.save_in_database()
 
 
     @classmethod
@@ -247,7 +247,7 @@ class FisUser(Display):
         try:
             if self.name != self._disc_obj.nick:
                 self.name = self._disc_obj.nick
-                self.save_in_database()
+                await self.save_in_database()
         except:
             pass
 
