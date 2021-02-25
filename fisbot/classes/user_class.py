@@ -30,8 +30,8 @@ class FisUser(Display):
         self.karma = int(karma if karma else 0) 
         self.level = int(level if level else 0)
         self.xp = int(xp if xp else 0)
-        self.last_message = float(last_message)
-        self.last_join = float(last_join)
+        self.last_message = float(last_message if last_message else time.time())
+        self.last_join = float(last_join if last_join else time.time())
 
 
     def __eq__(self, value):
