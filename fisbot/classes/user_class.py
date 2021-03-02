@@ -155,7 +155,10 @@ class FisUser(Display):
                 h = x/(1+x)
 
             if amount_type == 'Voice':
-                t = 80*self.level/(320-8*self.level+self.level**2)+1
+                if self.level<20:
+                    t = 20*self.level/(320-2*self.level+0.8*self.level**2) + 1
+                else:
+                    t = 80*self.level/(320-8*self.level+self.level**2) + 1
                 h = time/3600
 
             amount = self.xp_to_lvl_up()/t*h
