@@ -36,10 +36,27 @@ class listeners(
         )
         return embed
 
+    def get_membs_with_voice(self):
+        result = []
+        for g in self.bot.guilds:
+            for m in g.members:
+                if m.voice:
+                    result.append(m)
+        return result
+
     @commands.Cog.listener()
     async def on_ready(self):
         '''Cambia el estado a `Playing .help` cuando el bot esta listo'''
+
+        for m in self.get_membs_with_voice():
+             UsersDB.new_voice_join(m.id)
         await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(name=f"{self.bot.command_prefix}help"))
+    
+    @commands.Cog.listener()
+    async def on_disconnect(self):
+
+        for m in self.get_membs_with_voice():
+            await self.on_voice_state_update(m, None, None, flag=True)
 
 
     @commands.Cog.listener()
@@ -69,47 +86,55 @@ class listeners(
             UsersDB.add_user(FisUser(message.author.id, message.author.display_name, last_message=time()))
     
     @commands.Cog.listener()
-    async def on_voice_state_update(self, member, before, after):
+    async def on_voice_state_update(self, member, before, after, *, flag=False):
         '''Cuando se actualiza el estado de voz de un miembro. 
         Sube la experiencia del usuario en funcion del tiempo en canal de voz'''
 
-        if member.bot:
-            return
-
         def check_channel(state):
-            try:
-                if before.channel == before.channel.guild.afk_channel:
-                    return False
-            except AttributeError:
-                pass
-            try:
-                if '!' in before.channel.category.name:
-                    return False
-            except AttributeError:
-                pass
-            return True
+                try:
+                    if before.channel == before.channel.guild.afk_channel:
+                        return False
+                except AttributeError:
+                    pass
+                try:
+                    if '!' in before.channel.category.name:
+                        return False
+                except AttributeError:
+                    pass
+                return True
 
-        if after.channel and not before.channel:
-            UsersDB.new_voice_join(member.id)
-
-        if not after.channel and before.channel:
-            if not check_channel(before):
-                return
-
-            g = before.channel.guild
-            
+        async def addxp():
             time, user_data = UsersDB.last_voice_join(member.id)
             user = FisUser(*user_data)
             UsersDB.new_voice_join(member.id)
 
             if not user:
                 user = await FisUser.init_with_member(member)
-                UsersDB.add_user(user)
             try:
                 await user.addxp(self.bot, member.guild, time=time, amount_type='Voice') 
             except:
                 pass
 
+        if flag:
+            await addxp()
+        
+        if not member.bot:
+            if after.channel and not before.channel:
+                UsersDB.new_voice_join(member.id)
+
+            if not after.channel and before.channel and check_channel(before):
+                await addxp()
+
+
+    @commands.Cog.listener()
+    async def on_error(self, err, args, *kargs):
+
+        for g in self.bot.guilds:
+            if g.id == 623154963052494856:
+                c = g.get_channel(757214841520783453)
+                break
+        await c.send(f"{err}\n{args}\n"+"\n".join(map(str, kargs)))
+        
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
