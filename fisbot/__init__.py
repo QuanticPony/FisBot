@@ -5,6 +5,13 @@ def context_is_admin(context):
     Esta funcion se puede importar a otras extensiones para ponerla como check de commandos y cogs'''
     
     if context.guild:
-        return context.message.author.guild_permissions.administrator
+        if context.author.guild_permissions.administrator:
+            return True
+        
+        for r in context.author.roles:
+            if 'Mods' in r.name:
+                return True
+        return False
+
     else:
         return False
