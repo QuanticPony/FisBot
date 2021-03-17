@@ -304,11 +304,11 @@ class Music(
     @commands.command(
         name='join', 
         invoke_without_subcommand=True,
-        aliases=['entra','unete'],
-        help='''Invoca al bot en un canal de voz. Si se le proporciona un canal se une a ese.
-        Por defecto se une al canal donde esta el autor del mensaje .summon''',
+        aliases=['ven','entra','unete'],
+        help='''¿Quieres que el bot se una pero que no hable porque te cae mal? ```.join```''',
         brief='''Invoca al bot en tu canal de voz''',
-        description='''COMANDO .join''',
+        description='''Invoca al bot en un canal de voz. Si se le proporciona un canal se une a ese.
+        Por defecto se une al canal donde esta el autor del mensaje `.summon`''',
         usage='.join'
     )
     async def _join(self, ctx: commands.Context):
@@ -323,10 +323,10 @@ class Music(
     @commands.command(
         name='summon',
         aliases=['invocar'],
-        help='''Invoca al bot en un canal de voz. Si se le proporciona un canal se une a ese.
-        Por defecto se une al canal donde esta el autor del mensaje .summon''',
+        help='''¿Quieres que se una el bot a tu canal de voz? ```.summon```''',
         brief='''Invoca al bot en un canal de voz''',
-        description='''COMANDO .summon''',
+        description='''Invoca al bot en un canal de voz. Si se le proporciona un canal se une a ese.
+        Por defecto se une al canal donde esta el autor del mensaje `.summon`. Elgir canal esta en periodo experimental''',
         usage='.summon [voice_channel]'
     )
     @commands.has_permissions(manage_guild=True)
@@ -344,10 +344,11 @@ class Music(
 
     @commands.command(
         name='leave', 
-        aliases=['desconectar','sal','vete'],
-        help='''Vacia la lista de reproduccion y sale del canal de voz''',
+        aliases=['desconectar','vete'],
+        help='''¿No aguantas mas escuchando Chopin sin bailar pero tienes que estudiar? ```.leave```
+        ¿Estas cansado de Never Gonna Give You Up? ```.no puedes listillo```''',
         brief='''Desconecta al bot del canal de voz''',
-        description='''COMANDO .leave''',
+        description='''Vacia la lista de reproduccion y sale del canal de voz''',
         usage='.leave'
         )
     @commands.has_permissions(manage_guild=True)
@@ -359,35 +360,35 @@ class Music(
         await ctx.voice_state.stop()
         del self.voice_states[ctx.guild.id]
 
-    @commands.command(
-        name='volume',
-        aliases=['volumen','vol'],
-        help='''Cambia el volumen al que se reproduce la musica, para la proxima cancion.
-        Debe ser un numero entre 0 y 100. Por defecto esta al 50%''',
-        brief='''Desconecta al bot del canal de voz''',
-        description='''COMANDO .volume''',
-        usage='.volume [wanted_volume]'
-    )
-    async def _volume(self, ctx: commands.Context, *volume):
-
-        if not ctx.voice_state.is_playing:
-            return await ctx.send('Lo siento pero por problemas internos del envoltorio de la API de discord para Python, no es posible cambiar el volumen si no estoy reproduciendo nada')
-
-        if not volume:
-            return await ctx.send('Ahora mismo el volumen esta al {0}%'.format(ctx.voice_state.volume * 100))
-
-        if 0 >= float(volume[0]) or float(volume[0])>= 100:
-            return await ctx.send('El numero introducido para el volumen tiene que ser facilmente entendible por una maquina y estar entre 0 y 100 incluidos')
-
-        ctx.voice_state.volume = float(volume[0]) / 100
-        await ctx.send('Oido cocina. Volumen al {}%'.format(volume[0]))
+    #@commands.command(
+    #    name='volume',
+    #    aliases=['volumen','vol'],
+    #    help='''Cambia el volumen al que se reproduce la musica, para la proxima cancion.
+    #    Debe ser un numero entre 0 y 100. Por defecto esta al 50%''',
+    #    brief='''Desconecta al bot del canal de voz''',
+    #    description='''COMANDO .volume''',
+    #    usage='.volume [wanted_volume]'
+    #)
+    #async def _volume(self, ctx: commands.Context, *volume):
+    #
+    #    if not ctx.voice_state.is_playing:
+    #        return await ctx.send('Lo siento pero por problemas internos del envoltorio de la API de discord para Python, no es posible cambiar el volumen si no estoy reproduciendo nada')
+    #
+    #    if not volume:
+    #        return await ctx.send('Ahora mismo el volumen esta al {0}%'.format(ctx.voice_state.volume * 100))
+    #
+    #    if 0 >= float(volume[0]) or float(volume[0])>= 100:
+    #        return await ctx.send('El numero introducido para el volumen tiene que ser facilmente entendible por una maquina y estar entre 0 y 100 incluidos')
+    #
+    #    ctx.voice_state.volume = float(volume[0]) / 100
+    #    await ctx.send('Oido cocina. Volumen al {}%'.format(volume[0]))
 
     @commands.command(
         name='now', 
         aliases=['current', 'playing', 'sonando'],
-        help='''Envia un mensaje con la informacion relativa a la cancion sonando en ese momento. Si no se esta reproduciendo nada, te llama tonto''',
+        help='''¿Quieres ver la url de la cancion que se esta reproduciendo, o su nombre, o su duracion? ```.now```''',
         brief='''Muestra la cancion que esta sonando''',
-        description='''COMANDO .now''',
+        description='''Envia un mensaje con la informacion relativa a la cancion sonando en ese momento. Si no se esta reproduciendo nada, te llama tonto''',
         usage='.now'
         )
     async def _now(self, ctx: commands.Context):
@@ -400,9 +401,10 @@ class Music(
     @commands.command(
         name='pause',
         aliases=['para'],
-        help='''Para la cancion que se esta reproduciendo''',
-        brief='''Para la cancion que se esta reproduciendo''',
-        description='''COMANDO .pause''',
+        help='''¿Quieres parar la musica? ```.pause```
+        ¿Necesitas que pare de hablar Tommas el Tren para dejar escuchar a tus amigos? ```.continue```''',
+        brief='''Para la musica''',
+        description='''Para la cancion que se esta reproduciendo. Conti''',
         usage='.pause'
     )
     @commands.has_permissions(manage_guild=True)
@@ -412,14 +414,16 @@ class Music(
             ctx.voice_state.voice.pause()
             return await ctx.message.add_reaction('⏯')
         else:
-            return await ctx.send('.pause + .pause = .resume?? Ya esta parada, que lo sepas...')
+            return await ctx.send(embed=discord.Embed(title='?',
+            description='.pause + .pause = .resume?? Ya esta parada, que lo sepas...',
+            colour=discord.Color.red()))
 
     @commands.command(
         name='resume',
         aliases=['continua', 'continue'],
-        help='''Continua reproduciendo la cancion previamente parada''',
-        brief='''Continua reproduciendo la cancion''',
-        description='''COMANDO .resume''',
+        help='''¿Alguien infeliz te ha parado All Star? ```.resume```''',
+        brief='''Continua la musica''',
+        description='''nua la cancion previamente parada''',
         usage='.resume'
     )
     @commands.has_permissions(manage_guild=True)
@@ -434,9 +438,9 @@ class Music(
 
     @commands.command(
         name='stop',
-        help='''Para de reproducir y vacia la lista de reproduccion''',
+        help='''¿Es necesario un fin inmediato? ```.stop```''',
         brief='''Para de reproducir''',
-        description='''COMANDO .stop''',
+        description='''Para de reproducir y vacia la lista de reproduccion''',
         usage='.stop'
     )
     @commands.has_permissions(manage_guild=True)
@@ -451,16 +455,17 @@ class Music(
     @commands.command(
         name='skip',
         aliases=['pasa', 'siguiente', 'next'],
-        help='''Pasa la cancion que se esta reproduciendo si hay suficientes votos para pasar. Si este comando lo llama la persona que añadio la cancion a la lista
-        se para automaticamente a la siguiente''',
+        help='''¿Has pedido una cancion pero no es la que esperabas? ```.skip```
+        ¿Un compañero ha pedido una cancion pero no te gusta? Que el pueblo decida, votemos ```.skip```''',
         brief='''Pasa de cancion''',
-        description='''COMANDO .skip''',
+        description='''Pasa la cancion que se esta reproduciendo si hay suficientes votos para pasar. Si este comando lo llama la persona que añadio la cancion a la lista
+        se para automaticamente a la siguiente''',
         usage='.skip'
     )
     async def _skip(self, ctx: commands.Context):
 
         if not ctx.voice_state.is_playing:
-            return await ctx.send('Te voy a \'skipear\' a ti la **cara** campeon...')
+            return await ctx.send('Te voy a \'skipear\' a ti la **cara**...')
 
         voter = ctx.message.author
         if voter == ctx.voice_state.current.requester:
@@ -475,7 +480,7 @@ class Music(
                 await ctx.message.add_reaction('⏭')
                 ctx.voice_state.skip()
             else:
-                await ctx.send('Voto para pasar aceptado, **{}/3**'.format(total_votes))
+                await ctx.send(f'Voto para pasar aceptado, **{total_votes}/3**')
 
         else:
             await ctx.send('Votar dos veces esta feo')
@@ -483,9 +488,9 @@ class Music(
     @commands.command(
         name='queue',
         aliases=['lista', 'qu'],
-        help='''Muestra la lista de reproduccion. Si se introduce un numero despues se interpreta como la pagina a la que se quiere acceder''',
+        help='''¿Quieres ver las siguientes canciones a reproducir? ```.queue```''',
         brief='''Muestra la lista de reproduccion''',
-        description='''COMANDO .queue''',
+        description='''Muestra la lista de reproduccion. Si se introduce un numero despues se interpreta como la pagina a la que se quiere acceder''',
         usage='.queue [page]'
     )
     async def _queue(self, ctx: commands.Context, *, page: int = 1):
@@ -493,7 +498,7 @@ class Music(
         if len(ctx.voice_state.songs) == 0:
             return await ctx.send('La lista esta vacia. Añade una cancion a la lista con .play')
 
-        items_per_page = 10
+        items_per_page = 5
         pages = math.ceil(len(ctx.voice_state.songs) / items_per_page)
 
         start = (page - 1) * items_per_page
@@ -509,10 +514,10 @@ class Music(
 
     @commands.command(
         name='shuffle',
-        aliases=['remover'],
-        help='''Remueve la lista de reproduccion''',
+        aliases=['remover', 'caos'],
+        help='''¿Te gusta el caos? ```.shuffle```''',
         brief='''Remueve la lista de reproduccion''',
-        description='''COMANDO .shuffle''',
+        description='''de lista Remueve la reproduccion''',
         usage='.shuffle'
         )
     async def _shuffle(self, ctx: commands.Context):
@@ -529,7 +534,7 @@ class Music(
         help='''¿Alguien ha pedido despacito y usted es una persona decente que por supuesto no puede con ella y quiere librar al resto de escucharla?
         Supongamos para el ejemplo que se encuentra en el indice 14 de la **.queue**:
         ```.remove 14```''',
-        brief='''Quita una cancion de la lista de reproduccion''',
+        brief='''Elimina una cancion de la lista''',
         description='''Quita la cancion con el indice dado de la lista de reproduccion. Se puede mirar el indice en **.queue**''',
         usage='remove <song_index>'
         )
@@ -544,10 +549,10 @@ class Music(
     @commands.command(
         name='loop',
         aliases=['bucle'],
-        help='''Reproduce en bucle la cancion que suena en el momento en el que se envio el mensaje. 
-        Para salir del bucle volver a invocar el comando .loop''',
+        help='''¿Bucles tu gustar? ```.loop``` usar tu debes''',
         brief='''Reproduce una cancion en bucle''',
-        description='''COMANDO .loop''',
+        description='''Reproduce en bucle la cancion que suena en el momento en el que se envio el mensaje. 
+        Para salir del bucle volver a invocar el comando .loop''',
         usage='.loop'
     )
     async def _loop(self, ctx: commands.Context):
