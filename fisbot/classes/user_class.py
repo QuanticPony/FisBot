@@ -158,7 +158,7 @@ class FisUser(Display):
                 if self.level<20:
                     t = 20*self.level/(320-2*self.level+0.8*self.level**2) + 1
                 else:
-                    t = 20*self.level**2/(320-8*self.level+0.8*self.level**2) + 1
+                    t = 19*self.level**2/(600-self.level+0.8*self.level**2) + 1
                 h = time/3600
 
             amount = self.xp_to_lvl_up()/t*h
@@ -249,7 +249,7 @@ class FisUser(Display):
         ach = Achievements.get_achievement(self)
         try:
             if self.name != self._disc_obj.nick:
-                self.name = self._disc_obj.nick
+                self.name = self._disc_obj.display_name
                 await self.save_in_database()
         except:
             pass

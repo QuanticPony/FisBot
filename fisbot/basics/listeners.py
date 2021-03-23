@@ -115,12 +115,16 @@ class listeners(
             except:
                 pass
 
-        if flag:
-            await addxp()
+        
         
         if not member.bot:
+            if flag:
+                await addxp()
+                return
+
             if after.channel and not before.channel:
                 UsersDB.new_voice_join(member.id)
+                return
 
             if not after.channel and before.channel and check_channel(before):
                 await addxp()
