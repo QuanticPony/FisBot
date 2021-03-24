@@ -196,7 +196,7 @@ class listeners(
                 karm *= 2
         except Exception as e:
             pass 
-        return karm + len(reaction.message) // 100
+        return karm + len(reaction.message.content) // 100
 
 
     @commands.Cog.listener()
