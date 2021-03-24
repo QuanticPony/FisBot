@@ -24,7 +24,6 @@ class help_commands(
         description='''Te da informacion basica sobre el funcionamiento del servidor. Para informaicon de comandos y categorias prueba ```.help [command|category]```''',
         usage='.ayuda'
     )
-    @commands.has_permissions(embed_links=True)
     @commands.guild_only()
     async def _ayuda(self, ctx):
         nick = ctx.author.nick
@@ -79,7 +78,6 @@ class help_commands(
         Y si, tenemos tanto tiempo que hemos completado el comando .help help''',
         usage='.help [category|command]'
     )
-    @commands.has_permissions(embed_links=True)
     async def _help(self, ctx, *nombre):
         if not ctx.guild:
             return await custom_help_implementation_all(self.bot, ctx)
