@@ -175,8 +175,10 @@ class listeners(
         
         if reaction.emoji == '⬆️':
             fis_user.karma += 1 * mult
+            fis_user.addxp(self.bot, reaction.message.guild, amount=mult)
         elif reaction.emoji == '⬇️':
             fis_user.karma -= 1 * mult
+            fis_user.addxp(self.bot, reaction.message.guild, amount=-5*mult)
         
         UsersDB.update_user(fis_user)
 
@@ -186,13 +188,27 @@ class listeners(
 
         return reaction.message.author.id != user.id
 
+    def calculate_karma(self, reaction, user):
+        karm = 1
+        try:
+            ref = reaction.message.reference
+            if ref.author != user:   
+                karm += 1
+            if len(reaction.message) > 30:
+                karm += 1
+            if '?' in ref:
+                karm *= 2
+        except Exception as e:
+            pass
+        return karm
+
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
         '''Si es un ⬆️ aumenta el karma del usuario. Si es un ⬇️ lo baja'''
 
         if self.check_if_different(reaction, user):
-            await self._karma(1, reaction, user)
+            await self._karma(self.calculate_karma(reaction, user), reaction, user)
 
 
     @commands.Cog.listener()
@@ -200,4 +216,4 @@ class listeners(
         '''Si es un ⬆️ disminuye el karma del usuario. Si es un ⬇️ lo aumenta'''
 
         if self.check_if_different(reaction, user):
-            await self._karma(-1, reaction, user)
+            await self._karma(self.calculate_karma(reaction, user), reaction, user)
