@@ -168,19 +168,17 @@ class listeners(
         '''Aplica lo correspondiente para aumentar o disminuir el karma'''
 
         fis_user = await FisUser.init_with_member(reaction.message.author)
-
-        if not fis_user:
-            fis_user = FisUser(reaction.message.author.id)
-            UsersDB.add_user(fis_user)
+        fis_react_user = await FisUser.init_with_member(reaction.author)
         
         if reaction.emoji == '⬆️':
             fis_user.karma += 1 * mult
             fis_user.addxp(self.bot, reaction.message.guild, amount=mult)
+            fis_react_user.addxp(self.bot, reaction.message.guild, amount=+1)
         elif reaction.emoji == '⬇️':
             fis_user.karma -= 1 * mult
-            fis_user.addxp(self.bot, reaction.message.guild, amount=-5*mult)
+            fis_user.addxp(self.bot, reaction.message.guild, amount=-mult)
+            fis_react_user.addxp(self.bot, reaction.message.guild, amount=-mult/2)
         
-        UsersDB.update_user(fis_user)
 
 
     def check_if_different(self, reaction, user):
@@ -194,13 +192,11 @@ class listeners(
             ref = reaction.message.reference
             if ref.author != user:   
                 karm += 1
-            if len(reaction.message) > 30:
-                karm += 1
             if '?' in ref:
                 karm *= 2
         except Exception as e:
-            pass
-        return karm
+            pass 
+        return karm + len(reaction.message) // 100
 
 
     @commands.Cog.listener()
