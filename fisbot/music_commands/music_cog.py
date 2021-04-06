@@ -329,7 +329,6 @@ class Music(
         Por defecto se une al canal donde esta el autor del mensaje `.summon`. Elgir canal esta en periodo experimental''',
         usage='.summon [voice_channel]'
     )
-    @commands.has_permissions(manage_guild=True)
     async def _summon(self, ctx: commands.Context, *, channel: discord.VoiceChannel = None):
 
         if not channel and not ctx.author.voice:
@@ -351,7 +350,6 @@ class Music(
         description='''Vacia la lista de reproduccion y sale del canal de voz''',
         usage='.leave'
         )
-    @commands.has_permissions(manage_guild=True)
     async def _leave(self, ctx: commands.Context):
 
         if not ctx.voice_state.voice:
@@ -407,7 +405,6 @@ class Music(
         description='''Para la cancion que se esta reproduciendo. Conti''',
         usage='.pause'
     )
-    @commands.has_permissions(manage_guild=True)
     async def _pause(self, ctx: commands.Context):
 
         if ctx.voice_state.is_playing and ctx.voice_state.voice.is_playing():
@@ -426,7 +423,6 @@ class Music(
         description='''nua la cancion previamente parada''',
         usage='.resume'
     )
-    @commands.has_permissions(manage_guild=True)
     async def _resume(self, ctx: commands.Context):
 
         if ctx.voice_state.is_playing and ctx.voice_state.voice.is_paused():
@@ -443,7 +439,6 @@ class Music(
         description='''Para de reproducir y vacia la lista de reproduccion''',
         usage='.stop'
     )
-    @commands.has_permissions(manage_guild=True)
     async def _stop(self, ctx: commands.Context):
 
         ctx.voice_state.songs.clear()
