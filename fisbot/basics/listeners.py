@@ -131,7 +131,7 @@ class listeners(
 
 
     @commands.Cog.listener()
-    async def on_error(self, err, args, *kargs):
+    async def on_error(self, err, *args, **kargs):
 
         for g in self.bot.guilds:
             if g.id == 623154963052494856:
@@ -168,16 +168,16 @@ class listeners(
         '''Aplica lo correspondiente para aumentar o disminuir el karma'''
 
         fis_user = await FisUser.init_with_member(reaction.message.author)
-        fis_react_user = await FisUser.init_with_member(reaction.author)
+        fis_react_user = await FisUser.init_with_member(user)
         
         if reaction.emoji == '⬆️':
             fis_user.karma += 1 * mult
-            fis_user.addxp(self.bot, reaction.message.guild, amount=mult)
-            fis_react_user.addxp(self.bot, reaction.message.guild, amount=+1)
+            await fis_user.addxp(self.bot, reaction.message.guild, amount=mult)
+            await fis_react_user.addxp(self.bot, reaction.message.guild, amount=+1)
         elif reaction.emoji == '⬇️':
             fis_user.karma -= 1 * mult
-            fis_user.addxp(self.bot, reaction.message.guild, amount=-mult)
-            fis_react_user.addxp(self.bot, reaction.message.guild, amount=-mult/2)
+            await fis_user.addxp(self.bot, reaction.message.guild, amount=-mult)
+            await fis_react_user.addxp(self.bot, reaction.message.guild, amount=-mult/2)
         
 
 
