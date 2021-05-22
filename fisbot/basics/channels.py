@@ -229,3 +229,56 @@ class channels_managment(
                                 await context.send('lol no xd')
                                 return
                             break
+                        
+    @commands.command(
+        pass_context=True, 
+        help='''¿El comando jose no te da la suficiente satisfacción?```.autojose```''',
+        brief='''Jovial Olor a Separacion Espontanea Automática''',
+        description='''Cambia a [member...] de canal de voz y lo vuelve a poner donde estaba, después de un precioso paseo. En el caso defaul cambia a Jose''',
+        usage='.jose [member|role|group]'
+    )
+    @commands.guild_only()
+    @commands.check(context_is_admin)
+    async def autojose(self, context, *member):
+
+        jose = []
+        if context.message.mention_everyone:
+            jose = context.guild.members 
+
+        else:
+            if not member:
+                try:
+                    jose = [context.guild.get_member_named('RainbowWarrior#3399')]
+                except:
+                    return
+
+            if context.message.mentions:
+                jose = context.message.mentions
+
+            if context.message.role_mentions:
+                role_list = context.message.role_mentions
+                for role in role_list:
+                    jose.append(role.members)
+
+        channels = context.guild.channels
+        try:
+            await context.message.delete()
+        except:
+            pass
+        
+        channel_origin = {}
+
+        for member in jose:
+            channel_origin.update({member: member.voice.channel})
+                
+        for channel_destination in channels:
+            for member in jose:
+                channel_origin = member.voice.channel
+                if type(member.voice) == discord.VoiceState:
+                        if channel_destination != channel_origin[member] and str(channel_destination.type) == 'voice':
+                            try:
+                                await member.move_to(channel_destination)
+                            except:
+                                pass
+        for member in jose:
+            await member.move_to(channel_origin[member])
