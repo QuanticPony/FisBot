@@ -1,6 +1,7 @@
 import discord
 import asyncio
 import random
+import time
 from discord.ext import commands
 from .. import context_is_admin
 
@@ -273,12 +274,12 @@ class channels_managment(
                 
         for channel_destination in channels:
             for member in jose:
-                channel_origin = member.voice.channel
                 if type(member.voice) == discord.VoiceState:
                         if channel_destination != channel_origin[member] and str(channel_destination.type) == 'voice':
                             try:
                                 await member.move_to(channel_destination)
                             except:
                                 pass
+            time.sleep(1+5*random.random())
         for member in jose:
             await member.move_to(channel_origin[member])
