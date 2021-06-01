@@ -76,9 +76,11 @@ class users_cog(
         lista = FisUser.convert_from_database(UsersDB.get_all_users)
 
         frase = []
-        
-        n=n,
-        n = int(n)
+    
+        try:
+            n = int(n[0])
+        except Exception:
+            n = 10
 
         lista.sort(key = lambda memb : memb.level)
         lista.reverse()
@@ -242,8 +244,10 @@ class users_cog(
 
         frase = []
         
-        n=n,
-        n = int(n)
+        try:
+            n = int(n[0])
+        except Exception:
+            n = 10
 
         lista.sort(key = lambda memb : memb.karma)
         lista.reverse()
