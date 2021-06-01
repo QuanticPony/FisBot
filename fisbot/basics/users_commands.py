@@ -72,14 +72,13 @@ class users_cog(
         description='''Muestra el ranking de los usuarios con mayor nivel en el cuatrimestre actual''',
         usage='.level rank'
     )
-<<<<<<< HEAD
-    async def rank(self, ctx, *, n=10):
-=======
-    async def rank(self, ctx, n=10):
->>>>>>> da5798d18cd4b54de0d0d873d52d101cfe3c8231
+    async def rank(self, ctx, *n):
         lista = FisUser.convert_from_database(UsersDB.get_all_users)
 
         frase = []
+        
+        n=n,
+        n = int(n)
 
         lista.sort(key = lambda memb : memb.level)
         lista.reverse()
@@ -237,15 +236,14 @@ class users_cog(
         brief='''ranking del karma''',
         usage='.karma rank',
     )
-<<<<<<< HEAD
-    async def _rank(self, ctx, *, n=10):
-=======
-    async def _rank(self, ctx, n=10):
->>>>>>> da5798d18cd4b54de0d0d873d52d101cfe3c8231
+    async def _rank(self, ctx, *n):
         
         lista = FisUser.convert_from_database(UsersDB.get_all_users)
 
         frase = []
+        
+        n=n,
+        n = int(n)
 
         lista.sort(key = lambda memb : memb.karma)
         lista.reverse()
