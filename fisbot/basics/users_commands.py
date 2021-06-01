@@ -78,6 +78,7 @@ class users_cog(
         frase = []
     
         try:
+            ctx.send(str(n))
             n = int(n[0])
         except Exception:
             n = 10
@@ -245,6 +246,7 @@ class users_cog(
         frase = []
         
         try:
+            ctx.send(str(n))
             n = int(n[0])
         except Exception:
             n = 10
