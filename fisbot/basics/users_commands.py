@@ -1,5 +1,9 @@
+import asyncio
+from time import time
 import discord
+from discord.embeds import Embed
 from discord.ext import commands
+from discord.ext.commands.core import check
 from .. import context_is_admin
 from ..classes.user_class import FisUser
 from ..classes.achievements_class import Achievements
@@ -68,7 +72,7 @@ class users_cog(
         description='''Muestra el ranking de los usuarios con mayor nivel en el cuatrimestre actual''',
         usage='.level rank'
     )
-    async def rank(self, ctx):
+    async def rank(self, ctx, n=10):
         lista = FisUser.convert_from_database(UsersDB.get_all_users)
 
         frase = []
@@ -78,7 +82,7 @@ class users_cog(
 
         check = False
         for i, memb in enumerate(lista, start=1):
-            if i <= 10:
+            if i <= n:
                 if memb.id == ctx.author.id:
                     check = True
                     frase.append(f"**{i} - {memb.name}: {memb.level}**")
@@ -229,7 +233,7 @@ class users_cog(
         brief='''ranking del karma''',
         usage='.karma rank',
     )
-    async def _rank(self, ctx):
+    async def _rank(self, ctx, n=10):
         
         lista = FisUser.convert_from_database(UsersDB.get_all_users)
 
@@ -240,7 +244,7 @@ class users_cog(
 
         check = False
         for i, memb in enumerate(lista, start=1):
-            if i <= 10:
+            if i <= n:
                 if memb.id == ctx.author.id:
                     check = True
                     frase.append(f"**{i} - {memb.name}: {memb.karma}**")
@@ -337,3 +341,54 @@ protestando echó a volar.
             await context.send(f"{float(number)}º son {float(number)/180:.3}π magnificos radianes")
         else:
             await context.send('''David Perez es un miembro de FisCord conocido por su aprecio incondicional al sistema sexagesimal para la medida de angulos''')
+
+    @commands.command(
+        pass_context=True, 
+        brief='''Te muestra los cromos''',
+        description='''Muestra los cromos que has desbloqueado''',
+        usage='.cromos'
+    )
+    async def cromos(self, ctx):
+        disc_user = ctx.message.mentions
+        if disc_user:
+            disc_user = disc_user[0]
+        else:
+            disc_user = ctx.author
+        
+        user = await FisUser.init_with_member(disc_user, context=ctx)
+        n, flag = 0,True
+        
+        try:
+            msg = await ctx.send(embed=user.embed_show_crome(user.cromos[0]))
+            await msg.add_reaction("◀️")
+            await msg.add_reaction("▶️")
+            
+        except:
+            await ctx.send('No tienes cromos... sadge')
+            return
+
+        async def _ask_field(n) -> bool:
+            check = lambda r,u: not u.bot
+            try:
+                reaction, disc_user = await self.bot.wait_for('reaction_add', timeout=30.0, check=check)
+                if str(reaction.emoji) == '◀️':
+                    n-=1
+                    if n<0:
+                        n = len(user.cromos)-n
+                    await reaction.remove(disc_user)
+                    return True,n
+                elif str(reaction.emoji) == '▶️':
+                    n+=1
+                    if n>=len(user.cromos):
+                        n -= len(user.cromos)
+                    await reaction.remove(disc_user)
+                    return True,n
+            except asyncio.TimeoutError:
+                return False,n
+        
+        while flag:
+            flag, n = await _ask_field(n)
+            embed = user.embed_show_crome(user.cromos[n])
+            await msg.edit(embed=embed)
+        embed.color = discord.Color.red()
+        await msg.edit(embed=embed)
