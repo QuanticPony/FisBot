@@ -22,6 +22,7 @@ class users_cog(
         pass_context=True, 
         hidden=True
     )
+    @commands.check(context_is_admin)
     async def level_up(self, ctx):
 
         if not ctx.message.mentions:

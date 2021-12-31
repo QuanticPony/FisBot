@@ -2,7 +2,6 @@ import discord
 import asyncio
 from discord.ext import commands
 from discord.ext.commands.bot import Bot
-from discord_slash import SlashCommand, SlashContext
 import time
 
 class FisBot_reminder(commands.Bot):    
@@ -61,7 +60,6 @@ class FisBot(commands.Bot):
             'fisbot.roles.loader',
             ]
         self.add_extensions(self.extensions_list)
-        self.slash =  SlashCommand(self)
         self.BOT_PATH = path
         
 
