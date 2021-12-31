@@ -20,6 +20,16 @@ class users_cog(
 
     @commands.group(
         pass_context=True, 
+        hidden=True
+    )
+    async def level_up(self, ctx):
+
+        if not ctx.message.mentions:
+            user = FisUser.convert_from_database(UsersDB.get_user, args=ctx.author.id)
+            await user.level_up(self.bot, ctx.guild)
+
+    @commands.group(
+        pass_context=True, 
         aliases=['nivel','lvl'],
         help='''¿Quiere ver tu nivel? ```.level```
         ¿Quieres ver el nivel de <@730713148977578024>? ```.level @FisBot```''',
@@ -79,7 +89,7 @@ class users_cog(
     
         try:
             n = int(n[0])
-        except Exception:
+        except Exception as e:
             n = 10
 
         lista.sort(key = lambda memb : memb.level)
@@ -246,7 +256,7 @@ class users_cog(
         
         try:
             n = int(n[0])
-        except TypeError:
+        except Exception as e:
             n = 10
 
         lista.sort(key = lambda memb : memb.karma)

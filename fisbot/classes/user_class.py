@@ -100,29 +100,20 @@ class FisUser(Display):
         return ((self.level ** 2) + self.level + 2) * 50 - self.level * 100
 
 
-    # TODO: preguntar a Aitor como puedo optimizar esta función para no crear el diccionario cada vez que alguien sube de nivel
     async def level_up(self, bot, guild):
         '''ASYNC Te sube de nivel'''
 
-        mention = lambda: f"<@{self.id}>"
-        new_level_frases = {
-                    0: f"Buena {mention()}!! Alguien ha subido al nivel {self.level}...",
-                    1: f"{mention()} ha ascendido al nivel {self.level}!! Esperemos que no se le suba a la cabeza...",
-                    2: f"Felicidades {mention()}!! Disfruta de tu nivel {self.level}!",
-                    3: f"Ya falta poco! Dentro de tan solo {1000-self.level} te damos rango admin {mention()}!",
-                    4: f"**Dato curioso**: Los koalas bebes lamen el ano de sus madres. Y {mention()} es tan solo nivel {self.level}",
-                    5: f"**Dato curioso**: 0.7% de la poblacion mundial se encuentra permanentemente borracha. Y {mention()} es nivel {self.level}",
-                    6: f"**Dato curioso**: Un **144%** de los datos que te encuentras en internet son ||FALSOS||. Y {mention()} ha subido a nivel {self.level**2 * 86}",
-                    7: f"**Oh no!!!** {mention()} se ha olvidado del examen del {self.level%28}!!! ```Press F to pay respects```",
-                    8: f"{mention()} ha ganado 1 de lucidez",
-                    9: f"Felicidades {mention()}!! Solo te quedan {100-self.level} de IQ para llegar a *la media*!",
-                    10: f"{mention()} <https://www.youtube.com/watch?v=dQw4w9WgXcQ>"
-                }
+        mention = f"<@{self.id}>"
+        level = self.level
 
-        # TODO: rehacer esto
+        with open(f".{bot.BOT_PATH}/fisbot/database/celebrations.txt", 'r', encoding='utf8') as file:
+            lines = file.readlines()
+            line = lines[randint(0, len(lines)-1)]
 
-        if guild.system_channel:
-            await guild.system_channel.send(new_level_frases[randint(0,len(new_level_frases) - 1)])
+            if guild.system_channel:
+                buff = 'f"""'+line+'"""'
+                buff = eval(buff, locals())
+                await guild.system_channel.send(buff)
 
         try:
             roles_nuevos = FisRol.check_new_rol_needed(self)
@@ -200,9 +191,7 @@ class FisUser(Display):
         servidor del contexto. Si no lo encuentra devuelve `None`'''
 
         try:
-            # TODO: comprobar esto
             self._disc_obj = self._ctx.guild.get_member(self.id)
-            #self._disc_obj = self._ctx.guild.get_member_named(self.name)
         except:
             self._disc_obj = None
         return self._disc_obj

@@ -83,7 +83,7 @@ class listeners(
             await user.addxp(self.bot, message.guild, time=time, amount_type='Text')
 
         else:
-            UsersDB.add_user(FisUser(message.author.id, message.author.display_name, last_message=time()))
+            UsersDB.add_user(FisUser(message.author.id, message.author.display_name, last_message=time))
     
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after, *, flag=False):

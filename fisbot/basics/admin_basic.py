@@ -1,9 +1,11 @@
 import asyncio
+from os import name
 import pickle
 import random
 
 import discord
 from discord.ext import commands
+from discord_slash import cog_ext, SlashContext
 
 from .. import context_is_admin
 from ..classes import user_class
@@ -108,7 +110,7 @@ class admin_basic_commands(
             game = context.prefix + 'help'
         await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(name=game))
 
-
+    @cog_ext.cog_slash(name='say')
     @commands.command(
         pass_context=True, 
         help='''¿Quieres que FisBot diga algo? ```.say Hello World```
@@ -135,6 +137,37 @@ class admin_basic_commands(
             await ctx.send('No voy a hablar por ti lol')
         
 
+    @commands.command(
+        pass_context=True, 
+        help=r'''¿Añadir felicitaciones de nivel? ```.add_new_level_message "{mention} ha subido a nivel {level}."```''',
+        brief='''Añadir mensaje de felicitación''',
+        description='''Añade un nuevo mensaje de felicitación por subir de nivel.''',
+        usage='.add_new_level_message'
+        )
+    @commands.check(context_is_admin)
+    async def add_new_level_message(self, ctx, text):
+        with open(f".{self.bot.BOT_PATH}/fisbot/database/celebrations.txt", 'a', encoding='utf8') as file:
+            file.write('\n'+text)
+
+    @commands.command(
+        pass_context=True, 
+        help=r'''¿Añadir felicitaciones de nivel? ```.add_new_level_message "{mention} ha subido a nivel {level}."```''',
+        brief='''Añadir mensaje de felicitación''',
+        description='''Añade un nuevo mensaje de felicitación por subir de nivel.''',
+        usage='.add_new_level_message'
+        )
+    @commands.check(context_is_admin)
+    async def del_level_message_contains(self, ctx, text):
+        buff_lines = []
+        with open(f".{self.bot.BOT_PATH}/fisbot/database/celebrations.txt", 'r+', encoding='utf8') as file:
+            lines = file.readlines()
+            buff_lines = lines.copy()
+            for i, line in enumerate(buff_lines):
+                if text in line:
+                    buff_lines.pop(i)
+
+        with open(f".{self.bot.BOT_PATH}/fisbot/database/celebrations.txt", 'w', encoding='utf8') as file:
+            file.writelines(buff_lines)
 
     @commands.command(
         pass_context=True, 
