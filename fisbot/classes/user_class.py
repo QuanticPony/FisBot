@@ -112,7 +112,11 @@ class FisUser(Display):
                     3: f"Ya falta poco! Dentro de tan solo {1000-self.level} te damos rango admin {mention()}!",
                     4: f"**Dato curioso**: Los koalas bebes lamen el ano de sus madres. Y {mention()} es tan solo nivel {self.level}",
                     5: f"**Dato curioso**: 0.7% de la poblacion mundial se encuentra permanentemente borracha. Y {mention()} es nivel {self.level}",
-                    6: f"**Dato curioso**: Un **144%** de los datos que te encuentras en internet son ||FALSOS||. Y {mention()} ha subido a nivel {self.level**2 * 86}"
+                    6: f"**Dato curioso**: Un **144%** de los datos que te encuentras en internet son ||FALSOS||. Y {mention()} ha subido a nivel {self.level**2 * 86}",
+                    7: f"**Oh no!!!** {mention()} se ha olvidado del examen del {self.level%28}!!! ```Press F to pay respects```",
+                    8: f"{mention()} ha ganado 1 de lucidez",
+                    9: f"Felicidades {mention()}!! Solo te quedan {100-self.level} de IQ para llegar a *la media*!",
+                    10: f"{mention()} <https://www.youtube.com/watch?v=dQw4w9WgXcQ>"
                 }
 
         # TODO: rehacer esto
@@ -173,7 +177,7 @@ class FisUser(Display):
 
 
     @classmethod
-    def last_message_cooldown(cls, user_id)-> (float, list):
+    def last_message_cooldown(cls, user_id):
         '''Comprueba si la llamada a esta funcion y con la ultima llamada a la misma del mismo `user_id` es mayor que el cooldown.
         Devuelve un float que es la cantidad de tiempo desde el ultimo mensaje del usuario de la base de datos con mismo id'''
 

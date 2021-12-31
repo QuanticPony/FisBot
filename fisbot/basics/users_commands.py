@@ -78,7 +78,6 @@ class users_cog(
         frase = []
     
         try:
-            ctx.send(str(n))
             n = int(n[0])
         except Exception:
             n = 10
@@ -246,9 +245,8 @@ class users_cog(
         frase = []
         
         try:
-            ctx.send(str(n))
             n = int(n[0])
-        except Exception:
+        except TypeError:
             n = 10
 
         lista.sort(key = lambda memb : memb.karma)
@@ -354,53 +352,53 @@ protestando echó a volar.
         else:
             await context.send('''David Perez es un miembro de FisCord conocido por su aprecio incondicional al sistema sexagesimal para la medida de angulos''')
 
-    @commands.command(
-        pass_context=True, 
-        brief='''Te muestra los cromos''',
-        description='''Muestra los cromos que has desbloqueado''',
-        usage='.cromos'
-    )
-    async def cromos(self, ctx):
-        disc_user = ctx.message.mentions
-        if disc_user:
-            disc_user = disc_user[0]
-        else:
-            disc_user = ctx.author
+    # @commands.command(
+    #     pass_context=True, 
+    #     brief='''Te muestra los cromos''',
+    #     description='''Muestra los cromos que has desbloqueado''',
+    #     usage='.cromos'
+    # )
+    # async def cromos(self, ctx):
+    #     disc_user = ctx.message.mentions
+    #     if disc_user:
+    #         disc_user = disc_user[0]
+    #     else:
+    #         disc_user = ctx.author
         
-        user = await FisUser.init_with_member(disc_user, context=ctx)
-        n, flag = 0,True
+    #     user = await FisUser.init_with_member(disc_user, context=ctx)
+    #     n, flag = 0,True
         
-        try:
-            msg = await ctx.send(embed=user.embed_show_crome(user.cromos[0]))
-            await msg.add_reaction("◀️")
-            await msg.add_reaction("▶️")
+    #     try:
+    #         msg = await ctx.send(embed=user.embed_show_crome(user.cromos[0]))
+    #         await msg.add_reaction("◀️")
+    #         await msg.add_reaction("▶️")
             
-        except:
-            await ctx.send('No tienes cromos... sadge')
-            return
+    #     except:
+    #         await ctx.send('No tienes cromos... sadge')
+    #         return
 
-        async def _ask_field(n) -> bool:
-            check = lambda r,u: not u.bot
-            try:
-                reaction, disc_user = await self.bot.wait_for('reaction_add', timeout=30.0, check=check)
-                if str(reaction.emoji) == '◀️':
-                    n-=1
-                    if n<0:
-                        n = len(user.cromos)-n
-                    await reaction.remove(disc_user)
-                    return True,n
-                elif str(reaction.emoji) == '▶️':
-                    n+=1
-                    if n>=len(user.cromos):
-                        n -= len(user.cromos)
-                    await reaction.remove(disc_user)
-                    return True,n
-            except asyncio.TimeoutError:
-                return False,n
+    #     async def _ask_field(n) -> bool:
+    #         check = lambda r,u: not u.bot
+    #         try:
+    #             reaction, disc_user = await self.bot.wait_for('reaction_add', timeout=30.0, check=check)
+    #             if str(reaction.emoji) == '◀️':
+    #                 n-=1
+    #                 if n<0:
+    #                     n = len(user.cromos)-n
+    #                 await reaction.remove(disc_user)
+    #                 return True,n
+    #             elif str(reaction.emoji) == '▶️':
+    #                 n+=1
+    #                 if n>=len(user.cromos):
+    #                     n -= len(user.cromos)
+    #                 await reaction.remove(disc_user)
+    #                 return True,n
+    #         except asyncio.TimeoutError:
+    #             return False,n
         
-        while flag:
-            flag, n = await _ask_field(n)
-            embed = user.embed_show_crome(user.cromos[n])
-            await msg.edit(embed=embed)
-        embed.color = discord.Color.red()
-        await msg.edit(embed=embed)
+    #     while flag:
+    #         flag, n = await _ask_field(n)
+    #         embed = user.embed_show_crome(user.cromos[n])
+    #         await msg.edit(embed=embed)
+    #     embed.color = discord.Color.red()
+    #     await msg.edit(embed=embed)

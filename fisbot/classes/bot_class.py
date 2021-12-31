@@ -5,14 +5,14 @@ from discord.ext import commands
 
 class FisBot(commands.Bot):    
 
-    def __init__(self, *, command_prefix: str, path: str, intents=None):
-        super().__init__(command_prefix=command_prefix if command_prefix else '.')#,intents=intents)
+    def __init__(self, *, command_prefix: str, path: str, intents=None, owner_id=None):
+        super().__init__(command_prefix=command_prefix if command_prefix else '.', owner_id=owner_id)#,intents=intents)
+        self.owner_id = owner_id
         self.extensions_list = [
             'fisbot.basics.loader',
             'fisbot.custom_help.loader',
             'fisbot.task_commands.loader',
             'fisbot.roles.loader',
-            'fisbot.music_commands.loader'
             ]
         self.add_extensions(self.extensions_list)
         

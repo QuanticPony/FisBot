@@ -41,7 +41,6 @@ class HaceGracia(
             for i in range(int(times)):
                 await context.send(f"Donde esta la mesa {arturo.mention}?? Eh?? Donde esta??!!")
 
-
     @commands.command(
         pass_context=True, 
         brief='''Te felicita el nuevo año''',

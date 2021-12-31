@@ -22,25 +22,32 @@ class admin_basic_commands(
         self.cog_check(context_is_admin)
 
 
-    #@commands.command(
-    #    pass_context=True,
-    #    hidden=True
-    #)
-    #async def funfunfun(self, context):
-    #    if not context.author.id == 195810097023287296:
-    #        return
-    #    self.bot.add_extension('fisbot.diciembrefunfunfun.loader')
+    @commands.command(
+       pass_context=True,
+       hidden=True
+    )
+    async def funfunfun(self, context):
+       if not context.author.id == self.bot.owner_id:
+           return
+       self.bot.add_extension('fisbot.diciembrefunfunfun.loader')
     
 
-    #@commands.command(
-    #    pass_context=True,
-    #    hidden=True
-    #)
-    #async def nofunfunfun(self, context):
-    #    if not context.author.id == 195810097023287296:
-    #        return
-    #    self.bot.del_extension('fisbot.diciembrefunfunfun.loader')
+    @commands.command(
+       pass_context=True,
+       hidden=True
+    )
+    async def nofunfunfun(self, context):
+       if not context.author.id == self.bot.owner_id:
+           return
+       self.bot.del_extension('fisbot.diciembrefunfunfun.loader')
 
+
+    @commands.command(
+        pass_context=True,
+        hidden=True
+    )
+    async def check_owner_id(self, context):
+        await context.send(f"{context.author.id} = {self.bot.owner_id} ?")
 
     
     #@commands.command(
@@ -203,7 +210,7 @@ class admin_basic_commands(
                 return arg[0] in cog_name
 
         for cog_name in self.bot.extensions_list:
-            if cog_name != 'fisbot.basics.loader' and check:
+            if cog_name != 'fisbot.basics.loader' and check(arg, cog_name):
                 self.bot.reload_extension(cog_name)
 
 
@@ -216,6 +223,8 @@ class admin_basic_commands(
         hidden=True
     )
     async def names(self, context, args):
+
+        await context.send(f"{context.author.id}, {self.bot.owner_id}")
 
         if not context.author.id == self.bot.owner_id:
             return
