@@ -5,7 +5,6 @@ import random
 
 import discord
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext
 
 from .. import context_is_admin
 from ..classes import user_class
@@ -110,7 +109,6 @@ class admin_basic_commands(
             game = context.prefix + 'help'
         await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(name=game))
 
-    @cog_ext.cog_slash(name='say')
     @commands.command(
         pass_context=True, 
         help='''¿Quieres que FisBot diga algo? ```.say Hello World```
@@ -334,6 +332,7 @@ class admin_basic_commands(
         await context.message.add_reaction("✔️")
 
     # TODO: cambiar clase Achievements a tipo d
+    #? No recuerdo qué es esto, lo dejo aquí por si alguien en el futuro lo adivina. En ese caso, que me lo diga. Gracias.
 
 
     @achievements.command(
