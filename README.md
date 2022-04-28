@@ -26,4 +26,4 @@ No lo considero un proyecto acabado; pero no voy a seguir su desarrollo por falt
 * Comandos de bromas (ej.: `pi`)
 
 # Contribución
-Si alguien quiere continuar el desarrollo de este proyecto que contacte con [Unai Lería Fortea](unaileria@gmail.com). Ya sea por que necesita ayuda para entender la estructura del código o por cualquiér otra razón.
+Si alguien quiere continuar el desarrollo de este proyecto que contacte con [Unai Lería Fortea](mailto:unaileria@gmail.com). Ya sea por que necesita ayuda para entender la estructura del código o por cualquiér otra razón.
