@@ -1,7 +1,7 @@
 from .task_cog import task_commands
 
-def setup(bot):
-    bot.add_cog(task_commands(bot))
+async def setup(bot):
+    await bot.add_cog(task_commands(bot))
     
-def teardown(bot):
-    bot.remove_cog('Trabajos y Examenes')
+async def teardown(bot):
+    await bot.remove_cog('Trabajos y Examenes')

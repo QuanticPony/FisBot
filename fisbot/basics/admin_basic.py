@@ -30,7 +30,7 @@ class admin_basic_commands(
     async def funfunfun(self, context):
        if not context.author.id == self.bot.owner_id:
            return
-       self.bot.add_extension('fisbot.diciembrefunfunfun.loader')
+       await self.bot.add_extension('fisbot.diciembrefunfunfun.loader')
     
 
     @commands.command(
@@ -40,7 +40,7 @@ class admin_basic_commands(
     async def nofunfunfun(self, context):
        if not context.author.id == self.bot.owner_id:
            return
-       self.bot.del_extension('fisbot.diciembrefunfunfun.loader')
+       await self.bot.del_extension('fisbot.diciembrefunfunfun.loader')
 
 
     @commands.command(
@@ -48,7 +48,7 @@ class admin_basic_commands(
         hidden=True
     )
     async def check_owner_id(self, context):
-        await context.send(f"{context.author.id} = {self.bot.owner_id} ?")
+        await context.send(f"{context.author.id} = {self.bot.owner_id()} ?")
 
     
     #@commands.command(
@@ -242,11 +242,11 @@ class admin_basic_commands(
 
         for cog_name in self.bot.extensions_list:
             if cog_name != 'fisbot.basics.loader' and check(arg, cog_name):
-                self.bot.reload_extension(cog_name)
+                await self.bot.reload_extension(cog_name)
 
 
         await ctx.message.add_reaction("🔄")
-        self.bot.reload_extension('fisbot.basics.loader')
+        await self.bot.reload_extension('fisbot.basics.loader')
 
     
     @commands.command(

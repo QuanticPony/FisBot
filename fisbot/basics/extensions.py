@@ -43,14 +43,14 @@ class extensions_managment(
         
         if order == 'load':
             self.bot.extensions_list.append('.'.join(extension))
-            self.bot.load_extension('.'.join(extension))
+            await self.bot.load_extension('.'.join(extension))
             await ctx.message.add_reaction("✅")
         
         if order == 'reload':
-            self.bot.reload_extension('.'.join(extension))
+            await self.bot.reload_extension('.'.join(extension))
             await ctx.message.add_reaction("🔄")
         
         if order == 'unload' and extension != 'basics.loader':
             self.bot.extensions_list.remove('.'.join(extension))
-            self.bot.unload_extension('.'.join(extension))
+            await self.bot.unload_extension('.'.join(extension))
             await ctx.message.add_reaction("✅")

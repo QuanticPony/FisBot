@@ -1,7 +1,7 @@
 from .funfunfun import HaceGracia
 
-def setup(bot):
-    bot.add_cog(HaceGracia(bot))
+async def setup(bot):
+    await bot.add_cog(HaceGracia(bot))
 
-def teardown(bot):
-    bot.remove_cog('EquisDe')
+async def teardown(bot):
+    await bot.remove_cog('EquisDe')
