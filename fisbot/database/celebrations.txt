@@ -3,7 +3,7 @@ Buena {mention}!! Alguien ha subido al nivel {level}...
 Felicidades {mention}!! Disfruta de tu nivel {level}!
 Ya falta poco! Dentro de tan solo {1000-level} te damos rango admin {mention}!
 **Dato curioso**: Los koalas bebes lamen el ano de sus madres. Y {mention} es tan solo nivel {level}
-**Dato curioso**: mention.7% de la poblacion mundial se encuentra permanentemente borracha. Y {mention} es nivel {level}
+**Dato curioso**: .7% de la poblacion mundial se encuentra permanentemente borracha. Y {mention} es nivel {level}
 **Dato curioso**: Un **144%** de los datos que te encuentras en internet son ||FALSOS||. Y {mention} ha subido a nivel {level**2 * 86}
 **Oh no!!!** {mention} se ha olvidado del examen del {level%28}!!! ```Press F to pay respects```
 {mention} ha ganado 1 de lucidez

@@ -6,7 +6,7 @@ from .base import database
 
 class RolesDB(database):
 
-    SQL_TABLE = '''CREATE TABLE IF NOT EXIST Roles (
+    SQL_TABLE = '''CREATE TABLE IF NOT EXISTS Roles (
         rol_id integer NOT NULL PRIMARY KEY,
         lvl integer,
         description text,

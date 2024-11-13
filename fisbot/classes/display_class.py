@@ -81,6 +81,7 @@ class Display():
         self._embed: discord.Embed = None
 
         if context:
+            self._user = context.author
             self._channel = context.author.dm_channel 
 
     async def init_display(self, ctx):
@@ -150,6 +151,9 @@ class Display():
         self.embed()
         self._embed.description += f"\n ✅ - **Eliminar** \n ❌ - **Cancelar**"
         self._things_list = ['✅','❌']
+
+    def confirm_reaction(self, reaction, user):
+            return user.id == self._user.id
 
 # Elementos
 
@@ -271,12 +275,12 @@ class Display():
             '''Esta funcion se encarga de preguntar una y otra vez si se quiere cambiar algun campo y cual'''
 
             await self.resend(message)
-            check_reaction = lambda reaction, user: not user.bot and reaction.message.channel.recipient.id == user.id
+            # check_reaction = lambda reaction, user: not user.bot and not reaction.me
             # TODO: debugguear esto
             check_user = lambda message: not message.author.bot and message.author.id == self._channel.recipient.id
 
             try:
-                reaction, user = await self._ctx.bot.wait_for('reaction_add', timeout=30.0, check=check_reaction)
+                reaction, user = await self._ctx.bot.wait_for('reaction_add', timeout=30.0, check=self.confirm_reaction)
                 if str(reaction.emoji) == '💾':
                     await self.save_in_database()
                     await self.update_discord_obj()

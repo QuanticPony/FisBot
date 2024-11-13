@@ -48,14 +48,14 @@ class FisRol(Display):
 
         res_data = funcion(*args)
 
+        # try:
+        #     result = cls(*(res_data))
+        # except:
         try:
-            result = cls(*(res_data))
+            return [cls(*line) for line in res_data]
         except:
-            try:
-                result = [cls(*line) for line in res_data]
-            except:
-                return None
-        return result
+            return None
+        # return result
 
 
     @classmethod

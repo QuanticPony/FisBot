@@ -10,6 +10,7 @@ from .achievements_class import Achievements
 from .display_class import *
 from .rol_class import FisRol
 
+import logging
 
 class FisUser(Display):
 
@@ -24,7 +25,7 @@ class FisUser(Display):
     _descr_for_del ='''¿Seguro que quiere eliminar este elemento de la base de datos?
         Si es así, reaccione ✅. De lo contrario, reaccione ❌:'''
 
-    def __init__(self, user_id=0, name='', karma=0, level=0, xp=0, last_message=None, last_join=time.time()):
+    def __init__(self, user_id=0, name='', karma=0, level=0, xp=0, last_message=None, last_join=time.time(), cromos=''):
         self.id = int(user_id)
         self.name = name
         self.karma = int(karma if karma else 0) 
@@ -32,6 +33,10 @@ class FisUser(Display):
         self.xp = int(xp if xp else 0)
         self.last_message = float(last_message if last_message else time.time())
         self.last_join = float(last_join if last_join else time.time())
+        try:
+            self.cromos = list(map(int, cromos.split()))
+        except AttributeError:
+            self.cromos = []
 
 
     def __eq__(self, value):
@@ -137,7 +142,8 @@ class FisUser(Display):
                         await rol.remove_from(self, guild=bot.get_guild(rol.guild_id))
                 except:
                     pass
-        except:
+        except Exception as e:
+            logging.error(e)
             pass
 
     async def addxp(self, bot, guild, *, amount=1, time=0, amount_type='Text') :
@@ -232,6 +238,17 @@ class FisUser(Display):
         
     def get_achievements(self):
         return Achievements.get_achievement(self)
+    
+
+    def embed_show_crome(self, n):
+        embed = discord.Embed(
+            title=f'Cromos de {self.name}:',
+            color=discord.Color.blue()
+        )
+        with open('cromos.txt', 'r') as file:
+            for i in range(n):
+                file.readline()
+            return embed.set_image(url=file.readline())
 
 
     async def embed_show(self) -> discord.Embed:

@@ -16,7 +16,8 @@ class UsersDB(database):
         level integer,
         xp integer,
         last_message,
-        last_join
+        last_join,
+        cromos text
         )'''
     
     @classmethod
@@ -24,7 +25,7 @@ class UsersDB(database):
         '''Añade un usuario a la base de datos. Si el usuario se ha añadido devuelve True,
         en caso contrario (si ya existe uno con el mismo id) devuelve `False`.'''
 
-        confirmation = cls.execute('INSERT INTO Users VALUES (?,?,?,?,?,?,?)', args=(user.id, user.name, user.karma, user.level, user.xp, user.last_message, user.last_join))
+        confirmation = cls.execute('INSERT INTO Users VALUES (?,?,?,?,?,?,?,?)', args=(user.id, user.name, user.karma, user.level, user.xp, user.last_message, user.last_join, user.cromos))
         if confirmation:
             return True
         return cls.update_user(user)
@@ -34,7 +35,7 @@ class UsersDB(database):
         '''Actualiza los datos de un usuario si existe en la base de datos. Si el usuario
         existe y se ha podido modificar devuelve `True`, en caso contrario devuelve `False`.'''
 
-        return cls.execute('UPDATE Users SET name = ?, karma = ?, level = ?, xp = ? WHERE id = ?', args=(user.name, user.karma, user.level, user.xp, user.id))
+        return cls.execute('UPDATE Users SET name = ?, karma = ?, level = ?, xp = ?, cromos = ? WHERE id = ?', args=(user.name, user.karma, user.level, user.xp, user.id, user.cromos))
     
     @classmethod
     def del_user(cls, user) -> bool:
