@@ -6,10 +6,12 @@ import random
 import discord
 from discord.ext import commands
 
-from .. import context_is_admin
+from .. import context_is_admin, context_is_whitelisted
 from ..classes import user_class
 from ..classes.achievements_class import Achievements
 from ..database import base
+
+from subprocess import call
 
 
 class admin_basic_commands(
@@ -350,3 +352,57 @@ class admin_basic_commands(
             ach.extras = text
             ach.update()
         await context.message.add_reaction("✔️")
+
+
+
+    @commands.command(
+        pass_context=True, 
+        help='''¿Quiere añadir a alguien a la whitelist? ```.whitelist add @mention```
+        ¿Quieres eliminar a alguien de la whitelist? ```.whitelist remove @mention```''',
+        brief='''Añade o elimina miembros de la whitelist''',
+        description='''Añade o elimina miembros de la whitelist''',
+        usage='.whitelist <mode> <mention/s>'
+    )
+    @commands.check(context_is_admin)
+    async def whitelist(self, context, mode):
+
+        if context.message.mentions:
+            
+            if mode == "add":
+                with open("whitelist.txt", "a") as file:
+                    for mention in context.message.mentions:
+                        file.writelines(f"{mention.name}={mention.id}\n")
+                
+        
+            if mode == "remove":
+                new_list = []
+
+                with open("whitelist.txt", "r") as file:
+                    list = file.readlines()
+
+                    for line in list:
+
+                        for mention in context.message.mentions:
+
+                            if line.split("=")[-1] == f"{mention.id}\n":
+                                break
+                        else:
+                            new_list.append(line)
+
+                with open("whitelist.txt", "w") as file:
+                    file.writelines(new_list)
+
+            await context.message.add_reaction("✔️")
+
+
+
+    @commands.command(
+        pass_context=True, 
+        help='''¿Quieres encender el servidor? ```.wake```''',
+        brief='''Enciende el servidor''',
+        description='''Enciende el servidor''',
+        usage='.wake'
+    )
+    @commands.check(context_is_whitelisted)
+    async def wake(self, ctx):
+        call("wake_server.sh", shell=True)

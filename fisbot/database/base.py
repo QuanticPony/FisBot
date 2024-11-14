@@ -1,6 +1,8 @@
 import sqlite3
 from sqlite3 import Connection
 
+import logging
+
 class database():
 
     FILE_NAME = 'database.db'
@@ -24,7 +26,8 @@ class database():
         try:
             return sqlite3.connect('file:{}?mode=rw'.format(cls.FILE_NAME), uri=True)
 
-        except sqlite3.OperationalError:
+        except sqlite3.OperationalError as e:
+            logging.error(e)
             return cls._create_db()
 
     @classmethod
@@ -46,10 +49,12 @@ class database():
                 else:
                     result = conn.cursor().execute(sentence)
 
-        except sqlite3.IntegrityError:
+        except sqlite3.IntegrityError as e:
+            logging.error(e)
             return False
 
-        except sqlite3.Error:
+        except sqlite3.Error as e:
+            logging.error(e)
             return False
 
         if not result:

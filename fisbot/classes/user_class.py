@@ -302,5 +302,6 @@ class FisUser(Display):
                 value=frase,
                 inline=False
             )
-        embed.set_thumbnail(url=str(self._disc_obj.avatar.replace(size=256)))
+        if (self._disc_obj):
+            embed.set_thumbnail(url=str(self._disc_obj.avatar.replace(size=256)))
         return embed

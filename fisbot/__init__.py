@@ -15,3 +15,16 @@ def context_is_admin(context):
 
     else:
         return False
+    
+def context_is_whitelisted(context):
+    '''Devuelve True si el author del contexto que activa cierta funcion del Bot está en el archivo whitelist.txt.
+    Esta funcion se puede importar a otras extensiones para ponerla como check de commandos y cogs'''
+
+
+    with open("whitelist.txt", "r") as file:
+        for line in file:
+            if line.split("=")[-1] == context.author.id:
+                return True
+        return False
+        
+    
