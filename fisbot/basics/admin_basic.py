@@ -12,7 +12,7 @@ from ..classes.achievements_class import Achievements
 from ..database import base
 
 from subprocess import call
-
+import logging
 
 class admin_basic_commands(
     commands.Cog,
@@ -404,5 +404,6 @@ class admin_basic_commands(
         usage='.wake'
     )
     @commands.check(context_is_whitelisted)
-    async def wake(self, ctx):
-        call("wake_server.sh", shell=True)
+    async def wake(self, ctx: discord.AppCommandContext):
+        logging.info(f".wake command lauched by {ctx.message.author.name}")
+        call("./wake_server.sh", shell=True)
