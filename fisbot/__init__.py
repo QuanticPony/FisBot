@@ -23,7 +23,7 @@ def context_is_whitelisted(context):
 
     with open("whitelist.txt", "r") as file:
         for line in file:
-            if line.split("=")[-1] == context.author.id:
+            if int(line.split("=")[-1]) == context.author.id:
                 return True
         return False
         
