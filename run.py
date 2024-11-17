@@ -7,6 +7,9 @@ import logging
 
 
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+
+logging.basicConfig(filename="fisbot.log", encoding="utf-8", filemode="w")
+
 BOT_PATH =''
 
 
