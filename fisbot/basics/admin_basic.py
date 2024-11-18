@@ -405,5 +405,21 @@ class admin_basic_commands(
     )
     @commands.check(context_is_whitelisted)
     async def wake(self, ctx: discord.AppCommandContext):
+        await self.inform_owner(self, ctx)
         logging.info(f".wake command lauched by {ctx.message.author.name}")
         call("./wake_server.sh", shell=True)
+
+
+    
+
+    async def inform_owner(self, ctx: discord.AppCommandContext):
+        logging.info(f".{ctx.invoked_with} command lauched by {ctx.message.author.name}")
+
+        me = await ctx.bot.fetch_user(self.bot.owner_id)
+
+        channel = me.dm_channel
+        if not channel:
+            channel = await me.create_dm()
+
+        await channel.send(f".{ctx.invoked_with} invoked by {ctx.message.author.name}, id={ctx.message.author.id}")
+

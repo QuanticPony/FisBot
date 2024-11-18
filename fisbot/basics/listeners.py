@@ -7,6 +7,8 @@ from ..database.roles import RolesDB
 from ..classes.rol_class import FisRol
 from ..classes.user_class import FisUser 
 
+import logging
+
 class listeners(
     commands.Cog,
     name='Eventos'
@@ -112,7 +114,8 @@ class listeners(
                 user = await FisUser.init_with_member(member)
             try:
                 await user.addxp(self.bot, member.guild, time=time, amount_type='Voice') 
-            except:
+            except Exception as e:
+                logging.error(e)
                 pass
 
         

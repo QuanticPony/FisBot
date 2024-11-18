@@ -25,7 +25,7 @@ class UsersDB(database):
         '''Añade un usuario a la base de datos. Si el usuario se ha añadido devuelve True,
         en caso contrario (si ya existe uno con el mismo id) devuelve `False`.'''
 
-        confirmation = cls.execute('INSERT INTO Users VALUES (?,?,?,?,?,?,?,?)', args=(user.id, user.name, user.karma, user.level, user.xp, user.last_message, user.last_join, user.cromos))
+        confirmation = cls.execute('INSERT INTO Users VALUES (?,?,?,?,?,?,?,?)', args=(user.id, user.name, user.karma, user.level, user.xp, user.last_message, user.last_join, ",".join(map(str, user.cromos))))
         if confirmation:
             return True
         return cls.update_user(user)
@@ -35,7 +35,7 @@ class UsersDB(database):
         '''Actualiza los datos de un usuario si existe en la base de datos. Si el usuario
         existe y se ha podido modificar devuelve `True`, en caso contrario devuelve `False`.'''
 
-        return cls.execute('UPDATE Users SET name = ?, karma = ?, level = ?, xp = ?, cromos = ? WHERE id = ?', args=(user.name, user.karma, user.level, user.xp, user.id, user.cromos))
+        return cls.execute('UPDATE Users SET name = ?, karma = ?, level = ?, xp = ?, cromos = ? WHERE id = ?', args=(user.name, user.karma, user.level, user.xp, ",".join(map(str, user.cromos)),  user.id))
     
     @classmethod
     def del_user(cls, user) -> bool:
@@ -85,7 +85,7 @@ class UsersDB(database):
 
         now_time = time.time()
         if user_id:
-            last_time , = cls.execute('SELECT last_join FROM Users WHERE id = ?', args=(user_id,)).fetchone()
+            last_time, = cls.execute('SELECT last_join FROM Users WHERE id = ?', args=(user_id,)).fetchone()
             user = cls.get_user(user_id)
             if user:
                 cls.execute('UPDATE Users SET last_join = ? WHERE id = ?', args=(now_time, user_id))

@@ -15,13 +15,15 @@ BOT_PATH =''
 
 intents = discord.Intents.all()
 
-bot = FisBot(command_prefix='.', path=BOT_PATH, owner_id=id, intents=intents)
 
 with open(BOT_PATH + "owner_id.txt", "r") as owner_file:
-    id = int(owner_file.read())
+    me_id = int(owner_file.read())
 
 with open(BOT_PATH + "token.txt", "r") as token_file:
     token = str(token_file.read())
+
+bot = FisBot(command_prefix='.', path=BOT_PATH, owner_id=me_id, intents=intents)
+
 
 
 async def activate_extensions():

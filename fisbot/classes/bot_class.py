@@ -48,7 +48,7 @@ https://discord.gg/ggkNBZfqtP
 
     
 
-class FisBot(commands.Bot):    
+class FisBot(commands.Bot):
 
     def __init__(self, *, command_prefix: str, path: str, intents=None, owner_id=None):
         super().__init__(command_prefix=command_prefix if command_prefix else '.', owner_id=owner_id, intents=intents)
