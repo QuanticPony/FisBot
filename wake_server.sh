@@ -1,3 +1,3 @@
 #!/bin/bash
 
-bash /opt/quantic_server/run.sh
+/opt/quantic_server/run
