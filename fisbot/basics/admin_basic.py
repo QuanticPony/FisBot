@@ -405,7 +405,7 @@ class admin_basic_commands(
     )
     @commands.check(context_is_whitelisted)
     async def wake(self, ctx: discord.AppCommandContext):
-        await self.inform_owner(self, ctx)
+        await self.inform_owner(ctx)
         logging.info(f".wake command lauched by {ctx.message.author.name}")
         call("./wake_server.sh", shell=True)
 
