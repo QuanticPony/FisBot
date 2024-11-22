@@ -62,6 +62,14 @@ class FisBotServer(commands.Bot):
     async def activate_extensions(self):
         await self.add_extensions(self.extensions_list)
 
+    async def add_extensions(self, extensions_names):
+        '''Añade una lista de extensiones al Bot. Tiene que haber un archivo por cada elemento de la lista con el nombre introducido y cada archivo deberia contener una funcion del siguiente estilo:\n
+        def setup(bot):
+            bot.add_cog(commands.Cog: ClassName1(bot))
+            <code>
+        '''
+        for extenion_name in extensions_names:
+            await self.load_extension(extenion_name)
     
 
 class FisBot(commands.Bot):
