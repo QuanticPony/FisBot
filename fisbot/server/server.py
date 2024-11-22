@@ -39,6 +39,7 @@ class server_cog(
         description='''Apaga el bot. No lo haga si no es imprescindible''',
         usage='.server shutdown'
     )
+    @commands.check(context_is_whitelisted)
     async def shutdown(self, ctx):
         await self.inform_owner(ctx)
         logging.info(f".shutdown command lauched by {ctx.message.author.name}")
@@ -53,6 +54,7 @@ class server_cog(
         description='''Grupo de comandos de factorio''',
         usage='.server factorio'
     )
+    @commands.check(context_is_whitelisted)
     async def factorio(self, ctx: discord.AppCommandContext):
         pass
 
@@ -63,6 +65,7 @@ class server_cog(
         description='''Arranca el servidor de Factorio''',
         usage='.server factorio start'
     )
+    @commands.check(context_is_whitelisted)
     async def start(self, ctx: discord.AppCommandContext):
         await self.inform_owner(ctx)
         logging.info(f".server factorio start command lauched by {ctx.message.author.name}")
@@ -76,6 +79,7 @@ class server_cog(
         description='''Para el servidor de Factorio''',
         usage='.server factorio stop'
     )
+    @commands.check(context_is_whitelisted)
     async def stop(self, ctx: discord.AppCommandContext):
         await self.inform_owner(ctx)
         logging.info(f".server factorio stop command lauched by {ctx.message.author.name}")
@@ -89,6 +93,7 @@ class server_cog(
         description='''Reinicia el servidor de Factorio''',
         usage='.server factorio restart'
     )
+    @commands.check(context_is_whitelisted)
     async def restart(self, ctx: discord.AppCommandContext):
         await self.inform_owner(ctx)
         logging.info(f".server factorio restart command lauched by {ctx.message.author.name}")
