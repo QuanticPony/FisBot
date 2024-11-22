@@ -64,10 +64,10 @@ class server_cog(
         description='''Arranca el servidor de Factorio''',
         usage='.server factorio start'
     )
-    async def factorio_start(self, ctx: discord.AppCommandContext):
+    async def start(self, ctx: discord.AppCommandContext):
         await self.inform_owner(ctx)
         logging.info(f".server factorio start command lauched by {ctx.message.author.name}")
-        call("./factorio_start.sh", shell=True)
+        call("./start_factorio_server.sh", shell=True)
 
 
     @factorio.command(
@@ -78,10 +78,24 @@ class server_cog(
         description='''Para el servidor de Factorio''',
         usage='.server factorio stop'
     )
-    async def factorio_stop(self, ctx: discord.AppCommandContext):
+    async def stop(self, ctx: discord.AppCommandContext):
         await self.inform_owner(ctx)
-        logging.info(f".server factorio top command lauched by {ctx.message.author.name}")
-        call("./factorio_stop.sh", shell=True)
+        logging.info(f".server factorio stop command lauched by {ctx.message.author.name}")
+        call("./stop_factorio_server.sh", shell=True)
+
+
+    @factorio.command(
+        pass_context=True, 
+        aliases=['restart'],
+        help='''¿Quieres reiniciar el servidor de Factorio? ```.server factorio stop```''',
+        brief='''Reinicia el servidor de Factorio''',
+        description='''Reinicia el servidor de Factorio''',
+        usage='.server factorio restart'
+    )
+    async def restart(self, ctx: discord.AppCommandContext):
+        await self.inform_owner(ctx)
+        logging.info(f".server factorio restart command lauched by {ctx.message.author.name}")
+        call("./restart_factorio_server.sh", shell=True)
 
 
     async def inform_owner(self, ctx: discord.AppCommandContext):
