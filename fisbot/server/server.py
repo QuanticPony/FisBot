@@ -58,7 +58,6 @@ class server_cog(
 
     @factorio.command(
         pass_context=True, 
-        aliases=['start'],
         help='''¿Quieres encender el servidor de Factorio? ```.server factorio start```''',
         brief='''Arranca el servidor de Factorio''',
         description='''Arranca el servidor de Factorio''',
@@ -72,7 +71,6 @@ class server_cog(
 
     @factorio.command(
         pass_context=True, 
-        aliases=['stop'],
         help='''¿Quieres apagar el servidor de Factorio? ```.server factorio stop```''',
         brief='''Para el servidor de Factorio''',
         description='''Para el servidor de Factorio''',
@@ -86,7 +84,6 @@ class server_cog(
 
     @factorio.command(
         pass_context=True, 
-        aliases=['restart'],
         help='''¿Quieres reiniciar el servidor de Factorio? ```.server factorio stop```''',
         brief='''Reinicia el servidor de Factorio''',
         description='''Reinicia el servidor de Factorio''',
