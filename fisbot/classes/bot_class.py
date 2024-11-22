@@ -46,6 +46,22 @@ https://discord.gg/ggkNBZfqtP
         
         self.close()
 
+
+
+class FisBotServer(commands.Bot):    
+
+    def __init__(self, *, command_prefix: str = None, path: str = None, intents=None, owner_id=None):
+        super().__init__(command_prefix=command_prefix if command_prefix else '.server', owner_id=owner_id, intents=intents)
+        self.owner_id = owner_id
+        self.BOT_PATH = path
+
+        self.extensions_list = [
+            'fisbot.server.loader'
+        ]
+
+    async def activate_extensions(self):
+        await self.add_extensions(self.extensions_list)
+
     
 
 class FisBot(commands.Bot):

@@ -1,4 +1,4 @@
-from .classes.bot_class import FisBot
+from .classes.bot_class import FisBot, FisBotServer
 import logging
 
 def context_is_admin(context):
