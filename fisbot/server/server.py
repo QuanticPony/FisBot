@@ -29,7 +29,7 @@ class server_cog(
     async def on_ready(self):
         '''Cambia el estado a `Playing Factorio` cuando el bot esta listo'''
 
-        await self.bot.change_presence(activity=discord.Game(name="Factorio"))
+        await self.bot.change_presence(activity=discord.Game(name=".server"))
 
     @commands.command(
         pass_context=True, 
@@ -98,6 +98,66 @@ class server_cog(
         await self.inform_owner(ctx)
         logging.info(f".server factorio restart command lauched by {ctx.message.author.name}")
         call("./restart_factorio_server.sh", shell=True)
+
+
+
+
+
+    @commands.group(
+        pass_context=True, 
+        help='''Grupo de comandos para controlar el servidor de foundryvtt''',
+        brief='''Grupo de comandos de foundryvtt''',
+        description='''Grupo de comandos de foundryvtt''',
+        usage='.server foundryvtt'
+    )
+    @commands.check(context_is_whitelisted)
+    async def foundryvtt(self, ctx: discord.AppCommandContext):
+        pass
+
+    @foundryvtt.command(
+        pass_context=True, 
+        name="start",
+        help='''¿Quieres encender el servidor de foundryvtt? ```.server foundryvtt start```''',
+        brief='''Arranca el servidor de foundryvtt''',
+        description='''Arranca el servidor de foundryvtt''',
+        usage='.server foundryvtt start'
+    )
+    @commands.check(context_is_whitelisted)
+    async def start_foundry(self, ctx: discord.AppCommandContext):
+        await self.inform_owner(ctx)
+        logging.info(f".server foundryvtt start command lauched by {ctx.message.author.name}")
+        call("./start_foundryvtt_server.sh", shell=True)
+
+
+    @foundryvtt.command(
+        pass_context=True, 
+        name="stop",
+        help='''¿Quieres apagar el servidor de foundryvtt? ```.server foundryvtt stop```''',
+        brief='''Para el servidor de foundryvtt''',
+        description='''Para el servidor de foundryvtt''',
+        usage='.server foundryvtt stop'
+    )
+    @commands.check(context_is_whitelisted)
+    async def stop_foundry(self, ctx: discord.AppCommandContext):
+        await self.inform_owner(ctx)
+        logging.info(f".server foundryvtt stop command lauched by {ctx.message.author.name}")
+        call("./stop_foundryvtt_server.sh", shell=True)
+
+
+    @foundryvtt.command(
+        pass_context=True, 
+        name="restart",
+        help='''¿Quieres reiniciar el servidor de foundryvtt? ```.server foundryvtt stop```''',
+        brief='''Reinicia el servidor de foundryvtt''',
+        description='''Reinicia el servidor de foundryvtt''',
+        usage='.server foundryvtt restart'
+    )
+    @commands.check(context_is_whitelisted)
+    async def restart_foundry(self, ctx: discord.AppCommandContext):
+        await self.inform_owner(ctx)
+        logging.info(f".server foundryvtt restart command lauched by {ctx.message.author.name}")
+        call("./restart_foundryvtt_server.sh", shell=True)
+
 
 
     async def inform_owner(self, ctx: discord.AppCommandContext):
