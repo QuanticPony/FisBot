@@ -20,6 +20,9 @@ class server_cog(
     ):
     '''Conjunto de comandos que permite la manipulación basica del servidor'''
     
+    factorio_running: bool = False
+    foundryvtt_running: bool = False
+
     def __init__(self, bot):
         self.bot = bot
         self.cog_check(context_is_whitelisted)
@@ -29,11 +32,25 @@ class server_cog(
     async def on_ready(self):
         '''Cambia el estado a `Playing Factorio` cuando el bot esta listo'''
 
-        await self.bot.change_presence(activity=discord.Game(name=".server"))
+        await self.update_state()
+
+
+    async def update_state(self):
+        value = ""
+        if self.factorio_running and self.foundryvtt_running:
+            value = "Factorio & FoundryVTT"
+        elif self.factorio_running:
+            value = "Factorio"
+        elif self.foundryvtt_running:
+            value = "FoundryVtt"
+        else:
+            value = ".server"
+        
+        await self.bot.change_presence(activity=discord.Game(name=value))
 
     @commands.command(
         pass_context=True, 
-        aliases=['sd', 'shut', 'apagar'],
+        aliases=['unwake', 'sd', 'shut', 'apagar'],
         help='''¿Quiere apagar el bot? No lo haga si no es imprescindible, pero se hace asi: ```.shutdown```''',
         brief='''Apaga el bot''',
         description='''Apaga el bot. No lo haga si no es imprescindible''',
@@ -43,8 +60,11 @@ class server_cog(
     async def shutdown(self, ctx):
         await self.inform_owner(ctx)
         logging.info(f".shutdown command lauched by {ctx.message.author.name}")
+
+        self.stop()
+        self.stop_foundry()
         call("./shutdown.sh", shell=True)
-        await self.bot.logout()
+        # await self.bot.logout()
     
 
     @commands.group(
@@ -69,7 +89,10 @@ class server_cog(
     async def start(self, ctx: discord.AppCommandContext):
         await self.inform_owner(ctx)
         logging.info(f".server factorio start command lauched by {ctx.message.author.name}")
+        
         call("./start_factorio_server.sh", shell=True)
+        self.factorio_running = True
+        await self.update_state()
 
 
     @factorio.command(
@@ -84,6 +107,8 @@ class server_cog(
         await self.inform_owner(ctx)
         logging.info(f".server factorio stop command lauched by {ctx.message.author.name}")
         call("./stop_factorio_server.sh", shell=True)
+        self.factorio_running = False
+        await self.update_state()
 
 
     @factorio.command(
@@ -98,7 +123,6 @@ class server_cog(
         await self.inform_owner(ctx)
         logging.info(f".server factorio restart command lauched by {ctx.message.author.name}")
         call("./restart_factorio_server.sh", shell=True)
-
 
 
 
@@ -127,6 +151,8 @@ class server_cog(
         await self.inform_owner(ctx)
         logging.info(f".server foundryvtt start command lauched by {ctx.message.author.name}")
         call("./start_foundryvtt_server.sh", shell=True)
+        self.foundryvtt_running = True
+        await self.update_state()
 
 
     @foundryvtt.command(
@@ -142,6 +168,9 @@ class server_cog(
         await self.inform_owner(ctx)
         logging.info(f".server foundryvtt stop command lauched by {ctx.message.author.name}")
         call("./stop_foundryvtt_server.sh", shell=True)
+        self.foundryvtt_running = False
+        await self.update_state()
+        
 
 
     @foundryvtt.command(
