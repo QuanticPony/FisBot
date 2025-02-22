@@ -189,6 +189,68 @@ class server_cog(
 
 
 
+    @commands.group(
+        pass_context=True, 
+        help='''Grupo de comandos para controlar el servidor de unturned''',
+        brief='''Grupo de comandos de unturned''',
+        description='''Grupo de comandos de unturned''',
+        usage='.server unturned'
+    )
+    @commands.check(context_is_whitelisted)
+    async def unturned(self, ctx: discord.AppCommandContext):
+        pass
+
+    @unturned.command(
+        pass_context=True, 
+        name="start",
+        help='''¿Quieres encender el servidor de unturned? ```.server unturned start```''',
+        brief='''Arranca el servidor de unturned''',
+        description='''Arranca el servidor de unturned''',
+        usage='.server unturned start'
+    )
+    @commands.check(context_is_whitelisted)
+    async def start_foundry(self, ctx: discord.AppCommandContext):
+        await self.inform_owner(ctx)
+        logging.info(f".server unturned start command lauched by {ctx.message.author.name}")
+        call("./start_unturned_server.sh", shell=True)
+        self.unturned_running = True
+        await self.update_state()
+
+
+    @unturned.command(
+        pass_context=True, 
+        name="stop",
+        help='''¿Quieres apagar el servidor de unturned? ```.server unturned stop```''',
+        brief='''Para el servidor de unturned''',
+        description='''Para el servidor de unturned''',
+        usage='.server unturned stop'
+    )
+    @commands.check(context_is_whitelisted)
+    async def stop_foundry(self, ctx: discord.AppCommandContext):
+        await self.inform_owner(ctx)
+        logging.info(f".server unturned stop command lauched by {ctx.message.author.name}")
+        call("./stop_unturned_server.sh", shell=True)
+        self.unturned_running = False
+        await self.update_state()
+        
+
+
+    @unturned.command(
+        pass_context=True, 
+        name="restart",
+        help='''¿Quieres reiniciar el servidor de unturned? ```.server unturned stop```''',
+        brief='''Reinicia el servidor de unturned''',
+        description='''Reinicia el servidor de unturned''',
+        usage='.server unturned restart'
+    )
+    @commands.check(context_is_whitelisted)
+    async def restart_foundry(self, ctx: discord.AppCommandContext):
+        await self.inform_owner(ctx)
+        logging.info(f".server unturned restart command lauched by {ctx.message.author.name}")
+        call("./restart_unturned_server.sh", shell=True)
+
+
+
     async def inform_owner(self, ctx: discord.AppCommandContext):
         logging.info(f".{ctx.invoked_with} command lauched by {ctx.message.author.name}")
 
