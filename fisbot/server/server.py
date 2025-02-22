@@ -22,6 +22,7 @@ class server_cog(
     
     factorio_running: bool = False
     foundryvtt_running: bool = False
+    unturned_running: bool = False
 
     def __init__(self, bot):
         self.bot = bot
@@ -37,12 +38,19 @@ class server_cog(
 
     async def update_state(self):
         value = ""
-        if self.factorio_running and self.foundryvtt_running:
-            value = "Factorio & FoundryVTT"
-        elif self.factorio_running:
-            value = "Factorio"
-        elif self.foundryvtt_running:
-            value = "FoundryVtt"
+
+        running = []
+        if self.factorio_running:
+            running.append("Factorio")
+        if self.foundryvtt_running:
+            running.append("FoundryVTT")
+        if self.unturned_running:
+            running.append("Unturned")
+        
+        if (len(running) > 1):
+            value = " & ".join(running)
+        elif (len(running) == 1):
+            value = running[0]
         else:
             value = ".server"
         
