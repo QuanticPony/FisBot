@@ -75,13 +75,14 @@ class FisBotServer(commands.Bot):
 class FisBot(commands.Bot):
 
     def __init__(self, *, command_prefix: str, path: str, intents=None, owner_id=None):
-        super().__init__(command_prefix=command_prefix if command_prefix else '.', owner_id=owner_id, intents=intents)
+        super().__init__(command_prefix=command_prefix if command_prefix else '.music', owner_id=owner_id, intents=intents)
         self.owner_id = owner_id
         self.extensions_list = [
             'fisbot.basics.loader',
             'fisbot.custom_help.loader',
             'fisbot.task_commands.loader',
             'fisbot.roles.loader',
+            'fisbot.music.loader',
             ]
         self.BOT_PATH = path
 
