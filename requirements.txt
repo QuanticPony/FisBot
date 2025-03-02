@@ -1,0 +1,4 @@
+discord
+async-timeout
+yt-dlp
+PyNaCl
